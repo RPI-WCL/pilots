@@ -2,170 +2,141 @@ package pilots.runtime;
 
 import java.util.Date;
 import java.util.Vector;
+import java.util.TimeZone;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
 
 public class SpatioTempoData {
     private static int MAX_DIMENSION = 3;
-    private static int currentId = 0;
+    private static int currentId_ = 0;
 
-    private int id;
-    private float[] loc0 = new float[MAX_DIMENSION];
-    private float[] loc1 = new float[MAX_DIMENSION];
-    private int dimension;
-    private boolean isSpaceInterval;
+    private int id_;
+    private float[][] locations_;
+    private int dimension_;
+    private boolean isSpaceInterval_;
 
-    private Date time0, time1;
-    private boolean isTimeInterval;
-    private DateFormat dateFormat;
+    private DateFormat dateFormat_;     // not thread safe
+    private Date[] times_;
+    private boolean isTimeInterval_;
 
-    private Vector<Float> value;
+    private Vector<Float> values_;
 
     public SpatioTempoData() {
-        id = currentId++;
-        dateFormat = new SimpleDateFormat( "yyyy-MM-dd HHMMZ" );
+        id_ = currentId_++;
+        locations_ = new float[2][MAX_DIMENSION];
+        times_ = new Date[2];
+        dateFormat_ = new SimpleDateFormat( "yyyy-MM-dd HHmmZ" );
+        TimeZone.setDefault( TimeZone.getTimeZone( "America/New_York" ) );
+        values_ = new Vector<Float>();
     }
 
+
     public SpatioTempoData( String str ) {
-        id = currentId++;
-        dateFormat = new SimpleDateFormat( "yyyy-MM-dd HHMMZ" );
+        id_ = currentId_++;
+        // locations_ = new float[2][MAX_DIMENSION];
+        locations_ = new float[2][MAX_DIMENSION];
+        times_ = new Date[2];
+        dateFormat_ = new SimpleDateFormat( "yyyy-MM-dd HHmmZ" );
+        TimeZone.setDefault( TimeZone.getTimeZone( "America/New_York" ) );
+        values_ = new Vector<Float>();
 
         if (!parse( str )) {
             System.err.println( "parse failed" );
         }
     }
     
-    protected boolean parse( String str ) {
-        // input string examples
-        // 1. x0,y0,z0-x1,y1,z1:t0-t1:val0,val1,...
-        // 2. x,y,z:t0-t1:val0,val1,...
-        // 3. x0-x1:t:val0,val1,...
-        // 4. :t:val0,val1,...
 
-        // ----------- parse spatio part
-        int firstColon = str.indexOf( ':' );
+    public boolean parse( String str ) {
 
-        if (firstColon < 0) {
-            System.err.println( "parse failed, no first colon separator!!" );
+        String[] data = str.split( ":" );
+        for (int i = 0; i < data.length; i++)
+            System.out.println( "data[" + i + "]: " + data[i] );
+
+        // Spatio part
+        String[] locationStr = data[0].split( "~" );
+        if (2 < locationStr.length) {
+            System.err.println( "Invalid location length: " + locationStr.length );
             return false;
         }
-
-        if (0 < firstColon) {
-            /* parse space part first */
-            this.loc0[0] = this.loc0[1] = this.loc0[2] = -1.0F;
-            this.loc1[0] = this.loc1[1] = this.loc1[2] = -1.0F;
-
-            String spaceStr = str.substring( 0, firstColon - 1 );
-            int hyphen = spaceStr.indexOf( '-' );
-            
-            String loc = (0 < hyphen) ? spaceStr.substring( 0, hyphen - 1 ) : spaceStr;
-            String[] locArray = loc.split( "," );
-
-            if (locArray.length == 0)
-                this.loc0[0] = Float.parseFloat( loc );
-            else {
-                for (int i = 0; i < locArray.length; i++)
-                    this.loc0[i] = Float.parseFloat( locArray[i] );
+        isSpaceInterval_ = (locationStr.length == 2) ? true : false;
+        for (int i = 0; i < locationStr.length; i++) {
+            String[] dimensionStr = locationStr[i].split( "," );
+            if (3 < dimensionStr.length) {
+                System.err.println( "Invalid dimension length: " + dimensionStr.length );
+                return false;
             }
-            dimension = locArray.length;
-
-            if (0 < hyphen) {
-                /* data is defined for interval */
-                loc = spaceStr.substring( hyphen + 1, firstColon - 1 );
-                locArray = loc.split( "," );
-
-                if (dimension != locArray.length) {
-                    System.err.println( "parse failed, dimesion is not matched(" + 
-                                        dimension + "," + locArray.length + ")" );
-                    return false;
-                }
-
-                if (locArray.length == 0)
-                    this.loc1[0] = Float.parseFloat( loc );
-                else {
-                    for (int i = 0; i < locArray.length; i++)
-                        this.loc1[i] = Float.parseFloat( locArray[i] );
-                }
-                this.isTimeInterval = true;
+            for (int j = 0; j < dimensionStr.length; j++) {
+                locations_[i][j] = Float.parseFloat( dimensionStr[j] );
+                System.out.println( "dimension[" + j  +"]: " + dimensionStr[j] );
             }
-        }
+            dimension_ = dimensionStr.length;
+             
+        }   
 
-        // ----------- parse tempo part
-        int secondColon = str.indexOf( ':', firstColon + 1 );
-        if (secondColon <= 0) {
-            System.err.println( "parse failed, no second colon separator!!" );
+        // Temporal part
+        String[] timeStr = data[1].split( "~" );
+        if (2 < timeStr.length) {
+            System.err.println( "Invalid time length: " + timeStr.length );
             return false;
         }
-
-        String tempoStr = str.substring( firstColon + 1, secondColon - 1);
-        int hyphen = tempoStr.indexOf( '-' );
-
-        String time  = (0 < hyphen) ? tempoStr.substring( 0, hyphen - 1 ) : tempoStr;
-        try {
-            this.time0 = dateFormat.parse( time );
-        } catch (ParseException e) {
-            System.out.println( e );
-        }
-
-        if (0 < hyphen) {
-            /* data is defined for interval */
-            time = tempoStr.substring( hyphen + 1, secondColon - 1 );
+        isTimeInterval_ = (timeStr.length == 2) ? true : false;
+        for (int i = 0; i < timeStr.length; i++) {
             try {
-                this.time1 = dateFormat.parse( time );
+                // dateFormat_ = new SimpleDateFormat( "yyyy-MM-dd HHMMZ" );
+                times_[i] = dateFormat_.parse( timeStr[i] );
             } catch (ParseException e) {
                 System.out.println( e );
             }
-            this.isTimeInterval = true;
+            System.out.println( "time[" + i  +"]: " + timeStr[i] );
         }
 
-        // ----------- parse value part
-        String valueStr = str.substring( secondColon + 1 );
-        String[] valueArray = valueStr.split( "," );
-
-        for (int i = 0; i < valueArray.length; i++)
-            value.add( new Float( valueArray[i] ) );
+        // Value part
+        String[] valueStr = data[2].split( "," );
+        for (int i = 0; i < valueStr.length; i++)
+            values_.add( new Float( valueStr[i] ) );
 
         return true;
     }
 
     
     protected void print() {
-        switch( dimension ) {
+        switch( dimension_ ) {
         case 1:
-            System.out.print( loc0[0] );
+            System.out.print( locations_[0][0] );
             break;
         case 2:
-            System.out.print( loc0[0] + "," + loc0[1] );
+            System.out.print( locations_[0][0] + "," + locations_[0][1] );
             break;
         case 3:
-            System.out.print( loc0[0] + "," + loc0[1] + "," + loc0[2] );
+            System.out.print( locations_[0][0] + "," + locations_[0][1] + "," + locations_[0][2] );
             break;
         }
-        if (isSpaceInterval) {
-            System.out.print( "-" );
-            switch( dimension ) {
+        if (isSpaceInterval_) {
+            System.out.print( "~" );
+            switch( dimension_ ) {
             case 1:
-                System.out.print( loc0[0] );
+                System.out.print( locations_[0][0] );
                 break;
             case 2:
-                System.out.print( loc0[0] + "," + loc0[1] );
+                System.out.print( locations_[0][0] + "," + locations_[0][1] );
                 break;
             case 3:
-                System.out.print( loc0[0] + "," + loc0[1] + "," + loc0[2] );
+                System.out.print( locations_[0][0] + "," + locations_[0][1] + "," + locations_[0][2] );
                 break;
             }
         }
-            
-        System.out.print( ":" + time0 );
-        if (isTimeInterval)
-            System.out.print( "-" + time1 );
+
+        System.out.print( ":" + dateFormat_.format( times_[0] ) );
+        if (isTimeInterval_)
+            System.out.print( "~" + dateFormat_.format( times_[1] ) );
 
         System.out.print( ":" );
-        for (int i = 0; i < value.size(); i++) {
-            Float f = value.get( i );
+        for (int i = 0; i < values_.size(); i++) {
+            Float f = values_.get( i );
             System.out.print( f );
-            if ((1 < value.size()) && (i < (value.size() - 1))) 
+            if ((1 < values_.size()) && (i < (values_.size() - 1))) 
                 System.out.print( "," );
         }
 

@@ -37,7 +37,7 @@ public class DataReceiver extends Thread {
                     }
                         
                     System.out.println( str );
-                    // dataStore.store( str );
+                    dataStore.add( str );
                 }
 
             }

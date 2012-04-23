@@ -21,7 +21,7 @@ public class DataStore {
 
     // private ReadWriteLock lock;
     private String[] varNames_;
-    // private Vector<SpatioTempoData> data_;
+    private Vector<SpatioTempoData> data_;
 
     public DataStore( String[] varNames ) {
         varNames_ = new String[varNames.length];
@@ -30,7 +30,7 @@ public class DataStore {
             varNames_[i] = varNames[i];        /* shallow copy */
 
         // lock = new ReentrantReadWriteLock();
-        // data_ = new Vector();
+        data_ = new Vector<SpatioTempoData>();
     }
 
 
@@ -116,16 +116,23 @@ public class DataStore {
         return varNames_;
     }
 
-    // public boolean add( String str ) {
-    //     SpatioTempoData dataEntry = new SpatioTempoData();
 
-    //     if (!dataEntry.parse( str )) {
-    //         System.err.println( "DataStorage.add, parse failed: " + str );
-    //         return false;
-    //     }
+    public boolean add( String str ) {
+        SpatioTempoData stData = new SpatioTempoData();
+
+        if (!stData.parse( str )) {
+            System.err.println( "parse failed: " + str );
+            return false;
+        }
+
+        stData.print();
         
-    //     data.add( dataEntry );
-    // }
+        data_.add( stData );
+
+
+        return true;
+    }
+
 
     // private EnumSet<UsingCmdElement> getUnusedElements( Vector<UsingCmd> cmds ) {
     //     EnumSet<UsingCmdElement> elements = EnumSet.allOf( UsingCmdElements.class );
