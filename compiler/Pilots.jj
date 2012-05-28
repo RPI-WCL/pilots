@@ -389,7 +389,6 @@ void Factor(): {/*@bgen(jjtree) Factor */
     try {
 /*@egen*/
     Value() 
-//    | Func() Exp()
     | "(" Exp() ")"/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
