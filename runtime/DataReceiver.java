@@ -7,6 +7,7 @@ import pilots.runtime.*;
 
 public class DataReceiver extends Thread {
     private static int DEFAULT_PORT = 8888;
+    private static boolean loop_ = true;
     private Socket sock_;
     
     public DataReceiver( Socket sock ) {
@@ -36,7 +37,7 @@ public class DataReceiver extends Thread {
                         break;
                     }
                         
-                    System.out.println( str );
+                    // System.out.println( str );
                     dataStore.add( str );
                 }
 
@@ -53,6 +54,34 @@ public class DataReceiver extends Thread {
     }
 
 
+    public static void startServer( int port ) {
+        loop_ = true;
+        final int serverPort = port;
+        new Thread() {
+            public void run() {
+                try {
+                    ServerSocket serverSock = new ServerSocket( serverPort );
+
+                    while ( loop_ ) {
+                        System.out.println( "DataReceiver listening to port:" + serverPort );
+
+                        Socket newSock = serverSock.accept();
+                        DataReceiver dataReceiver = new DataReceiver( newSock );
+                        dataReceiver.start();
+                    } 
+                } catch (Exception ex ) {
+                    System.err.println( ex );
+                }
+            }
+        }.start();
+    }
+
+
+    public static void stopServer() {
+        loop_ = false;
+    }
+
+    
     public static void main( String[] args ) {
         int port;
         if (args.length == 2) {
@@ -62,18 +91,20 @@ public class DataReceiver extends Thread {
             port = DEFAULT_PORT;
         }
 
-        try {
-            ServerSocket serverSock = new ServerSocket( port );
+        DataReceiver.startServer( port );
 
-            while ( true ) {
-                System.out.println("Server listening to port:" + port);
+        // try {
+        //     ServerSocket serverSock = new ServerSocket( port );
 
-                Socket newSock = serverSock.accept();
-                DataReceiver dataReceiver = new DataReceiver( newSock );
-                dataReceiver.start();
-            } 
-        } catch (Exception ex ) {
-            System.err.println( ex );
-        }
+        //     while ( true ) {
+        //         System.out.println("Server listening to port:" + port);
+
+        //         Socket newSock = serverSock.accept();
+        //         DataReceiver dataReceiver = new DataReceiver( newSock );
+        //         dataReceiver.start();
+        //     } 
+        // } catch (Exception ex ) {
+        //     System.err.println( ex );
+        // }
     }
 }

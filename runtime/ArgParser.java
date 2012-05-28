@@ -1,5 +1,10 @@
 package pilots.runtime;
 
+import java.io.PrintWriter;
+import java.text.ParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class ArgParser {
 
@@ -8,12 +13,12 @@ public class ArgParser {
     // System.err.println( "Arguments parsing exception:" );
     // System.err.println( "\tError: " + e );    
 
-    public static parse( String[] args, int inputPort, 
+    public static void parse( String[] args, int inputPort, 
                             String[] outputHosts, int[] outputPorts, 
                             String[] errorHosts, int[] errorPorts ) throws ParseException {
         int i, argStart;
         Pattern pattern;
-        Macther matcher;
+        Matcher matcher;
 
         // parse input
         for (i = 1; i < args.length; i++) {
@@ -21,7 +26,7 @@ public class ArgParser {
                 break;
         }
         if ((i == args.length) || ( args.length <= (i + 1))) {
-            throw new ParseException();
+            throw new ParseException( "No input arguments", i );
         }
         inputPort = Integer.parseInt( args[i + 1] );
         
@@ -31,7 +36,7 @@ public class ArgParser {
                 break;
         }
         if ((i == args.length) || ( args.length <= (i + 1))) {
-            throw new ParseException();
+            throw new ParseException( "No output arguments", i );
         }
 
         pattern = Pattern.compile( "[0-9]+.[0-9]+.[0-9]+.[0-9]+:[0-9]+" );
@@ -41,11 +46,11 @@ public class ArgParser {
             if (!matcher.matches())
                 break;
         }
-        numOutputs = i - argStart;
+        int numOutputs = i - argStart;
         if (0 < numOutputs) {
             outputHosts = new String[numOutputs];
             for (i = 0; i < numOutputs; i++) {
-                index colon = args[i].index(':');
+                int colon = args[i].indexOf(':');
                 outputHosts[i] = args[i].substring( 0, colon - 1 );
                 outputPorts[i] = Integer.parseInt( args[i].substring( colon + 1 ) );
             }
@@ -57,7 +62,7 @@ public class ArgParser {
                 break;
         }
         if ((i == args.length) || ( args.length <= (i + 1))) {
-            throw new ParseException();
+            throw new ParseException( "No error arguments", i );
         }
 
         pattern = Pattern.compile( "[0-9]+.[0-9]+.[0-9]+.[0-9]+:[0-9]+" );
@@ -67,11 +72,11 @@ public class ArgParser {
             if (!matcher.matches())
                 break;
         }
-        numErrors = i - argStart;
+        int numErrors = i - argStart;
         if (0 < numErrors) {
             errorHosts = new String[numErrors];
             for (i = 0; i < numErrors; i++) {
-                index colon = args[i].index(':');
+                int colon = args[i].indexOf(':');
                 errorHosts[i] = args[i].substring( 0, colon - 1 );
                 errorPorts[i] = Integer.parseInt( args[i].substring( colon + 1 ) );
             }

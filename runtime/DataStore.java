@@ -6,18 +6,11 @@ import java.util.Vector;
 import java.text.ParseException;
 import pilots.runtime.*;
 
-// enum UsingCmd {
-//     ClosestX, ClosestY, ClosestZ, ClosestTime, EuclideanXY, EuclideanXYZ, 
-//     InterpolateTime, InterpolateX, InterpolateY, InterpolateZ, InterpolateXY, InterpolateXYZ
-// };
-
-// enum UsingCmdElement {
-//     X, Y, Z, Time
-// };
-
 
 public class DataStore {
     private static Vector<DataStore> stores_ = null;
+    private static CurrentLocationTimeService currLocTime_ = null;
+    private static int MAX_DATA_NUM = 100;
 
     // private ReadWriteLock lock;
     private String[] varNames_;
@@ -27,14 +20,17 @@ public class DataStore {
         varNames_ = new String[varNames.length];
 
         for (int i = 0; i < varNames.length; i++)
-            varNames_[i] = varNames[i];        /* shallow copy */
+            varNames_[i] = varNames[i];        // shallow copy
 
         // lock = new ReentrantReadWriteLock();
         data_ = new Vector<SpatioTempoData>();
+
+        if (currLocTime_ == null) 
+            currLocTime_ = ServiceFactory.getCurrentLocationTime();
     }
 
 
-    static public DataStore getInstance( String str ) {
+    public static DataStore getInstance( String str ) {
         if (stores_ == null) {
             stores_ = new Vector<DataStore>();
         }
@@ -68,16 +64,161 @@ public class DataStore {
         return store;
     }
 
+
+    public static DataStore findStore( String varName ) {
+        DataStore store = null;
+
+        for (int i = 0; i < stores_.size(); i++) {
+            store = stores_.get( i );
+            if (store.containVarName( varName )) {
+                break;
+            }
+        }
+
+        return store;
+    }
+
+
+    private Vector<SpatioTempoData> applyClosest( Vector<SpatioTempoData> data, String arg ) {
+
+        Vector<SpatioTempoData> newData = new Vector<SpatioTempoData>();
+
+        int coord = Dimension.parseCoord( arg );
+        if (coord == Dimension.UNKNOWN)
+            return null;
+
+        if (coord == Dimension.TIME) {
+            ;
+        }
+        else {
+            // Dimension.X or Y or Z
+            double[] currLocation = currLocTime_.getLocation();
+            double minDiff = Double.MAX_VALUE;
+
+            for (int i = 0; i < data.size(); i++) {
+                SpatioTempoData stData = data.get( i );
+                double diff = stData.calcDiff( coord, currLocation[ coord ] );
+
+                if (diff < minDiff) {
+                    newData.clear();
+                    newData.add( stData );
+                    minDiff = diff;
+                }
+                else if (diff == minDiff ) {
+                    newData.add( stData );
+                }                
+            }
+        }
+
+        return newData;
+    }
+
+    private Vector<SpatioTempoData> applyEuclidean( Vector<SpatioTempoData> data, String[] args ) {
+        return null;
+    }
+
+    private Vector<SpatioTempoData> applyInterpolation( Vector<SpatioTempoData> data, String[] args ) {
+        return null;
+    }
+
+    private int getVarIndex( String varName ) {
+        for (int i = 0; i < varNames_.length; i++) {
+            if (varNames_[i].equals( varName )) {
+                return i;
+            }
+        }
+
+        // should not happen; this will cause an exception eventually
+        return -1;
+    }
+
+    public double getData( String varName, Method[] methods ) {
+        Vector<SpatioTempoData> workData = new Vector<SpatioTempoData>();
+        workData = data_;  // shallow copy
+
+        int varIndex = getVarIndex( varName );
+        
+        SpatioTempoData stData;
+        Double d = 0.0;
+        if (workData.size() == 1) {
+            stData = workData.get( 0 );
+            d = stData.getData( varIndex );
+            return d;
+        }
+
+        boolean errorCondition = false;
+        for (int i = 0; i < methods.length; i++) {
+            String[] args = methods[i].getArgs();
+            if (args.length == 0) {
+                System.err.println( "Invalid number of arguments for closest method: " + args.length );
+                errorCondition = true;
+                break;
+            } 
+
+            switch (methods[i].getID()) {
+            case Method.Closest:
+                // this applies to one of {x, y, z, t}
+                if (1 < args.length) {
+                    System.err.println( "Invalid number of arguments for closest method: " + args.length );
+                    errorCondition = true;
+                    break;
+                } 
+                workData = applyClosest( workData, args[0] );
+                break;
+                
+            case Method.Euclidean:
+                // this applies to any combinations of {x, y, z}
+                if (3 < args.length) {
+                    System.err.println( "Invalid number of arguments for euclidean method: " + args.length );
+                    errorCondition = true;
+                    break;
+                }
+                workData = (args.length == 1) ? 
+                    applyClosest( workData, args[0] ) : applyEuclidean( workData, args );
+                break;
+
+            case Method.Interpolate:
+                // this applies to any combinations of {x, y, z}
+                // and also takes one argument to specify up to how many points to interpolate
+                if (4 < args.length)  {
+                    System.err.println( "Invalid number of arguments for interpolation method: " + args.length );
+                    errorCondition = true;
+                    break;
+                }
+                workData = applyInterpolation( workData, args );
+                break;
+
+            default:
+                break;
+            }
+
+            if (errorCondition || (workData == null)) {
+                break;
+            }
+
+            if (workData.size() == 1) {
+                // no need to check methods anymore
+                stData = workData.get( 0 );
+                d = stData.getData( varIndex );
+                break;
+            }
+        }
+        
+        return d;
+    }
+
     
-    static private String[] parse( String str ) throws ParseException {
+    private static String[] parse( String str ) throws ParseException {
         if (str.charAt(0) != '#') {
             throw new ParseException( "# not found in the first line", 0 );
         }
 
+        System.out.println( str );
+
         String[] varNames = str.split( "[#, ]" );
 
-        for (int i = 0; i < varNames.length; i++)
-            System.out.println( "varNames[" + i + "]: " + varNames[i] );
+        // for (int i = 0; i < varNames.length; i++)
+        //     System.out.println( "varNames[" + i + "]: " + varNames[i] );
 
         return varNames;
     }
@@ -112,6 +253,20 @@ public class DataStore {
     }
 
 
+    private boolean containVarName( String varName ) {
+        boolean flag = false;
+
+        for (int i = 0; i < varNames_.length; i++) {
+            if (varNames_[i].equals( varName )) {
+                flag = true;
+                break;
+            }
+        }
+        
+        return flag;
+    }
+
+
     public String[] getVarNames() {
         return varNames_;
     }
@@ -127,205 +282,14 @@ public class DataStore {
 
         stData.print();
         
+        if (MAX_DATA_NUM <= data_.size()) {
+            // remove the oldest data
+            data_.remove( 0 );
+        }
         data_.add( stData );
-
 
         return true;
     }
-
-
-    // private EnumSet<UsingCmdElement> getUnusedElements( Vector<UsingCmd> cmds ) {
-    //     EnumSet<UsingCmdElement> elements = EnumSet.allOf( UsingCmdElements.class );
-
-    //     for (i = 0; i < cmds.size(); i++) {
-    //         UsingCmd cmd = cmds.get( i );
-    //         switch( cmd ) {
-    //         case ClosestX:      
-    //             elements.remove( X );
-    //             break;
-    //         case ClosestY:
-    //             elements.remove( Y );
-    //             break;
-    //         case ClosestZ:
-    //             elements.remove( Z );
-    //             break;
-    //         case ClosestTime:
-    //             elements.remove( Time );
-    //             break;
-    //         case EuclideanXY:
-    //             elements.remove( X );
-    //             elements.remove( Y );
-    //             break;
-    //         case EuclideanYZ:
-    //             elements.remove( Y );
-    //             elements.remove( Z );
-    //             break;
-    //         case EuclideanXYZ:
-    //             elements.remove( X );
-    //             elements.remove( Y );
-    //             elements.remove( Z );
-    //             break;
-
-    //         /* should not reach here */
-    //         case InterpolateX:
-    //         case InterpolateY:
-    //         case InterpolateZ:
-    //         case InterpolateTime:
-    //         case InterpolateXY:
-    //         case InterpolateYZ:
-    //         case InterpolateXZ:
-    //         case InterpolateXYZ:
-    //         default:
-    //             break;
-    //         }
-    //     }
-
-    //     return elements
-    // }
-
-
-    // public Float getVarValue( Vector<UsingCmd> cmds, String varName, float x, float y, float z, Date time ) {
-    //     int i, j;
-    //     Float value = null;
-    //     Vector<SpatioTempoData> interimData = data.clone();
-
-    //     for (i = 0; i < cmds.size(); i++) {
-    //         cmd = cmds.get(i);
-
-    //         switch (cmd) {
-    //         case ClosestX:
-    //             interimData = findClosestX( interimData, x );
-    //             break;
-    //         case ClosestY:
-    //             interimData = findClosestY( interimData, y );
-    //             break;
-    //         case ClosestZ:
-    //             interimData = findClosestZ( interimData, z );
-    //             break;
-    //         case ClosestTime:
-    //             interimData = findClosestX( interimData, time );
-    //             break;
-    //         case EuclideanXY:
-    //             interimData = findEuclideanXY( interimData, x, y );
-    //             break;
-    //         case EuclideanYZ:
-    //             interimData = findEuclideanYZ( interimData, y, z );
-    //             break;
-    //         case EuclideanXZ:
-    //             interimData = findEuclideanYZ( interimData, x, z );
-    //             break;
-    //         case EuclideanXYZ:
-    //             interimData = findEuclideanXYZ( interimData, x, y, z );
-    //             break;
-    //         case InterpolateX:
-    //             value = new Float( InterpolateX( interimData, x ) );
-    //             break;
-    //         case InterpolateY:
-    //             value = new Float( InterpolateY( interimData, y ) );
-    //             break;
-    //         case InterpolateZ:
-    //             value = new Float( InterpolateZ( interimData, z ) );
-    //             break;
-    //         case InterpolateTime:
-    //             value = new Float( InterpolateTime( interimData, time ) );
-    //             break;
-    //         case InterpolateXY:
-    //             value = new Float( InterpolateXY( interimData, x, y ) );
-    //             break;
-    //         case InterpolateYZ:
-    //             value = new Float( InterpolateYZ( interimData, z, y ) );
-    //             break;
-    //         case InterpolateXZ:
-    //             value = new Float( InterpolateXZ( interimData, x, y ) );
-    //             break;
-    //         case InterpolateXYZ:
-    //             value = new Float( InterpolateXYZ( interimData, x, y, z ) );
-    //             break;
-    //         default:
-    //             break;
-    //         }
-    //     }
-
-    //     if (value == null) {
-    //         if ( interimData.size() == 1 )
-    //             ; /* get the target value */
-    //         else {
-    //             /* there are more than one entry of data */
-    //             EnumSet<UsingCmdElement> e = getUnusedElements( cmds );
-    //             if (!e.contains( Time )) {
-    //                 if (e.contains( X ) && !e.contains( Y ) && !e.contains( Z ))
-    //                     value = new Float( InterpolateX( interimData, x ) );
-    //                 else if (!e.contains( X ) && e.contains( Y ) && !e.contains( Z ))
-    //                     value = new Float( InterpolateX( interimData, y ) );
-    //                 else if (!e.contains( X ) && !e.contains( Y ) && e.contains( Z ))
-    //                     value = new Float( InterpolateX( interimData, z ) );
-    //                 else if (e.contains( X ) && e.contains( Y ) && !e.contains( Z ))
-    //                     value = new Float( InterpolateXY( interimData, x, y ) );
-    //                 else if (!e.contains( X ) && e.contains( Y ) && e.contains( Z ))
-    //                     value = new Float( InterpolateYZ( interimData, y, z ) );
-    //                 else if (e.contains( X ) && !e.contains( Y ) && e.contains( Z ))
-    //                     value = new Float( InterpolateXZ( interimData, x, z ) );
-    //                 else if (e.contains( X ) && !e.contains( Y ) && e.contains( Z ))
-    //                     value = new Float( InterpolateXYZ( interimData, x, y, z ) );
-    //             }
-    //             /* if e.contains(Time) is true, return value will be null */
-    //         }
-    //     }
-                
-    //     return value;
-    // }
-
-
-    // public float getValue( Vector<UsingCmd> cmds, float x, float y, Date time ) {
-    //     return getValue( cmds, x, y, 0, time );
-    // }
-
-    // public float getValue( Vector<UsingCmd> cmds, float x, Date time ) {
-    //     return getValue( cmds, x, 0, 0, time );
-    // }
-
-    // public float getValue( Vector<UsingCmd> cmds, Date time ) {
-    //     return getValue( cmds, 0, 0, 0, time );
-    // }
-
-    // private Vector<SpatioTempoData> findClosestX( Vector<SpatioTempoData> data, float x ) {
-    // }
-
-    // private Vector<SpatioTempoData> findClosestY( Vector<SpatioTempoData> data, float y ) {
-    // }
-
-    // private Vector<SpatioTempoData> findClosestZ( Vector<SpatioTempoData> data, float z ) {
-    // }
-
-    // private Vector<SpatioTempoData> findClosestTime( Vector<SpatioTempoData> data, Date time  ) {
-    // }
-
-    // private Vector<SpatioTempoData> findEuclideanXY( Vector<SpatioTempoData> data, float x, float y ) {
-    // }
-
-    // private Vector<SpatioTempoData> findEuclideanXYZ( Vector<SpatioTempoData> data, float x, float y, float z ) {
-    // }
-
-    // private float interpolateTime( Vector<SpatioTempoData> data, Date time ) {
-    // }
-
-    // private float interpolateX( Vector<SpatioTempoData> data, float x ) {
-    // }
-
-    // private float interpolateY( Vector<SpatioTempoData> data, float y ) {
-    // }
-
-    // private float interpolateZ( Vector<SpatioTempoData> data, float z ) {
-    // }
-
-    // private float interpolateXY( Vector<SpatioTempoData> data, float x, float y ) {
-    // }
-
-    // private float interpolateXYZ( Vector<SpatioTempoData> data, float x, float y, float z ) {
-    // }
-
-    // public void remove() {
-    // }
  }
 
     
