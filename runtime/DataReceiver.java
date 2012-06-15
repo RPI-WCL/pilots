@@ -5,40 +5,51 @@ import java.io.*;
 import pilots.runtime.*;
 
 
-public class DataReceiver extends Thread {
+public class DataReceiver extends DebugPrint implements Runnable  {
     private static int DEFAULT_PORT = 8888;
     private static boolean loop_ = true;
+    private static int globalID_ = 0;
     private Socket sock_;
+    private int id_;
     
     public DataReceiver( Socket sock ) {
         sock_ = sock;
+        id_ = globalID_++;
+    }
+
+    private void dbgPrint2( String str ) {
+        dbgPrint( "(Thread " + id_ + ") " + str);
     }
 
     public void run() {
+        dbgPrint2( "started" );
+
         try {
-            System.out.println( "-- Connected" );
 
             BufferedReader in = new BufferedReader( new InputStreamReader( sock_.getInputStream() ) );
-            String str = null;
+            String str = null, varNames = null;
             DataStore dataStore = null;
 
             while ( (str = in.readLine() ) != null ) {
                 if ( str.length() == 0 ) {
-                    System.out.println( "End-Of-Stream marker received!!!" );
+                    dbgPrint2( "EOS marker received" );
                     break;
                 }
                 else if ( str.charAt(0) == '#' ) {
-                    System.out.println( "# received!!" );
-                    dataStore = DataStore.getInstance( str );
+                    dbgPrint2( "first line received: " + str );
+                    varNames = str;
+                    synchronized (this) {
+                        dataStore = DataStore.getInstance( str );
+                    }
                 }
                 else {
                     if ( dataStore == null ) {
-                        System.err.println( "No data store" );
+                        dbgPrint2( "no data store" );
                         break;
                     }
-                        
-                    // System.out.println( str );
-                    dataStore.add( str );
+
+                    dbgPrint2( "data received for \"" + varNames + "\": " + str );
+                    dataStore.addData( str );
                 }
 
             }
@@ -46,28 +57,30 @@ public class DataReceiver extends Thread {
             in.close();
             sock_.close();
 
-            System.out.println("-- Connection Closed");
-
         } catch (IOException ex) {
             System.err.println( ex );
         }
+
+        dbgPrint2( "finished" );
     }
 
 
     public static void startServer( int port ) {
         loop_ = true;
         final int serverPort = port;
+
+        // daemon thread listening port 8888
         new Thread() {
             public void run() {
                 try {
                     ServerSocket serverSock = new ServerSocket( serverPort );
+                    System.out.println( "[DataReceiver] started listening to port:" + serverPort );
 
                     while ( loop_ ) {
-                        System.out.println( "DataReceiver listening to port:" + serverPort );
-
                         Socket newSock = serverSock.accept();
                         DataReceiver dataReceiver = new DataReceiver( newSock );
-                        dataReceiver.start();
+                        Thread t = new Thread( dataReceiver );
+                        t.start();
                     } 
                 } catch (Exception ex ) {
                     System.err.println( ex );
@@ -92,19 +105,5 @@ public class DataReceiver extends Thread {
         }
 
         DataReceiver.startServer( port );
-
-        // try {
-        //     ServerSocket serverSock = new ServerSocket( port );
-
-        //     while ( true ) {
-        //         System.out.println("Server listening to port:" + port);
-
-        //         Socket newSock = serverSock.accept();
-        //         DataReceiver dataReceiver = new DataReceiver( newSock );
-        //         dataReceiver.start();
-        //     } 
-        // } catch (Exception ex ) {
-        //     System.err.println( ex );
-        // }
     }
 }

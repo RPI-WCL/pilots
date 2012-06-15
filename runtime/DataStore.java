@@ -2,15 +2,16 @@ package pilots.runtime;
 
 // import java.util.concurrent.locks.ReadWriteLock;
 // import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.Date;
 import java.util.Vector;
 import java.text.ParseException;
 import pilots.runtime.*;
 
 
-public class DataStore {
+public class DataStore extends DebugPrint {
     private static Vector<DataStore> stores_ = null;
     private static CurrentLocationTimeService currLocTime_ = null;
-    private static int MAX_DATA_NUM = 100;
+    private static int MAX_DATA_NUM = 10;
 
     // private ReadWriteLock lock;
     private String[] varNames_;
@@ -37,7 +38,7 @@ public class DataStore {
 
         String[] varNames;
         try {
-            varNames = parse( str );
+            varNames = parseVarNames( str );
         } catch (ParseException ex) {
             System.err.println( ex + " at " + ex.getErrorOffset() );
             return null;
@@ -56,9 +57,11 @@ public class DataStore {
         if (foundStore == null) {
             store = new DataStore( varNames );
             stores_.add( store );
+            store.dbgPrint( "created DataStore for " + str );
         }
         else {
             store = foundStore;
+            store.dbgPrint( "found exsiting DataStore for " + str );
         }
             
         return store;
@@ -66,16 +69,24 @@ public class DataStore {
 
 
     public static DataStore findStore( String varName ) {
+        //System.out.println( "findStore, varName=" + varName );
         DataStore store = null;
 
+        if (stores_ == null) {
+            return null;
+        }
+
+        boolean found = false;
         for (int i = 0; i < stores_.size(); i++) {
             store = stores_.get( i );
             if (store.containVarName( varName )) {
+                // System.out.println( "store found!!" );
+                found = true;
                 break;
             }
         }
 
-        return store;
+        return found ? store : null;
     }
 
 
@@ -88,7 +99,23 @@ public class DataStore {
             return null;
 
         if (coord == Dimension.TIME) {
-            ;
+            // dbgPrint( "applyClosest( TIME ) is not implmented!!" );
+            Date currTime = currLocTime_.getTime();
+            long minDiff = Long.MAX_VALUE;
+
+            for (int i = 0; i < data.size(); i++) {
+                SpatioTempoData stData = data.get( i );
+                long diff = stData.calcTimeDiff( currTime );
+
+                if (diff < minDiff) {
+                    newData.clear();
+                    newData.add( stData );
+                    minDiff = diff;
+                }
+                else if (diff == minDiff ) {
+                    newData.add( stData );
+                }                
+            }
         }
         else {
             // Dimension.X or Y or Z
@@ -97,7 +124,7 @@ public class DataStore {
 
             for (int i = 0; i < data.size(); i++) {
                 SpatioTempoData stData = data.get( i );
-                double diff = stData.calcDiff( coord, currLocation[ coord ] );
+                double diff = stData.calcLocationDiff( coord, currLocation[ coord ] );
 
                 if (diff < minDiff) {
                     newData.clear();
@@ -123,6 +150,7 @@ public class DataStore {
 
     private int getVarIndex( String varName ) {
         for (int i = 0; i < varNames_.length; i++) {
+            // System.out.println( "getVarIndex(), varNames_[" + i + "]=" + varNames_[i] );
             if (varNames_[i].equals( varName )) {
                 return i;
             }
@@ -132,9 +160,11 @@ public class DataStore {
         return -1;
     }
 
-    public double getData( String varName, Method[] methods ) {
+    public synchronized double getData( String varName, Method[] methods ) {
         Vector<SpatioTempoData> workData = new Vector<SpatioTempoData>();
         workData = data_;  // shallow copy
+
+        // System.out.println ("DataStore.getData, workdata.size()=" + workData.size() );
 
         int varIndex = getVarIndex( varName );
         
@@ -142,7 +172,7 @@ public class DataStore {
         Double d = 0.0;
         if (workData.size() == 1) {
             stData = workData.get( 0 );
-            d = stData.getData( varIndex );
+            d = stData.getData( varIndex - 1 ); // -1: workaround due to an issue on parseVarNames 
             return d;
         }
 
@@ -199,7 +229,7 @@ public class DataStore {
             if (workData.size() == 1) {
                 // no need to check methods anymore
                 stData = workData.get( 0 );
-                d = stData.getData( varIndex );
+                d = stData.getData( varIndex - 1 );  // -1: workaround due to an issue on parseVarNames 
                 break;
             }
         }
@@ -208,12 +238,10 @@ public class DataStore {
     }
 
     
-    private static String[] parse( String str ) throws ParseException {
+    private static String[] parseVarNames( String str ) throws ParseException {
         if (str.charAt(0) != '#') {
             throw new ParseException( "# not found in the first line", 0 );
         }
-
-        System.out.println( str );
 
         String[] varNames = str.split( "[#, ]" );
 
@@ -247,7 +275,7 @@ public class DataStore {
             }
         }
 
-        System.out.println( "# found identical varNames: " + flag );
+        //System.out.println( "# found identical varNames: " + flag );
 
         return flag;
     }
@@ -272,7 +300,7 @@ public class DataStore {
     }
 
 
-    public boolean add( String str ) {
+    public synchronized boolean addData( String str ) {
         SpatioTempoData stData = new SpatioTempoData();
 
         if (!stData.parse( str )) {
@@ -280,7 +308,7 @@ public class DataStore {
             return false;
         }
 
-        stData.print();
+        //stData.print();
         
         if (MAX_DATA_NUM <= data_.size()) {
             // remove the oldest data

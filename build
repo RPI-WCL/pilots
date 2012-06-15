@@ -1,0 +1,2 @@
+javac pilots/runtime/*.java
+javac pilots/tests/*.java

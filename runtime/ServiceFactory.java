@@ -6,7 +6,7 @@ public class ServiceFactory {
     private static CurrentLocationTimeService currLocTime_ = null;
     
     // Default service classes
-    private static String currLocTimeClass_ = "pilots.runtime.SimpleTimeProvider";
+    private static String currLocTimeClass_ = "pilots.runtime.SimpleTimeService";
 
     // Modify settings for ServiceFactory
     public synchronized static void setCurrClass( String currLocTimeClass ) {

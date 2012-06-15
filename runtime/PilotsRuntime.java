@@ -12,60 +12,58 @@ import java.util.Date;
 import pilots.runtime.*;
 
 
-public class PilotsRuntime {
+public class PilotsRuntime extends DebugPrint {
     // hosts, ports, sockets
-    private int inputPort_;
+    private HostsPorts input_;
+    private HostsPorts outputs_;
+    private HostsPorts errors_;
 
-    private int numOutputs_;
-    private String[] outputHosts_;
-    private int[] outputPorts_;
     private Socket[] outputSockets_;
-
-    private int numErrors_;
-    private String[] errorHosts_;
-    private int[] errorPorts_;
+    private PrintWriter[] outputWriters_;
     private Socket[] errorSockets_;
+    private PrintWriter[] errorWriters_;
 
     private long timeAdjustment_;
     private DateFormat dateFormat_;
 
     public PilotsRuntime() {
-        inputPort_ = 0;
+        input_ = new HostsPorts();
 
-        numOutputs_ = 0;
-        outputHosts_ =  null;
-        outputPorts_ = null;
+        outputs_ = new HostsPorts();
         outputSockets_ = null;
+        outputWriters_ = null;
 
-        numErrors_ = 0;
-        errorHosts_ = null;
-        errorPorts_ = null;
+        errors_ = new HostsPorts();
         errorSockets_ = null;
+        errorWriters_ = null;
 
         timeAdjustment_ = 0;
-        
-        dateFormat_ = new SimpleDateFormat( "yyyy-MM-dd HHmmZ" );
+        dateFormat_ = new SimpleDateFormat( SpatioTempoData.datePattern );
     }
 
 
     protected void parseArgs( String[] args ) throws ParseException {
         try {
             ArgParser.parse( args, // input 
-                             inputPort_, outputHosts_, outputPorts_, errorHosts_, errorPorts_ ); // outputs
-            numOutputs_ = outputHosts_.length;
-            numErrors_ = errorHosts_.length;
+                             input_, outputs_, errors_ ); // output
+            //dbgPrint( "inputPort = " + input_.getPort( 0 ) );
         } catch (ParseException ex) {
             throw ex;
         }
     }
 
     protected boolean startServer() {
-        if (inputPort_ == 0) {
+        int inputPort = input_.getPort( 0 );
+        //dbgPrint( "startServer " + inputPort + " begin" );
+
+        if (inputPort == 0) {
             System.err.println( "input port is not initialized"  );
             return false;
         }
 
-        DataReceiver.startServer( inputPort_ );
+        DataReceiver.startServer( inputPort );
+
+        //dbgPrint( "startServer end" );
 
         return true;
     }
@@ -85,38 +83,55 @@ public class PilotsRuntime {
         switch (outputType) {
         case Output:    // OutputType.Output gives a compile error
             if (outputSockets_ == null) {
-                outputSockets_ = new Socket[numOutputs_];
+                outputSockets_ = new Socket[ outputs_.getSize() ];
                 for (int i = 0; i < outputSockets_.length; i++)
                     outputSockets_[i] = null;
             }
             if (outputSockets_[sockIndex] == null) {
-                outputSockets_[sockIndex] = new Socket( outputHosts_[sockIndex], outputPorts_[sockIndex] );
+                outputSockets_[sockIndex] = new Socket( outputs_.getHost( sockIndex ),
+                                                        outputs_.getPort( sockIndex ) );
             }
             sock = outputSockets_[sockIndex];
             break;
 
         case Error:
             if (errorSockets_ == null) {
-                errorSockets_ = new Socket[numErrors_];
+                errorSockets_ = new Socket[ errors_.getSize() ];
                 for (int i = 0; i < errorSockets_.length; i++)
                     errorSockets_[i] = null;
             }
             if (errorSockets_[sockIndex] == null) {
-                errorSockets_[sockIndex] = new Socket( errorHosts_[sockIndex], errorPorts_[sockIndex] );
+                errorSockets_[sockIndex] = new Socket( errors_.getHost( sockIndex ),
+                                                       errors_.getPort( sockIndex ) );
+                System.out.println( "openSocket, socket opened for " + 
+                                    errors_.getHost( sockIndex ) + ":" + errors_.getPort( sockIndex ) +
+                                    ", sock=" + errorSockets_[sockIndex] );
             }
             sock = errorSockets_[sockIndex];
+
+            if (errorWriters_ == null) {
+                errorWriters_ = new PrintWriter[ errors_.getSize() ];
+                for (int i = 0; i < errorWriters_.length; i++)
+                    errorWriters_[i] = null;
+            }
+            if (errorWriters_[sockIndex] == null) {
+                errorWriters_[sockIndex] = new PrintWriter( sock.getOutputStream(), true );
+                // send the first line of the output stream
+                errorWriters_[sockIndex].println( "#" + var );
+                errorWriters_[sockIndex].flush();
+            }
             break;
 
         default:
             sock = null;
             throw new IOException();
         }
-        PrintWriter printWriter = new PrintWriter( sock.getOutputStream(), true );
+        // PrintWriter printWriter = new PrintWriter( sock.getOutputStream(), true );
 
-        // send the first line of the output stream
-        printWriter.println( "#" + var );
-        printWriter.flush();
-        printWriter.close(); // should we do this here???
+        // // send the first line of the output stream
+        // printWriter.println( "#" + var );
+        // printWriter.flush();
+        // printWriter.close(); // should we do this here???
 
         return sock;
     }
@@ -151,6 +166,24 @@ public class PilotsRuntime {
         return sock;
     }
 
+    protected PrintWriter getWriter( OutputType outputType, int sockIndex ) {
+        PrintWriter writer;
+
+        switch (outputType) {
+        case Output:
+            writer = outputWriters_[sockIndex];
+            break;
+        case Error:
+            writer = errorWriters_[sockIndex];
+            break;
+        default:
+            writer = null;
+            break;
+        }
+        
+        return writer;
+    }
+
     
     protected void setBaseCal( Calendar cal ) {
         timeAdjustment_ = Calendar.getInstance().getTimeInMillis() - cal.getTimeInMillis();
@@ -158,33 +191,27 @@ public class PilotsRuntime {
         
 
     protected void sendData( OutputType outputType, int sockIndex, double val ) {
-        Socket sock = getSocket( outputType, sockIndex );
-
         Calendar now = Calendar.getInstance();
         now.add( Calendar.MILLISECOND, (int)(-1 * timeAdjustment_) );
         Date date = now.getTime();
 
         // write the value on the socket
-        try {
-            PrintWriter printWriter = new PrintWriter( sock.getOutputStream(), true );
-            printWriter.println( ":" + dateFormat_.format( date ) + ":" + val );
-            printWriter.flush();
-        } catch (IOException ex) {
-            System.err.println( ex );
-        }
+        PrintWriter printWriter = getWriter( outputType, sockIndex );
+        printWriter.println( ":" + dateFormat_.format( date ) + ":" + val );
+        printWriter.flush();
     }
 
 
     protected double getData( String var, Method... methods ) {
 
         DataStore store = DataStore.findStore( var );
-        double d = -1.0;
+        double d = 0;
 
         if (store != null) {
             d = store.getData( var, methods );
         }
         else {
-            System.err.println( "no matching variable stored" );
+            dbgPrint( "no matching variable stored for \"" + var + "\"");
         }
 
         return d;
