@@ -1,0 +1,167 @@
+PARSER_BEGIN(Pilots)
+import java.io.*;
+
+public class Pilots {
+    public static void main(String args[]) {
+        try {
+            Pilots parser = new Pilots( new FileReader(args[0]) );
+            // parser.Start();
+            SimpleNode rootNode = parser.Start();
+            rootNode.dump(" ");
+        } catch ( Exception ex ) {
+            System.err.println( "Failed to parse : " + ex.getMessage() );
+        }
+    }
+}
+PARSER_END(Pilots)
+
+/***************************************/
+/********** TOKEN DEFINITIONS **********/
+/***************************************/
+
+/*** Skip whitespace and comments ***/
+SKIP : {
+" "
+| "\t"
+| "\n"
+| "\r"
+| "\r\n"
+}
+
+/*** The keywords ***/
+TOKEN : {
+<PROGRAM_START : "program">
+| <INPUTS: "inputs">
+| <OUTPUTS: "outputs">
+| <ERRORS: "errors">
+| <USING: "using">
+| <AT: "at">
+| <EVERY: "every">
+| <CLOSEST: "closest">
+| <EUCLIDEAN: "euclidean">
+| <INTERPOLATE: "interpolate">
+| <NSEC: "nsec">
+| <USEC: "usec">
+| <MSEC: "msec">
+| <SEC: "sec">
+| <MIN: "min">
+| <HOUR: "hour">
+| <DAY: "day">
+// | <SQRT: "sqrt">
+// | <SIN: "sin">
+// | <COS: "cos">
+// | <TAN: "tan">
+// | <ABS: "abs">
+| <PROGRAM_END: "end">
+}
+
+TOKEN : {
+<#DIGIT : ["0"-"9"]>
+| <LPAR: "(">
+| <RPAR: ")">
+| <COMMA: ",">
+| <INTEGER : ("+" | "-")? (<DIGIT>)+>
+| <#SCALEFACTOR : ("E" | "e") ("+" | "-")? (<DIGIT>)+>
+| <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
+// | <NUMBER : <INTEGER> | <REAL>>
+| <#LETTER : ["A"-"Z","a"-"z","_"]>
+| <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
+// | <VALUE : <NUMBER> | <VAR>>
+}
+
+
+/**************************************/
+/********** START OF GRAMMAR **********/
+/**************************************/
+
+SimpleNode Start(): {}
+{
+    <PROGRAM_START> <VAR> ";"
+        <INPUTS> (";" | (Input())*)
+        <OUTPUTS> (";" | (Output())*)
+        <ERRORS> (";" | (Output())*)
+    <PROGRAM_END> ";"
+    { return jjtThis; }
+}
+
+void Input(): {}
+{
+    Vars() ":" Dims() <USING> Methods() ";"
+}
+
+void Output(): {}
+{
+    Vars() ":" Exps() <AT> <EVERY> Time() ";"
+}
+
+void Dims(): {}
+{
+    // "(t)" | "(x,t)" | "(x,y,t)" | "(x,y,z,t)"
+    // "(" ["x," ["y,"["z,"]]] "t" ")"
+    "(" ["x," ["y,"["z,"]]] <VAR> ")"
+}
+
+void Method(): {}
+{
+    (<CLOSEST> | <EUCLIDEAN> | <INTERPOLATE>) "(" Exps() ")"
+    //(<CLOSEST> | <EUCLIDEAN> | <INTERPOLATE>) <LPAR> <VAR> (";" <VAR>)* <RPAR>
+}
+
+
+void Methods(): {}
+{
+    Method() ("," Method())*
+}
+
+void Time(): {}
+{
+    Number() (<NSEC> | <USEC> | <MSEC> | <SEC> | <MIN> | <HOUR> | <DAY>)
+}
+
+void Func(): {}
+{
+    // "+" | "-" | "*" | "/" | <SQRT> | <SIN> | <COS> | <TAN> | <ABS>
+    <VAR>
+}
+
+void Exp(): {}
+{
+    // LOOKAHEAD(2) Func() "(" Exps() ")"
+    // | Func() Exp((Func() Exp())*
+    // | Exp() (Func() Exp())* /* causes Left recursion !! */
+    LOOKAHEAD(2) Func() Term()
+    | LOOKAHEAD(2) ["+" | "-"] Term() (("+" | "-") Term())*
+
+}
+
+void Term(): {}
+{
+    Factor() (("*" | "/") Factor())*
+}
+
+void Factor(): {}
+{
+    Value() 
+    | "(" Exp() ")"
+}
+    
+
+void Exps(): {}
+{
+    Exp() (";" Exp())*
+}
+
+void Vars(): {}
+{
+    <VAR> ("," <VAR>)*
+}
+
+void Number(): {}
+{
+    <INTEGER> | <REAL>
+}
+
+void Value(): {}
+{
+    Number() | <VAR>
+}
