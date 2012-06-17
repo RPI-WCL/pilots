@@ -1,11 +1,10 @@
-PARSER_BEGIN(Pilots)
+PARSER_BEGIN(PilotsCompiler)
 import java.io.*;
 
-public class Pilots {
+public class PilotsCompiler {
     public static void main(String args[]) {
         try {
-            Pilots parser = new Pilots( new FileReader(args[0]) );
-            // parser.Start();
+            PilotsCompiler parser = new PilotsCompiler( new FileReader(args[0]) );
             SimpleNode rootNode = parser.Start();
             rootNode.dump(" ");
         } catch ( Exception ex ) {
@@ -13,7 +12,7 @@ public class Pilots {
         }
     }
 }
-PARSER_END(Pilots)
+PARSER_END(PilotsCompiler)
 
 /***************************************/
 /********** TOKEN DEFINITIONS **********/
@@ -47,11 +46,14 @@ TOKEN : {
 | <MIN: "min">
 | <HOUR: "hour">
 | <DAY: "day">
-// | <SQRT: "sqrt">
-// | <SIN: "sin">
-// | <COS: "cos">
-// | <TAN: "tan">
-// | <ABS: "abs">
+| <SQRT: "sqrt">
+| <SIN: "sin">
+| <COS: "cos">
+| <TAN: "tan">
+| <ARCSIN: "arcsin">
+| <ARCCOS: "arccos">
+| <ARCTAN: "arctan">
+| <ABS: "abs">
 | <PROGRAM_END: "end">
 }
 
@@ -63,10 +65,8 @@ TOKEN : {
 | <INTEGER : ("+" | "-")? (<DIGIT>)+>
 | <#SCALEFACTOR : ("E" | "e") ("+" | "-")? (<DIGIT>)+>
 | <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
-// | <NUMBER : <INTEGER> | <REAL>>
 | <#LETTER : ["A"-"Z","a"-"z","_"]>
 | <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
-// | <VALUE : <NUMBER> | <VAR>>
 }
 
 
@@ -94,19 +94,23 @@ void Output(): {}
     Vars() ":" Exps() <AT> <EVERY> Time() ";"
 }
 
+void Vars(): {}
+{
+    <VAR> ("," <VAR>)*
+}
+
 void Dims(): {}
 {
     // "(t)" | "(x,t)" | "(x,y,t)" | "(x,y,z,t)"
     // "(" ["x," ["y,"["z,"]]] "t" ")"
-    "(" ["x," ["y,"["z,"]]] <VAR> ")"
+    // "(" ["x," ["y,"["z,"]]] <VAR> ")"
+    "(" Exps() ")"      // workaround to avoid conflicts with the arguments for Method()
 }
 
 void Method(): {}
 {
     (<CLOSEST> | <EUCLIDEAN> | <INTERPOLATE>) "(" Exps() ")"
-    //(<CLOSEST> | <EUCLIDEAN> | <INTERPOLATE>) <LPAR> <VAR> (";" <VAR>)* <RPAR>
 }
-
 
 void Methods(): {}
 {
@@ -118,42 +122,25 @@ void Time(): {}
     Number() (<NSEC> | <USEC> | <MSEC> | <SEC> | <MIN> | <HOUR> | <DAY>)
 }
 
-void Func(): {}
+void Exps(): {}
 {
-    // "+" | "-" | "*" | "/" | <SQRT> | <SIN> | <COS> | <TAN> | <ABS>
-    <VAR>
+    Exp() ("," Exp())*
 }
 
 void Exp(): {}
 {
-    // LOOKAHEAD(2) Func() "(" Exps() ")"
-    // | Func() Exp((Func() Exp())*
-    // | Exp() (Func() Exp())* /* causes Left recursion !! */
-    LOOKAHEAD(2) Func() Term()
-    | LOOKAHEAD(2) ["+" | "-"] Term() (("+" | "-") Term())*
-
+    Func() "(" Exps() ")" Exp2() | "(" Exp() ")" Exp2() | Value() Exp2()
 }
 
-void Term(): {}
+void Exp2(): {}
 {
-    Factor() (("*" | "/") Factor())*
+    Func() Exp() Exp2() | {}
 }
 
-void Factor(): {}
+void Func(): {}
 {
-    Value() 
-    | "(" Exp() ")"
-}
-    
-
-void Exps(): {}
-{
-    Exp() (";" Exp())*
-}
-
-void Vars(): {}
-{
-    <VAR> ("," <VAR>)*
+    "+" | "-" | "*" | "/" | "^" | 
+    <SQRT> | <SIN> | <COS> | <TAN> | <ARCSIN> | <ARCCOS> | <ARCTAN> | <ABS>
 }
 
 void Number(): {}

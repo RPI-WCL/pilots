@@ -1,0 +1,3 @@
+jjtree PilotsCompiler.jjt
+javacc PilotsCompiler.jj
+javac *.java
