@@ -1,3 +1,3 @@
-jjtree PilotsCompiler.jjt
-javacc PilotsCompiler.jj
+jjtree PilotsParser.jjt
+javacc PilotsParser.jj
 javac *.java

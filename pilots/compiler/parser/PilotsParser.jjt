@@ -1,0 +1,236 @@
+options{
+    MULTI=true;
+    VISITOR=true;
+}
+
+PARSER_BEGIN(PilotsParser)
+package pilots.compiler.parser;
+import java.io.*;
+
+public class PilotsParser {
+
+}
+PARSER_END(PilotsParser)
+
+/***************************************/
+/********** TOKEN DEFINITIONS **********/
+/***************************************/
+
+/*** Skip whitespace and comments ***/
+SKIP : {
+" "
+| "\t"
+| "\n"
+| "\r"
+| "\r\n"
+}
+
+/*** The keywords ***/
+TOKEN : {
+<PROGRAM_START : "program">
+| <INPUTS: "inputs">
+| <OUTPUTS: "outputs">
+| <ERRORS: "errors">
+| <USING: "using">
+| <AT: "at">
+| <EVERY: "every">
+| <CLOSEST: "closest">
+| <EUCLIDEAN: "euclidean">
+| <INTERPOLATE: "interpolate">
+| <NSEC: "nsec">
+| <USEC: "usec">
+| <MSEC: "msec">
+| <SEC: "sec">
+| <MIN: "min">
+| <HOUR: "hour">
+| <DAY: "day">
+| <SQRT: "sqrt">
+| <SIN: "sin">
+| <COS: "cos">
+| <TAN: "tan">
+| <ARCSIN: "arcsin">
+| <ARCCOS: "arccos">
+| <ARCTAN: "arctan">
+| <ABS: "abs">
+| <PROGRAM_END: "end">
+}
+
+TOKEN : {
+<#DIGIT : ["0"-"9"]>
+| <LPAR: "(">
+| <RPAR: ")">
+| <COMMA: ",">
+| <INTEGER : ("+" | "-")? (<DIGIT>)+>
+| <#SCALEFACTOR : ("E" | "e") ("+" | "-")? (<DIGIT>)+>
+| <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
+| <#LETTER : ["A"-"Z","a"-"z","_"]>
+| <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
+}
+
+
+/**************************************/
+/********** START OF GRAMMAR **********/
+/**************************************/
+
+ASTPilots Pilots(): 
+{
+    Token t;
+}
+{
+    <PROGRAM_START> t = <VAR> { jjtThis.jjtSetValue( t.image ); } ";"
+        <INPUTS> (";" | (Input())*)
+        <OUTPUTS> (";" | (Output())*)
+        <ERRORS> (";" | (Error())*)
+    <PROGRAM_END> ";"
+    { return jjtThis; }
+}
+
+void Input(): 
+{
+    String str;
+}
+{
+    str = Vars() 
+    { jjtThis.jjtSetValue( str ); }
+    ":" Dims() <USING> Methods() ";"
+}
+
+void Output(): 
+{
+    String str, exps, time;
+}
+{
+    str = Vars() ":" exps = Exps() <AT> <EVERY> time = Time() ";"
+    { jjtThis.jjtSetValue( str + ":" + exps + ":" + time ); }
+}
+
+void Error():
+{
+    String str, exps, time;
+}
+{
+    str = Vars() ":" exps = Exps() <AT> <EVERY> time = Time() ";"
+    { jjtThis.jjtSetValue( str + ":" + exps + ":" + time ); }
+}
+
+String Vars(): 
+{
+    Token t;
+    String str;
+}
+{
+    t = <VAR> { str = (String)t.image; }
+    ("," t = <VAR> { str += "," + (String)t.image; })* 
+    { return str; }
+}
+
+void Dims(): {}
+{
+    // "(t)" | "(x,t)" | "(x,y,t)" | "(x,y,z,t)"
+    // "(" ["x," ["y,"["z,"]]] "t" ")"
+    // "(" ["x," ["y,"["z,"]]] <VAR> ")"
+    "(" Exps() ")"      // workaround to avoid conflicts with the arguments for Method()
+}
+
+void Method(): 
+{
+    Token t;
+    String id, args;
+}
+{
+    
+    (t = <CLOSEST> { id = (String)t.image; } 
+     | t = <EUCLIDEAN> { id = (String)t.image; } 
+     | t = <INTERPOLATE> { id = (String)t.image; })
+    "(" args = Exps() ")"
+    { jjtThis.jjtSetValue( id + ":" + args ); } 
+}
+
+void Methods(): {}
+{
+    Method() ("," Method())*
+}
+
+String Time(): 
+{
+    Token t;
+    String number;
+}
+{
+    number = Number() (
+    t = <NSEC> { return number + ":" + t.image; }
+    | t = <USEC> { return number + ":" + t.image; }
+    | t = <MSEC> { return number + ":" + t.image; }
+    | t = <SEC>  { return number + ":" + t.image; }
+    | t = <MIN>  { return number + ":" + t.image; }
+    | t = <HOUR>  { return number + ":" + t.image; }
+    | t = <DAY>  { return number + ":" + t.image; }
+    )
+}
+
+String Exps(): 
+{
+    String exp, temp;
+}
+{
+    exp = Exp() ("," temp = Exp() { exp += "," + temp; } )*
+    { return exp; }
+}
+
+String Exp(): 
+{
+    String func, exps, exp, exp2, value, temp;
+}
+{
+    func = Func() "(" exps = Exps() ")" exp2 = Exp2() { return func + "(" + exps + ")" + exp2; } 
+    | "(" temp = Exp() ")" exp2 = Exp2() { return "(" + temp + ")" + exp2; } 
+    | value = Value() exp2 = Exp2() { return value + exp2; }
+}
+
+String Exp2(): 
+{
+    String func, exp, exp2;
+}
+{
+    func = Func() exp = Exp() exp2 = Exp2() { return func + exp + exp2; } 
+    | {} { return ""; }
+}
+
+String Func(): 
+{
+    Token t;
+}
+{
+    t = "+" { return t.image; }
+    | t = "-" { return t.image; }
+    | t = "*" { return t.image; }
+    | t = "/" { return t.image; }
+    | t = "^" { return t.image; }
+    | t = <SQRT> { return t.image; }
+    | t = <SIN> { return t.image; }
+    | t = <COS> { return t.image; }
+    | t = <TAN> { return t.image; }
+    | t = <ARCSIN> { return t.image; }
+    | t = <ARCCOS> { return t.image; }
+    | t = <ARCTAN> { return t.image; }
+    | t = <ABS> { return t.image; }
+}
+
+String Number(): 
+{
+    Token t;
+}
+{
+    t = <INTEGER> { return t.image; }
+    | t = <REAL> { return t.image; }
+}
+
+String Value(): 
+{
+    Token t;
+    String number;
+}
+{
+    number = Number() { return number; }
+    | t = <VAR> { jjtThis.jjtSetValue( t.image ); } { return t.image; }
+}
