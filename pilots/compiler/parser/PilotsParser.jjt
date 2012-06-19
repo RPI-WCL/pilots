@@ -48,9 +48,9 @@ TOKEN : {
 | <SIN: "sin">
 | <COS: "cos">
 | <TAN: "tan">
-| <ARCSIN: "arcsin">
-| <ARCCOS: "arccos">
-| <ARCTAN: "arctan">
+| <ARCSIN: "asin">
+| <ARCCOS: "acos">
+| <ARCTAN: "atan">
 | <ABS: "abs">
 | <PROGRAM_END: "end">
 }

@@ -24,9 +24,13 @@ public class SimpleServer {
                     System.out.println( "EOS marker received" );
                     break;
                 }
+                else if ( str.charAt(0) == '#' ) {
+                    System.out.println( "first line received: " + str );
+                }
                 else {
                     // just print the value
-                    System.out.println( str );
+                    String[] data = str.split( ":" );
+                    System.out.println( data[data.length - 1] );
                 }
 
             }

@@ -47,4 +47,39 @@ public class Method {
 
         return found;
     }
+
+    public void setArgs( String[] args ) {
+        args_ = args;
+    }
+
+    public String toString() {
+        // this is for the compiler 
+        String str = new String();
+
+        // id 
+        switch (id_) {
+        case Closest:
+            str += "Method.Closest";
+            break;
+        case Euclidean:
+            str += "Method.Euclidean";
+            break;
+        case Interpolate:
+            str += "Method.Interpolate";
+            break;
+        default:
+            break;
+        }
+        str += ", ";
+
+        // args
+        for (int i = 0; i < args_.length; i++) {
+            if (i == 0) 
+                str += "\"" + args_[i] + "\"";
+            else
+                str += ", \"" + args_[i] + "\"";
+        }
+
+        return str;
+    }
 }

@@ -1,2 +1,5 @@
+javac pilots/compiler/*.java
+javac pilots/compiler/codegen/*.java
+javac pilots/compiler/parser/*.java
 javac pilots/runtime/*.java
 javac pilots/tests/*.java

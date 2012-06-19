@@ -41,13 +41,13 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code_ = new String();
     }
 
-    public void acceptChildren( SimpleNode node, Object data ) {
+    protected void acceptChildren( SimpleNode node, Object data ) {
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild( i ).jjtAccept( this, data );
         }
     }
 
-    public void generateImports() {
+    protected void generateImports() {
         code_ += "package pilots.tests;\n";
         code_ += "\n";
         code_ += "import java.util.Timer;\n";
@@ -57,20 +57,37 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code_ += "\n";
     }
 
-    public void generateClassDeclaration() {
-        code_ += "public class " + appName_ + " extends PilotRuntime {\n";
+    protected void generateClassDeclaration() {
+        code_ += "public class " + appName_ + " extends PilotsRuntime {\n";
         code_ += TAB + "private Timer timer_;\n";
         code_ += "\n";
     }
 
-    public void generateConstructor() {
+    protected void generateConstructor() {
         code_ += TAB + "public " + appName_ + "() {\n";
         code_ += TAB + TAB + "timer_ = new Timer();\n";
         code_ += TAB + "}\n";
         code_ += "\n";
     }        
 
-    public void generateStartOutputs( Vector<OutputStream> outputs ) {
+    public String replaceMathFuncs( String exp ) {
+        String[] funcs1 = { "asin", "acos", "atan" };
+        String[] funcs2 = { "sqrt", "sin", "cos", "abs"};
+        String[] funcs3 = { "arcs", "arcc", "arct" };
+
+        for (int i = 0; i < funcs1.length; i++)
+            exp = exp.replaceAll( funcs1[i], funcs3[i] );
+
+        for (int i = 0; i < funcs2.length; i++)
+            exp = exp.replaceAll( funcs2[i], "Math." + funcs2[i] );
+
+        for (int i = 0; i < funcs3.length; i++) 
+            exp = exp.replaceAll( funcs3[i], "Math." + funcs1[i] );
+
+        return exp;
+    }
+
+    protected void generateStartOutputs( Vector<OutputStream> outputs ) {
         for (int i = 0; i < outputs.size(); i++) {
             OutputStream output = outputs.get( i );
 
@@ -136,7 +153,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             }
 
             // output expression
-            code_ += TAB + TAB + TAB + TAB + outputVarNames[0] + " = " + output.getExp() + ";\n";
+            code_ += TAB + TAB + TAB + TAB + outputVarNames[0] + " = " + replaceMathFuncs( output.getExp() ) + ";\n";
             
             // finally send it
             code_ += TAB + TAB + TAB + TAB + "try {\n";
@@ -144,8 +161,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 code_ += TAB + TAB + TAB + TAB + TAB + "sendData( OutputType.Output, " + i + ", " + outputVarNames[0] + " );\n";
             else 
                 code_ += TAB + TAB + TAB + TAB + TAB + "sendData( OutputType.Error, " + i + ", " + outputVarNames[0] + " );\n";
-            code_ += TAB + TAB + TAB + TAB + "} catch { Exception ex ) {\n";
-            code_ += TAB + TAB + TAB + TAB + TAB + "ex.printStackTrace()\n";
+            code_ += TAB + TAB + TAB + TAB + "} catch ( Exception ex ) {\n";
+            code_ += TAB + TAB + TAB + TAB + TAB + "ex.printStackTrace();\n";
             code_ += TAB + TAB + TAB + TAB + "}\n";
             code_ += TAB + TAB + TAB + "}\n";
             code_ += TAB + TAB + "}, 0, " + output.getFrequency() + ");\n";
@@ -154,7 +171,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
     }
 
-    public void generateMain() {
+    protected void generateMain() {
         code_ += TAB + "public static void main( String[] args ) {\n";
         code_ += TAB + TAB + appName_ + " app = new " + appName_ + "();\n";
         code_ += "\n";
@@ -164,7 +181,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code_ += TAB + TAB + TAB + "ex.printStackTrace();\n";
         code_ += TAB + TAB + "}\n";
         code_ += "\n";
-        code_ += TAB + TAB + "app.startServer()\n";
+        code_ += TAB + TAB + "app.startServer();\n";
         for (int i = 0; i < outputs_.size(); i++) {
             OutputStream output = outputs_.get( i );
             String[] outputVarNames = output.getVarNames();
@@ -179,7 +196,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code_ += "}\n";
     }
 
-    public void generateCode() {
+    protected void generateCode() {
         generateImports();
         generateClassDeclaration();
         generateConstructor();
@@ -190,7 +207,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         generateMain();
     }
 
-    public void outputCode() {
+    protected void outputCode() {
         System.out.println( code_ );
     }
 
