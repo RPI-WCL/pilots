@@ -1,0 +1,1 @@
+javac -Xlint pilots/tests/*.java

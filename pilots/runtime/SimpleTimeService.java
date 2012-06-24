@@ -34,4 +34,11 @@ public class SimpleTimeService implements CurrentLocationTimeService {
         return null;
     }
 
+    public void progressTime( long offset ) {
+        return;
+    }
+
+    public boolean isTimeEnd() {
+        return false;
+    }
 }

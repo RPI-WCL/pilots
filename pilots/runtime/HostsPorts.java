@@ -13,7 +13,7 @@ public class HostsPorts {
     }
 
     public void addHostPort( String host, int port ) {
-        System.out.println( "addHostPort, host=" + host + ", port=" + port );
+        //System.out.println( "addHostPort, host=" + host + ", port=" + port );
         hosts_.add( host );
         ports_.add( new Integer( port ) );
     }

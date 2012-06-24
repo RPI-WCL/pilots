@@ -88,7 +88,7 @@ public class ArgParser {
             }
             argEnd = i - 1;
 
-            System.out.println( "parse, argStart=" + argStart + ", argEnd " + argEnd );
+            //System.out.println( "parse, argStart=" + argStart + ", argEnd " + argEnd );
 
             if (argStart <= argEnd) {
                 for (i = argStart; i <= argEnd; i++) {

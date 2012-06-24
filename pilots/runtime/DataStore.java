@@ -1,7 +1,7 @@
 package pilots.runtime;
 
-// import java.util.concurrent.locks.ReadWriteLock;
-// import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Vector;
 import java.text.ParseException;
@@ -11,9 +11,9 @@ import pilots.runtime.*;
 public class DataStore extends DebugPrint {
     private static Vector<DataStore> stores_ = null;
     private static CurrentLocationTimeService currLocTime_ = null;
+    private static Comparator<SpatioTempoData> distComparator_ = null;
     private static int MAX_DATA_NUM = 10;
 
-    // private ReadWriteLock lock;
     private String[] varNames_;
     private Vector<SpatioTempoData> data_;
 
@@ -23,11 +23,20 @@ public class DataStore extends DebugPrint {
         for (int i = 0; i < varNames.length; i++)
             varNames_[i] = varNames[i];        // shallow copy
 
-        // lock = new ReentrantReadWriteLock();
         data_ = new Vector<SpatioTempoData>();
 
         if (currLocTime_ == null) 
             currLocTime_ = ServiceFactory.getCurrentLocationTime();
+
+        if (distComparator_ == null) {
+            distComparator_ = new Comparator<SpatioTempoData> () {
+                public int compare( SpatioTempoData stData1, SpatioTempoData stData2 ) {
+                    double dist1 = stData1.getDist();
+                    double dist2 = stData2.getDist();
+                    return Double.compare( dist1, dist2 ); // ascending order 
+                }
+            };
+        }
     }
 
 
@@ -91,6 +100,7 @@ public class DataStore extends DebugPrint {
 
 
     private Vector<SpatioTempoData> applyClosest( Vector<SpatioTempoData> data, String arg ) {
+// System.out.println( "### applyClosest" );
 
         Vector<SpatioTempoData> newData = new Vector<SpatioTempoData>();
 
@@ -99,20 +109,25 @@ public class DataStore extends DebugPrint {
             return null;
 
         if (coord == Dimension.TIME) {
-            // dbgPrint( "applyClosest( TIME ) is not implmented!!" );
             Date currTime = currLocTime_.getTime();
+            // System.out.println( "currTime=" + currTime );
+
             long minDiff = Long.MAX_VALUE;
 
             for (int i = 0; i < data.size(); i++) {
                 SpatioTempoData stData = data.get( i );
                 long diff = stData.calcTimeDiff( currTime );
+// System.out.println( "minDiff=" + minDiff + ", diff=" + diff );
+// stData.print();                
 
                 if (diff < minDiff) {
+// System.out.println( "Clo, dist < minDist: ");
                     newData.clear();
                     newData.add( stData );
                     minDiff = diff;
                 }
                 else if (diff == minDiff ) {
+// System.out.println( "Clo, dist == minDist: ");
                     newData.add( stData );
                 }                
             }
@@ -131,7 +146,7 @@ public class DataStore extends DebugPrint {
                     newData.add( stData );
                     minDiff = diff;
                 }
-                else if (diff == minDiff ) {
+                else if (diff == minDiff) {
                     newData.add( stData );
                 }                
             }
@@ -141,11 +156,174 @@ public class DataStore extends DebugPrint {
     }
 
     private Vector<SpatioTempoData> applyEuclidean( Vector<SpatioTempoData> data, String[] args ) {
-        return null;
+//System.out.println( "### applyEuclidean" );
+
+        Vector<SpatioTempoData> newData = new Vector<SpatioTempoData>();
+
+        double[] currLoc = currLocTime_.getLocation();
+        if (currLoc == null) {
+            dbgPrint( "current location is null" );
+            return null;
+        }
+
+        int[] coords = new int[3];
+        int dimension = args.length;
+
+        for (int i = 0; i < dimension; i++)
+            coords[i] = Dimension.parseCoord( args[i] );
+        double minDist = Double.MAX_VALUE;
+
+// for (int i = 0; i < currLoc.length; i++)
+//     System.out.println( "Euc, currLoc[" + i + "]=" + currLoc[i]  );
+
+
+        for (int i = 0; i < data.size(); i++) {
+            SpatioTempoData stData = data.get( i );
+
+            double diff, sum = 0.0;
+            // we can assume 2-D <= dimension
+            for (int j = 0; j < dimension; j++) {
+                diff = stData.calcLocationDiff( coords[j], currLoc[coords[j]] );
+                sum += (diff * diff);
+            }
+            double dist = Math.sqrt( sum );
+
+            if (dist < minDist) {
+// System.out.print( "Euc, dist < minDist: ");
+// stData.print();
+                newData.clear();
+                newData.add( stData );
+                minDist = dist;
+            }
+            else if (dist == minDist) {
+// System.out.print( "Euc, dist == minDist: ");
+// stData.print();
+                newData.add( stData );
+            }
+        }
+
+        return newData;
     }
 
-    private Vector<SpatioTempoData> applyInterpolation( Vector<SpatioTempoData> data, String[] args ) {
-        return null;
+    private SpatioTempoData[] sortInTimeDist( Vector<SpatioTempoData> data, Date currTime ) {
+        SpatioTempoData[] stDataArray = data.toArray( new SpatioTempoData[data.size()] );
+        
+        for (int i = 0; i < stDataArray.length; i++) {
+            long diff = stDataArray[i].calcTimeDiff( currTime );
+            stDataArray[i].setDist( (double)diff );
+        }
+
+        Arrays.sort( stDataArray, distComparator_ );
+        
+        return stDataArray;
+    }
+
+    private SpatioTempoData[] sortIn1D_Dist( Vector<SpatioTempoData> data, int coord, double[] currLoc ) {
+        SpatioTempoData[] stDataArray = data.toArray( new SpatioTempoData[data.size()] );
+        
+        for (int i = 0; i < stDataArray.length; i++) {
+            double diff = stDataArray[i].calcLocationDiff( coord, currLoc[ coord ] );
+            stDataArray[i].setDist( diff );
+        }
+
+        Arrays.sort( stDataArray, distComparator_ );
+        
+        return stDataArray;
+    }
+
+
+    private SpatioTempoData[] sortIn2D_Dist( Vector<SpatioTempoData> data, int[] coords, double[] currLoc ) {
+        SpatioTempoData[] stDataArray = data.toArray( new SpatioTempoData[data.size()] );
+        
+        for (int i = 0; i < stDataArray.length; i++) {
+            double diff, sum = 0.0;
+            for (int j = 0; j < coords.length; j++) {
+                diff = stDataArray[i].calcLocationDiff( coords[j], currLoc[ coords[j] ] );
+                sum += (diff * diff);
+            }
+            stDataArray[i].setDist( Math.sqrt( sum ) );
+        }
+
+        Arrays.sort( stDataArray, distComparator_ );
+        
+        return stDataArray;
+    }
+
+    private SpatioTempoData[] sortIn3D_Dist( Vector<SpatioTempoData> data, int[] coords, double[] currLoc ) {
+        return sortIn2D_Dist( data, coords, currLoc );
+    }
+
+        
+    private Double applyInterpolation( Vector<SpatioTempoData> data, String[] args, int varIndex ) {
+///System.out.println( "### applyInterpolation" );
+
+        int dimension = args.length - 1; // last arg is n_interp
+        int numInterp;
+        try {
+            numInterp = Integer.parseInt( args[args.length - 1] );
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+
+        SpatioTempoData[] stDataArray = null;
+        Date currTime = null;;
+        double[] currLoc = null;
+        int[] coords = null;
+        switch (dimension) {
+        case Dimension.ONE_DIMENSION:
+            if (args[0].equalsIgnoreCase( "t" )) {
+                // t
+                currTime = currLocTime_.getTime();
+                stDataArray = sortInTimeDist( data, currTime );
+            }
+            else  {
+                // x or y or z
+                currLoc = currLocTime_.getLocation();
+                coords = new int[1];
+                coords[0] = Dimension.parseCoord( args[0] );
+                stDataArray = sortIn1D_Dist( data, coords[0], currLoc );
+            }
+            break;
+
+        case Dimension.TWO_DIMENSION:
+            // (x,y) or (x,z) or (y,z)
+            currLoc = currLocTime_.getLocation();
+            coords = new int[2];
+            for (int i = 0; i < dimension; i++)
+                coords[i] = Dimension.parseCoord( args[i] );
+            stDataArray = sortIn2D_Dist( data, coords, currLoc );
+            break;
+
+        case Dimension.THREE_DIMENSION:
+            // (x,y,z)
+            currLoc = currLocTime_.getLocation();
+            coords = new int[3];
+            for (int i = 0; i < dimension; i++)
+                coords[i] = Dimension.parseCoord( args[i] );
+            stDataArray = sortIn3D_Dist( data, coords, currLoc );
+            break;
+            
+        default:
+            dbgPrint( "applyEuclidean failed due to unknown dimension: " + dimension );
+            break;
+        }
+
+// if (currTime != null)
+//     System.out.println( "currTime=" + currTime );
+        
+        double sum = 0.0;
+        // stDataArray must be sorted in ascending order of whatever distance
+        for (int i = 0; i < numInterp; i++) {
+//stDataArray[i].print();
+            sum += stDataArray[i].getDist();
+        }
+        double interpVal = 0.0;
+        // calculate a weighted sum
+        for (int i = 0; i < numInterp; i++) 
+            interpVal += (1.0 - stDataArray[i].getDist() / sum) * stDataArray[i].getData( varIndex - 1 );
+            
+        return (new Double(interpVal));
     }
 
     private int getVarIndex( String varName ) {
@@ -160,16 +338,16 @@ public class DataStore extends DebugPrint {
         return -1;
     }
 
-    public synchronized double getData( String varName, Method[] methods ) {
+    public synchronized Double getData( String varName, Method[] methods ) {
         Vector<SpatioTempoData> workData = new Vector<SpatioTempoData>();
         workData = data_;  // shallow copy
 
-        // System.out.println ("DataStore.getData, workdata.size()=" + workData.size() );
+        //System.out.println ("DataStore.getData, varName=" + varName );
 
         int varIndex = getVarIndex( varName );
         
         SpatioTempoData stData;
-        Double d = 0.0;
+        Double d = null;
         if (workData.size() == 1) {
             stData = workData.get( 0 );
             d = stData.getData( varIndex - 1 ); // -1: workaround due to an issue on parseVarNames 
@@ -177,6 +355,7 @@ public class DataStore extends DebugPrint {
         }
 
         boolean errorCondition = false;
+        boolean interpolated = false;
         for (int i = 0; i < methods.length; i++) {
             String[] args = methods[i].getArgs();
             if (args.length == 0) {
@@ -208,21 +387,23 @@ public class DataStore extends DebugPrint {
                 break;
 
             case Method.Interpolate:
-                // this applies to any combinations of {x, y, z}
-                // and also takes one argument to specify up to how many points to interpolate
-                if (4 < args.length)  {
-                    System.err.println( "Invalid number of arguments for interpolation method: " + args.length );
+                // this applies to any combinations of {x, y, z} and t
+                // also takes one argument to specify up to how many points to interpolate
+                if ((args.length < 2) || (4 < args.length )) {
+                    System.err.println( "Invalid number arguments for interpolation method: " + args.length );
                     errorCondition = true;
                     break;
                 }
-                workData = applyInterpolation( workData, args );
+                d = applyInterpolation( workData, args, varIndex );
+                if (d != null)
+                    interpolated = true;
                 break;
 
             default:
                 break;
             }
 
-            if (errorCondition || (workData == null)) {
+            if (errorCondition || (workData == null) || interpolated) {
                 break;
             }
 
@@ -310,8 +491,9 @@ public class DataStore extends DebugPrint {
 
         //stData.print();
         
-        if (MAX_DATA_NUM <= data_.size()) {
-            // remove the oldest data
+        if ( System.getProperty( "timeSpan" ) == null &&
+             MAX_DATA_NUM <= data_.size() ) {
+            // remove the oldest data only if working in real-time 
             data_.remove( 0 );
         }
         data_.add( stData );

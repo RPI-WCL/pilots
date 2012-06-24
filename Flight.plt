@@ -1,6 +1,6 @@
 program flight;
 	inputs
-		wind_speed, wind_angle: (x,y) using euclidean(x,y);
+		wind_speed, wind_angle: (x,y,z) using euclidean(x,y), interpolate(z,2);
 		air_speed, air_angle: (x,y,t) using euclidean(x,y), closest(t);
 		ground_speed, ground_angle: (x,y,t) using euclidean(x,y), closest(t);
 	outputs

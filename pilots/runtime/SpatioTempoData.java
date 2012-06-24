@@ -27,6 +27,8 @@ public class SpatioTempoData {
 
     private Vector<Double> values_;
 
+    private double dist_; // used for calculating 1-D/euclidean distance
+
     public SpatioTempoData() {
         id_ = currentId_++;
 
@@ -40,6 +42,8 @@ public class SpatioTempoData {
         TimeZone.setDefault( TimeZone.getTimeZone( timeZoneID ) );
 
         values_ = new Vector<Double>();
+
+        dist_ = 0.0;
     }
 
     public SpatioTempoData( String str ) {
@@ -55,6 +59,8 @@ public class SpatioTempoData {
         TimeZone.setDefault( TimeZone.getTimeZone( timeZoneID ) );
 
         values_ = new Vector<Double>();
+
+        dist_ = 0.0;
 
         if (!parse( str )) {
             System.err.println( "parse failed" );
@@ -166,6 +172,14 @@ public class SpatioTempoData {
         return d.doubleValue();
     }
 
+    public double getDist() {
+        return dist_;
+    }
+
+    public void setDist( double dist ) {
+        dist_ = dist;
+    }
+
 
     public void print() {
         if (locations_ != null) {
@@ -210,8 +224,8 @@ public class SpatioTempoData {
                 System.out.print( "," );
         }
 
-
-        System.out.println();
+        System.out.println( " (dist=" + dist_ + ")" );
+        //System.out.println();
     }
 }
     
