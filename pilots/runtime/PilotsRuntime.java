@@ -23,8 +23,9 @@ public class PilotsRuntime extends DebugPrint {
     private Socket[] errorSockets_;
     private PrintWriter[] errorWriters_;
 
-    private long timeAdjustment_;
     private DateFormat dateFormat_;
+
+    CurrentLocationTimeService currLocTime_;
 
     public PilotsRuntime() {
         input_ = new HostsPorts();
@@ -37,8 +38,9 @@ public class PilotsRuntime extends DebugPrint {
         errorSockets_ = null;
         errorWriters_ = null;
 
-        timeAdjustment_ = 0;
         dateFormat_ = new SimpleDateFormat( SpatioTempoData.datePattern );
+
+        currLocTime_ = ServiceFactory.getCurrentLocationTime();
     }
 
 
@@ -185,15 +187,9 @@ public class PilotsRuntime extends DebugPrint {
     }
 
     
-    protected void setBaseCal( Calendar cal ) {
-        timeAdjustment_ = Calendar.getInstance().getTimeInMillis() - cal.getTimeInMillis();
-    }
-        
 
     protected void sendData( OutputType outputType, int sockIndex, double val ) {
-        Calendar now = Calendar.getInstance();
-        now.add( Calendar.MILLISECOND, (int)(-1 * timeAdjustment_) );
-        Date date = now.getTime();
+        Date date = currLocTime_.getTime();
 
         // write the value on the socket
         PrintWriter printWriter = getWriter( outputType, sockIndex );
@@ -215,5 +211,17 @@ public class PilotsRuntime extends DebugPrint {
         }
 
         return d;
+    }
+    
+    protected boolean isEndTime() {
+        return currLocTime_.isEndTime();
+    }
+
+    protected void progressTime( int timeOffset ) {
+        currLocTime_.progressTime( timeOffset );
+    }
+
+    protected Date getTime() {
+        return currLocTime_.getTime();
     }
 }

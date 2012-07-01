@@ -1,0 +1,1 @@
+java -Derror=airspeed -DcurrLocTime=pilots.runtime.FlightSimService -DtimeSpan="2012-04-03 140400-0500~2012-04-03 154500-0500" pilots.tests.FlightSimApp -input 8888 -errors 127.0.0.1:9999

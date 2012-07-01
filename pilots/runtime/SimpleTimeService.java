@@ -38,7 +38,7 @@ public class SimpleTimeService implements CurrentLocationTimeService {
         return;
     }
 
-    public boolean isTimeEnd() {
+    public boolean isEndTime() {
         return false;
     }
 }

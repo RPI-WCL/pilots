@@ -7,21 +7,19 @@ import pilots.runtime.*;
 
 
 public class FlightSimApp extends PilotsRuntime {
-    CurrentLocationTimeService currLocTime_;
     int timeElapsed_; // msec
 
     public FlightSimApp() {
-        currLocTime_ = ServiceFactory.getCurrentLocationTime();
         timeElapsed_ = 0;
     }
     
 
     public void startOutput() {
-        // try {
-        //     openSocket( OutputType.Error, 0 /* index for sockets */, "e" );
-        // } catch ( Exception ex ) {
-        //     System.err.println( ex );
-        // }
+        try {
+            openSocket( OutputType.Error, 0 /* index for sockets */, "e" );
+        } catch ( Exception ex ) {
+            System.err.println( ex );
+        }
 
         dbgPrint( "time, wind_speed, wind_angle, air_speed, air_angle, ground_speed, ground_angle, calc_ground_speed, e, crab_angle" );
 
@@ -30,7 +28,7 @@ public class FlightSimApp extends PilotsRuntime {
         Double ground_speed = 0.0, ground_angle = 0.0, calc_ground_speed = 0.0;
         Double e = 0.0, crab_angle = 0.0;
 
-        while ( !currLocTime_.isTimeEnd() ) {
+        while ( !isEndTime() ) {
 
             wind_speed = getData( "wind_speed", 
                                   new Method( Method.Euclidean, "x", "y"), 
@@ -43,8 +41,9 @@ public class FlightSimApp extends PilotsRuntime {
 
             boolean isAirspeedSet;
             isAirspeedSet = false;
-            if (System.getProperty( "error" ).equals( "airspeed" ) || 
-                System.getProperty( "error" ).equals( "both" )) {
+            String errorSettings = System.getProperty( "error" );
+            if ((errorSettings != null) && 
+                (errorSettings.equals( "airspeed" ) || errorSettings.equals( "both" ))) {
                 if (41 * 60 * 1000 <= timeElapsed_) { // 41 min
                     air_speed = new Double( 50.0 );
                     isAirspeedSet = true;
@@ -61,8 +60,8 @@ public class FlightSimApp extends PilotsRuntime {
 
             boolean isGroundValSet;
             isGroundValSet = false;
-            if (System.getProperty( "error" ).equals( "GPS" ) ||
-                System.getProperty( "error" ).equals( "both" )) {
+            if ((errorSettings != null) && 
+                (errorSettings.equals( "GPS" ) || errorSettings.equals( "both" ))) {
                 if (40 * 60 * 1000 <= timeElapsed_) { // 40 min
                     // pretend that the values are already set
                     ground_speed = new Double( 0.0 );
@@ -93,24 +92,24 @@ public class FlightSimApp extends PilotsRuntime {
                 crab_angle = 180 * Math.asin( wind_speed * Math.sin( 2 * Math.PI * (air_angle - wind_angle) / 360) /
                                               calc_ground_speed ) / Math.PI;
 
-                // try {
-                dbgPrint( currLocTime_.getTime() + ", " + wind_speed + ", " + wind_angle + 
-                          ", " + air_speed + ", " + air_angle + 
-                          ", " + ground_speed + ", " + ground_angle + 
-                          ", " + calc_ground_speed + 
-                          ", " + e + ", " + crab_angle );
-                //sendData( OutputType.Error, 0 /* index for sockets */, e );
-                // } catch ( Exception ex ) {
-                //     ex.printStackTrace();
-                // }
+                try {
+                    dbgPrint( getTime() + ", " + wind_speed + ", " + wind_angle + 
+                              ", " + air_speed + ", " + air_angle + 
+                              ", " + ground_speed + ", " + ground_angle + 
+                              ", " + calc_ground_speed + 
+                              ", " + e + ", " + crab_angle );
+                    sendData( OutputType.Error, 0 /* index for sockets */, e );
+                } catch ( Exception ex ) {
+                    ex.printStackTrace();
+                }
             }
 
             int timeOffset = 60 * 1000;
             timeElapsed_ += timeOffset;
-            currLocTime_.progressTime( timeOffset ); // 1 min
+            progressTime( timeOffset ); // 1 min
         }
 
-        dbgPrint( "Finished at " + currLocTime_.getTime() );
+        dbgPrint( "Finished at " + getTime() );
     }
 
 
