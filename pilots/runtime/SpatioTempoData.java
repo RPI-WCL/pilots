@@ -227,6 +227,14 @@ public class SpatioTempoData {
         System.out.println( " (dist=" + dist_ + ")" );
         //System.out.println();
     }
+
+    public Date[] getTimes() {
+        return times_;
+    }
+
+    public Vector<Double> getValues() {
+        return values_;
+    }
 }
     
 
