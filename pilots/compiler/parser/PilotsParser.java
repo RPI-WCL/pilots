@@ -221,7 +221,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     String str;
     try {
       t = jj_consume_token(VAR);
-                str = (String)t.image;
+                str = t.image;
       label_4:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -234,7 +234,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
         }
         jj_consume_token(COMMA);
         t = jj_consume_token(VAR);
-                     str += "," + (String)t.image;
+                     str += "," + t.image;
       }
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
@@ -287,15 +287,15 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case CLOSEST:
         t = jj_consume_token(CLOSEST);
-                     id = (String)t.image;
+                     id = t.image;
         break;
       case EUCLIDEAN:
         t = jj_consume_token(EUCLIDEAN);
-                         id = (String)t.image;
+                         id = t.image;
         break;
       case INTERPOLATE:
         t = jj_consume_token(INTERPOLATE);
-                           id = (String)t.image;
+                           id = t.image;
         break;
       default:
         jj_la1[7] = jj_gen;

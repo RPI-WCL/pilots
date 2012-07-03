@@ -119,8 +119,8 @@ String Vars():
     String str;
 }
 {
-    t = <VAR> { str = (String)t.image; }
-    ("," t = <VAR> { str += "," + (String)t.image; })* 
+    t = <VAR> { str = t.image; }
+    ("," t = <VAR> { str += "," + t.image; })* 
     { return str; }
 }
 
@@ -139,9 +139,9 @@ void Method():
 }
 {
     
-    (t = <CLOSEST> { id = (String)t.image; } 
-     | t = <EUCLIDEAN> { id = (String)t.image; } 
-     | t = <INTERPOLATE> { id = (String)t.image; })
+    (t = <CLOSEST> { id = t.image; } 
+     | t = <EUCLIDEAN> { id = t.image; } 
+     | t = <INTERPOLATE> { id = t.image; })
     "(" args = Exps() ")"
     { jjtThis.jjtSetValue( id + ":" + args ); } 
 }

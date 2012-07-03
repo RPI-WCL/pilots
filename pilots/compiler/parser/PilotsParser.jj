@@ -248,8 +248,8 @@ String Vars():
 {/*@bgen(jjtree) Vars */
     try {
 /*@egen*/
-    t = <VAR> { str = (String)t.image; }
-    ("," t = <VAR> { str += "," + (String)t.image; })*/*@bgen(jjtree)*/
+    t = <VAR> { str = t.image; }
+    ("," t = <VAR> { str += "," + t.image; })*/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
@@ -311,9 +311,9 @@ void Method():
     try {
 /*@egen*/
     
-    (t = <CLOSEST> { id = (String)t.image; } 
-     | t = <EUCLIDEAN> { id = (String)t.image; } 
-     | t = <INTERPOLATE> { id = (String)t.image; })
+    (t = <CLOSEST> { id = t.image; } 
+     | t = <EUCLIDEAN> { id = t.image; } 
+     | t = <INTERPOLATE> { id = t.image; })
     "(" args = Exps() ")"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
