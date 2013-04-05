@@ -1,3 +1,0 @@
-javac -Xlint pilots/compiler/*.java
-javac -Xlint pilots/compiler/codegen/*.java
-javac -Xlint pilots/compiler/parser/*.java
