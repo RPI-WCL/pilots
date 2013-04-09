@@ -21,8 +21,8 @@ public class PilotsCompiler {
 
     public void compile() {
         try {
-            parser_ = new PilotsParser( new FileReader( file_ ) );
-            Node node = parser_.Pilots();
+            parser_ = new PilotsParser( new FileReader( file_ ) ); // setting a static input stream
+            Node node = parser_.Pilots(); 
             codegen_ = new PilotsCodeGenerator();
             node.jjtAccept( codegen_, null );
         } 

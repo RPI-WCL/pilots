@@ -3,12 +3,12 @@ package pilots.compiler.parser;
 import java.io.*;
 
 public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, PilotsParserConstants {/*@bgen(jjtree)*/
-  protected static JJTPilotsParserState jjtree = new JJTPilotsParserState();
+  protected JJTPilotsParserState jjtree = new JJTPilotsParserState();
 
 /**************************************/
 /********** START OF GRAMMAR **********/
 /**************************************/
-  static final public ASTPilots Pilots() throws ParseException {
+  final public ASTPilots Pilots() throws ParseException {
  /*@bgen(jjtree) Pilots */
     ASTPilots jjtn000 = new ASTPilots(JJTPILOTS);
     boolean jjtc000 = true;
@@ -105,7 +105,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     throw new Error("Missing return statement in function");
   }
 
-  static final public void Input() throws ParseException {
+  final public void Input() throws ParseException {
  /*@bgen(jjtree) Input */
     ASTInput jjtn000 = new ASTInput(JJTINPUT);
     boolean jjtc000 = true;
@@ -139,7 +139,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     }
   }
 
-  static final public void Output() throws ParseException {
+  final public void Output() throws ParseException {
  /*@bgen(jjtree) Output */
     ASTOutput jjtn000 = new ASTOutput(JJTOUTPUT);
     boolean jjtc000 = true;
@@ -176,7 +176,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     }
   }
 
-  static final public void Error() throws ParseException {
+  final public void Error() throws ParseException {
  /*@bgen(jjtree) Error */
     ASTError jjtn000 = new ASTError(JJTERROR);
     boolean jjtc000 = true;
@@ -213,7 +213,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     }
   }
 
-  static final public String Vars() throws ParseException {
+  final public String Vars() throws ParseException {
  /*@bgen(jjtree) Vars */
     ASTVars jjtn000 = new ASTVars(JJTVARS);
     boolean jjtc000 = true;
@@ -247,7 +247,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     throw new Error("Missing return statement in function");
   }
 
-  static final public void Dims() throws ParseException {
+  final public void Dims() throws ParseException {
               /*@bgen(jjtree) Dims */
   ASTDims jjtn000 = new ASTDims(JJTDIMS);
   boolean jjtc000 = true;
@@ -277,7 +277,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     }
   }
 
-  static final public void Method() throws ParseException {
+  final public void Method() throws ParseException {
  /*@bgen(jjtree) Method */
     ASTMethod jjtn000 = new ASTMethod(JJTMETHOD);
     boolean jjtc000 = true;
@@ -329,7 +329,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     }
   }
 
-  static final public void Methods() throws ParseException {
+  final public void Methods() throws ParseException {
                  /*@bgen(jjtree) Methods */
   ASTMethods jjtn000 = new ASTMethods(JJTMETHODS);
   boolean jjtc000 = true;
@@ -370,7 +370,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     }
   }
 
-  static final public String Time() throws ParseException {
+  final public String Time() throws ParseException {
  /*@bgen(jjtree) Time */
     ASTTime jjtn000 = new ASTTime(JJTTIME);
     boolean jjtc000 = true;
@@ -448,7 +448,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     throw new Error("Missing return statement in function");
   }
 
-  static final public String Exps() throws ParseException {
+  final public String Exps() throws ParseException {
  /*@bgen(jjtree) Exps */
     ASTExps jjtn000 = new ASTExps(JJTEXPS);
     boolean jjtc000 = true;
@@ -494,7 +494,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     throw new Error("Missing return statement in function");
   }
 
-  static final public String Exp() throws ParseException {
+  final public String Exp() throws ParseException {
  /*@bgen(jjtree) Exp */
     ASTExp jjtn000 = new ASTExp(JJTEXP);
     boolean jjtc000 = true;
@@ -568,7 +568,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     throw new Error("Missing return statement in function");
   }
 
-  static final public String Exp2() throws ParseException {
+  final public String Exp2() throws ParseException {
  /*@bgen(jjtree) Exp2 */
     ASTExp2 jjtn000 = new ASTExp2(JJTEXP2);
     boolean jjtc000 = true;
@@ -624,7 +624,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     throw new Error("Missing return statement in function");
   }
 
-  static final public String Func() throws ParseException {
+  final public String Func() throws ParseException {
  /*@bgen(jjtree) Func */
     ASTFunc jjtn000 = new ASTFunc(JJTFUNC);
     boolean jjtc000 = true;
@@ -722,7 +722,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     throw new Error("Missing return statement in function");
   }
 
-  static final public String Number() throws ParseException {
+  final public String Number() throws ParseException {
  /*@bgen(jjtree) Number */
     ASTNumber jjtn000 = new ASTNumber(JJTNUMBER);
     boolean jjtc000 = true;
@@ -754,7 +754,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     throw new Error("Missing return statement in function");
   }
 
-  static final public String Value() throws ParseException {
+  final public String Value() throws ParseException {
  /*@bgen(jjtree) Value */
     ASTValue jjtn000 = new ASTValue(JJTVALUE);
     boolean jjtc000 = true;
@@ -803,17 +803,16 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     throw new Error("Missing return statement in function");
   }
 
-  static private boolean jj_initialized_once = false;
   /** Generated Token Manager. */
-  static public PilotsParserTokenManager token_source;
-  static SimpleCharStream jj_input_stream;
+  public PilotsParserTokenManager token_source;
+  SimpleCharStream jj_input_stream;
   /** Current token. */
-  static public Token token;
+  public Token token;
   /** Next token. */
-  static public Token jj_nt;
-  static private int jj_ntk;
-  static private int jj_gen;
-  static final private int[] jj_la1 = new int[16];
+  public Token jj_nt;
+  private int jj_ntk;
+  private int jj_gen;
+  final private int[] jj_la1 = new int[16];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -833,13 +832,6 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
   }
   /** Constructor with InputStream and supplied encoding */
   public PilotsParser(java.io.InputStream stream, String encoding) {
-    if (jj_initialized_once) {
-      System.out.println("ERROR: Second call to constructor of static parser.  ");
-      System.out.println("       You must either use ReInit() or set the JavaCC option STATIC to false");
-      System.out.println("       during parser generation.");
-      throw new Error();
-    }
-    jj_initialized_once = true;
     try { jj_input_stream = new SimpleCharStream(stream, encoding, 1, 1); } catch(java.io.UnsupportedEncodingException e) { throw new RuntimeException(e); }
     token_source = new PilotsParserTokenManager(jj_input_stream);
     token = new Token();
@@ -849,11 +841,11 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
   }
 
   /** Reinitialise. */
-  static public void ReInit(java.io.InputStream stream) {
+  public void ReInit(java.io.InputStream stream) {
      ReInit(stream, null);
   }
   /** Reinitialise. */
-  static public void ReInit(java.io.InputStream stream, String encoding) {
+  public void ReInit(java.io.InputStream stream, String encoding) {
     try { jj_input_stream.ReInit(stream, encoding, 1, 1); } catch(java.io.UnsupportedEncodingException e) { throw new RuntimeException(e); }
     token_source.ReInit(jj_input_stream);
     token = new Token();
@@ -865,13 +857,6 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
 
   /** Constructor. */
   public PilotsParser(java.io.Reader stream) {
-    if (jj_initialized_once) {
-      System.out.println("ERROR: Second call to constructor of static parser. ");
-      System.out.println("       You must either use ReInit() or set the JavaCC option STATIC to false");
-      System.out.println("       during parser generation.");
-      throw new Error();
-    }
-    jj_initialized_once = true;
     jj_input_stream = new SimpleCharStream(stream, 1, 1);
     token_source = new PilotsParserTokenManager(jj_input_stream);
     token = new Token();
@@ -881,7 +866,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
   }
 
   /** Reinitialise. */
-  static public void ReInit(java.io.Reader stream) {
+  public void ReInit(java.io.Reader stream) {
     jj_input_stream.ReInit(stream, 1, 1);
     token_source.ReInit(jj_input_stream);
     token = new Token();
@@ -893,13 +878,6 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
 
   /** Constructor with generated Token Manager. */
   public PilotsParser(PilotsParserTokenManager tm) {
-    if (jj_initialized_once) {
-      System.out.println("ERROR: Second call to constructor of static parser. ");
-      System.out.println("       You must either use ReInit() or set the JavaCC option STATIC to false");
-      System.out.println("       during parser generation.");
-      throw new Error();
-    }
-    jj_initialized_once = true;
     token_source = tm;
     token = new Token();
     jj_ntk = -1;
@@ -917,7 +895,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     for (int i = 0; i < 16; i++) jj_la1[i] = -1;
   }
 
-  static private Token jj_consume_token(int kind) throws ParseException {
+  private Token jj_consume_token(int kind) throws ParseException {
     Token oldToken;
     if ((oldToken = token).next != null) token = token.next;
     else token = token.next = token_source.getNextToken();
@@ -933,7 +911,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
 
 
 /** Get the next Token. */
-  static final public Token getNextToken() {
+  final public Token getNextToken() {
     if (token.next != null) token = token.next;
     else token = token.next = token_source.getNextToken();
     jj_ntk = -1;
@@ -942,7 +920,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
   }
 
 /** Get the specific Token. */
-  static final public Token getToken(int index) {
+  final public Token getToken(int index) {
     Token t = token;
     for (int i = 0; i < index; i++) {
       if (t.next != null) t = t.next;
@@ -951,19 +929,19 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     return t;
   }
 
-  static private int jj_ntk() {
+  private int jj_ntk() {
     if ((jj_nt=token.next) == null)
       return (jj_ntk = (token.next=token_source.getNextToken()).kind);
     else
       return (jj_ntk = jj_nt.kind);
   }
 
-  static private java.util.List<int[]> jj_expentries = new java.util.ArrayList<int[]>();
-  static private int[] jj_expentry;
-  static private int jj_kind = -1;
+  private java.util.List<int[]> jj_expentries = new java.util.ArrayList<int[]>();
+  private int[] jj_expentry;
+  private int jj_kind = -1;
 
   /** Generate ParseException. */
-  static public ParseException generateParseException() {
+  public ParseException generateParseException() {
     jj_expentries.clear();
     boolean[] la1tokens = new boolean[48];
     if (jj_kind >= 0) {
@@ -997,11 +975,11 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
   }
 
   /** Enable tracing. */
-  static final public void enable_tracing() {
+  final public void enable_tracing() {
   }
 
   /** Disable tracing. */
-  static final public void disable_tracing() {
+  final public void disable_tracing() {
   }
 
 }

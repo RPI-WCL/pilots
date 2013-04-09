@@ -2,6 +2,7 @@
 /*@egen*/options{
                
                  
+	STATIC=false;
 }
 
 PARSER_BEGIN(PilotsParser)
@@ -9,7 +10,7 @@ package pilots.compiler.parser;
 import java.io.*;
 
 public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants/*@egen*/ {/*@bgen(jjtree)*/
-  protected static JJTPilotsParserState jjtree = new JJTPilotsParserState();
+  protected JJTPilotsParserState jjtree = new JJTPilotsParserState();
 
 /*@egen*/
 

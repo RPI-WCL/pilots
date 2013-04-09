@@ -23,7 +23,7 @@ Please note that some files under *tests* directory requires *JFreeChart*.
 
 2. Run `PilotsCompiler` to get translated java code in the standard output:
 
-     $ java compiler.PilotsCompiler SimpleApp.plt > SimpleApp.java
+     $ java pilots.compiler.PilotsCompiler SimpleApp.plt > SimpleApp.java
 
 3. Compile the generated java code:
      
@@ -50,7 +50,7 @@ For example, the following SimpleApp application listens to the port 8888, and s
 
 There are several test scripts under *scripts* directory to simulate experiments shown in the [QUeST 2012 workshop paper](http://wcl.cs.rpi.edu/papers/quest2012.pdf).
 
-* Twice ()
+* Twice
 
          $./chartServer
          $./twiceApp
@@ -68,4 +68,4 @@ You can simulate some sensor failure situations by replacing *flighSimClient* wi
 
 6. Limitations/Known bugs
 ----------------------------------------------------------------------------------------------
-* Simulation mode is not completely supported yet
+* Simulation mode is not completely supported yet.

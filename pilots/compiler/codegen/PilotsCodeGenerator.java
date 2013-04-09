@@ -326,8 +326,20 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         return null;
     }
 
+    public Object visit(ASTSignature node, Object data) {
+        return null;
+    }
+
+    public Object visit(ASTCorrect node, Object data) {
+        return null;
+    }
+
     public Object visit(ASTVars node, Object data) {
         // System.out.println( "ASTVars: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        return null;
+    }
+
+    public Object visit(ASTConst node, Object data) {
         return null;
     }
 
