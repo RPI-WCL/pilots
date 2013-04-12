@@ -7,17 +7,20 @@ public interface PilotsParserTreeConstants
   public int JJTINPUT = 1;
   public int JJTOUTPUT = 2;
   public int JJTERROR = 3;
-  public int JJTVARS = 4;
-  public int JJTDIMS = 5;
-  public int JJTMETHOD = 6;
-  public int JJTMETHODS = 7;
-  public int JJTTIME = 8;
-  public int JJTEXPS = 9;
-  public int JJTEXP = 10;
-  public int JJTEXP2 = 11;
-  public int JJTFUNC = 12;
-  public int JJTNUMBER = 13;
-  public int JJTVALUE = 14;
+  public int JJTSIGNATURE = 4;
+  public int JJTCORRECT = 5;
+  public int JJTVARS = 6;
+  public int JJTCONST = 7;
+  public int JJTDIMS = 8;
+  public int JJTMETHOD = 9;
+  public int JJTMETHODS = 10;
+  public int JJTTIME = 11;
+  public int JJTEXPS = 12;
+  public int JJTEXP = 13;
+  public int JJTEXP2 = 14;
+  public int JJTFUNC = 15;
+  public int JJTNUMBER = 16;
+  public int JJTVALUE = 17;
 
 
   public String[] jjtNodeName = {
@@ -25,7 +28,10 @@ public interface PilotsParserTreeConstants
     "Input",
     "Output",
     "Error",
+    "Signature",
+    "Correct",
     "Vars",
+    "Const",
     "Dims",
     "Method",
     "Methods",
@@ -38,4 +44,4 @@ public interface PilotsParserTreeConstants
     "Value",
   };
 }
-/* JavaCC - OriginalChecksum=5d0454ee8305064ead4a7b5074da7870 (do not edit this line) */
+/* JavaCC - OriginalChecksum=79cbce03ca67e485991aefdfc95dc3c7 (do not edit this line) */

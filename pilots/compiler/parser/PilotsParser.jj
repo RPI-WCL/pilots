@@ -2,7 +2,7 @@
 /*@egen*/options{
                
                  
-	STATIC=false;
+    STATIC=false;
 }
 
 PARSER_BEGIN(PilotsParser)
@@ -36,6 +36,8 @@ TOKEN : {
 | <INPUTS: "inputs">
 | <OUTPUTS: "outputs">
 | <ERRORS: "errors">
+| <SIGNATURES: "signatures">
+| <CORRECTS: "correct">
 | <USING: "using">
 | <AT: "at">
 | <EVERY: "every">
@@ -92,6 +94,8 @@ ASTPilots Pilots():
         <INPUTS> (";" | (Input())*)
         <OUTPUTS> (";" | (Output())*)
         <ERRORS> (";" | (Error())*)
+        <SIGNATURES> (";" | (Signature())*)
+        <CORRECTS> (";" | (Correct())*)
     <PROGRAM_END> ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
@@ -237,6 +241,89 @@ void Error():
 /*@egen*/
 }
 
+void Signature():
+{/*@bgen(jjtree) Signature */
+    ASTSignature jjtn000 = new ASTSignature(JJTSIGNATURE);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    String constant = null, exps;
+    Token t1, t2;
+}
+{/*@bgen(jjtree) Signature */
+    try {
+/*@egen*/
+    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() ";"/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    { jjtn000.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps ); }/*@bgen(jjtree)*/
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        throw (RuntimeException)jjte000;
+      }
+      if (jjte000 instanceof ParseException) {
+        throw (ParseException)jjte000;
+      }
+      throw (Error)jjte000;
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+      }
+    }
+/*@egen*/
+}
+
+void Correct():
+{/*@bgen(jjtree) Correct */
+    ASTCorrect jjtn000 = new ASTCorrect(JJTCORRECT);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    String constant = null, exp;
+    Token t1, t2;
+}
+{/*@bgen(jjtree) Correct */
+    try {
+/*@egen*/
+    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exp = Exp() ";"/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    { jjtn000.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exp ); }/*@bgen(jjtree)*/
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        throw (RuntimeException)jjte000;
+      }
+      if (jjte000 instanceof ParseException) {
+        throw (ParseException)jjte000;
+      }
+      throw (Error)jjte000;
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+      }
+    }
+/*@egen*/
+}
+
+
 String Vars(): 
 {/*@bgen(jjtree) Vars */
     ASTVars jjtn000 = new ASTVars(JJTVARS);
@@ -263,6 +350,33 @@ String Vars():
       }
     }
 /*@egen*/
+}
+
+String Const():
+{/*@bgen(jjtree) Const */
+    ASTConst jjtn000 = new ASTConst(JJTCONST);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    Token t;
+    String str;
+}
+{/*@bgen(jjtree) Const */
+    try {
+/*@egen*/
+    "(" t = <VAR> { str = t.image; } ")"/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    { return str; }/*@bgen(jjtree)*/
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+      }
+    }
+/*@egen*/                                     
 }
 
 void Dims(): {/*@bgen(jjtree) Dims */
@@ -629,6 +743,36 @@ String Func():
                 jjtree.closeNodeScope(jjtn000, true);
                 jjtc000 = false;
               }
+/*@egen*/ { return t.image; }
+    | t = ">"/*@bgen(jjtree)*/
+              {
+                jjtree.closeNodeScope(jjtn000, true);
+                jjtc000 = false;
+              }
+/*@egen*/ { return t.image; }
+    | t = ">="/*@bgen(jjtree)*/
+               {
+                 jjtree.closeNodeScope(jjtn000, true);
+                 jjtc000 = false;
+               }
+/*@egen*/ { return t.image; }
+    | t = "<"/*@bgen(jjtree)*/
+              {
+                jjtree.closeNodeScope(jjtn000, true);
+                jjtc000 = false;
+              }
+/*@egen*/ { return t.image; }
+    | t = "<="/*@bgen(jjtree)*/
+               {
+                 jjtree.closeNodeScope(jjtn000, true);
+                 jjtc000 = false;
+               }
+/*@egen*/ { return t.image; }
+    | t = "!="/*@bgen(jjtree)*/
+               {
+                 jjtree.closeNodeScope(jjtn000, true);
+                 jjtc000 = false;
+               }
 /*@egen*/ { return t.image; }
     | t = <SQRT>/*@bgen(jjtree)*/
                  {

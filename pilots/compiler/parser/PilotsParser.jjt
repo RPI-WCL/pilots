@@ -1,7 +1,7 @@
 options{
     MULTI=true;
     VISITOR=true;
-	STATIC=false;
+    STATIC=false;
 }
 
 PARSER_BEGIN(PilotsParser)
@@ -32,6 +32,8 @@ TOKEN : {
 | <INPUTS: "inputs">
 | <OUTPUTS: "outputs">
 | <ERRORS: "errors">
+| <SIGNATURES: "signatures">
+| <CORRECTS: "correct">
 | <USING: "using">
 | <AT: "at">
 | <EVERY: "every">
@@ -82,6 +84,8 @@ ASTPilots Pilots():
         <INPUTS> (";" | (Input())*)
         <OUTPUTS> (";" | (Output())*)
         <ERRORS> (";" | (Error())*)
+        <SIGNATURES> (";" | (Signature())*)
+        <CORRECTS> (";" | (Correct())*)
     <PROGRAM_END> ";"
     { return jjtThis; }
 }
@@ -114,6 +118,27 @@ void Error():
     { jjtThis.jjtSetValue( str + ":" + exps + ":" + time ); }
 }
 
+void Signature():
+{
+    String constant = null, exps;
+    Token t1, t2;
+}
+{
+    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() ";"
+    { jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps ); }
+}
+
+void Correct():
+{
+    String constant = null, exp;
+    Token t1, t2;
+}
+{
+    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exp = Exp() ";"
+    { jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exp ); }
+}
+
+
 String Vars(): 
 {
     Token t;
@@ -123,6 +148,16 @@ String Vars():
     t = <VAR> { str = t.image; }
     ("," t = <VAR> { str += "," + t.image; })* 
     { return str; }
+}
+
+String Const():
+{
+    Token t;
+    String str;
+}
+{
+    "(" t = <VAR> { str = t.image; } ")"
+    { return str; }                                     
 }
 
 void Dims(): {}
@@ -207,6 +242,11 @@ String Func():
     | t = "*" { return t.image; }
     | t = "/" { return t.image; }
     | t = "^" { return t.image; }
+    | t = ">" { return t.image; }
+    | t = ">=" { return t.image; }
+    | t = "<" { return t.image; }
+    | t = "<=" { return t.image; }
+    | t = "!=" { return t.image; }
     | t = <SQRT> { return t.image; }
     | t = <SIN> { return t.image; }
     | t = <COS> { return t.image; }

@@ -19,67 +19,71 @@ public interface PilotsParserConstants {
   /** RegularExpression Id. */
   int ERRORS = 9;
   /** RegularExpression Id. */
-  int USING = 10;
+  int SIGNATURES = 10;
   /** RegularExpression Id. */
-  int AT = 11;
+  int CORRECTS = 11;
   /** RegularExpression Id. */
-  int EVERY = 12;
+  int USING = 12;
   /** RegularExpression Id. */
-  int CLOSEST = 13;
+  int AT = 13;
   /** RegularExpression Id. */
-  int EUCLIDEAN = 14;
+  int EVERY = 14;
   /** RegularExpression Id. */
-  int INTERPOLATE = 15;
+  int CLOSEST = 15;
   /** RegularExpression Id. */
-  int NSEC = 16;
+  int EUCLIDEAN = 16;
   /** RegularExpression Id. */
-  int USEC = 17;
+  int INTERPOLATE = 17;
   /** RegularExpression Id. */
-  int MSEC = 18;
+  int NSEC = 18;
   /** RegularExpression Id. */
-  int SEC = 19;
+  int USEC = 19;
   /** RegularExpression Id. */
-  int MIN = 20;
+  int MSEC = 20;
   /** RegularExpression Id. */
-  int HOUR = 21;
+  int SEC = 21;
   /** RegularExpression Id. */
-  int DAY = 22;
+  int MIN = 22;
   /** RegularExpression Id. */
-  int SQRT = 23;
+  int HOUR = 23;
   /** RegularExpression Id. */
-  int SIN = 24;
+  int DAY = 24;
   /** RegularExpression Id. */
-  int COS = 25;
+  int SQRT = 25;
   /** RegularExpression Id. */
-  int TAN = 26;
+  int SIN = 26;
   /** RegularExpression Id. */
-  int ARCSIN = 27;
+  int COS = 27;
   /** RegularExpression Id. */
-  int ARCCOS = 28;
+  int TAN = 28;
   /** RegularExpression Id. */
-  int ARCTAN = 29;
+  int ARCSIN = 29;
   /** RegularExpression Id. */
-  int ABS = 30;
+  int ARCCOS = 30;
   /** RegularExpression Id. */
-  int PROGRAM_END = 31;
+  int ARCTAN = 31;
   /** RegularExpression Id. */
-  int DIGIT = 32;
+  int ABS = 32;
   /** RegularExpression Id. */
-  int LPAR = 33;
+  int PROGRAM_END = 33;
   /** RegularExpression Id. */
-  int RPAR = 34;
+  int DIGIT = 34;
   /** RegularExpression Id. */
-  int COMMA = 35;
+  int LPAR = 35;
   /** RegularExpression Id. */
-  int INTEGER = 36;
+  int RPAR = 36;
   /** RegularExpression Id. */
-  int SCALEFACTOR = 37;
+  int COMMA = 37;
   /** RegularExpression Id. */
-  int REAL = 38;
+  int INTEGER = 38;
   /** RegularExpression Id. */
-  int LETTER = 39;
+  int SCALEFACTOR = 39;
   /** RegularExpression Id. */
-  int VAR = 40;
+  int REAL = 40;
+  /** RegularExpression Id. */
+  int LETTER = 41;
+  /** RegularExpression Id. */
+  int VAR = 42;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -96,6 +100,8 @@ public interface PilotsParserConstants {
     "\"inputs\"",
     "\"outputs\"",
     "\"errors\"",
+    "\"signatures\"",
+    "\"correct\"",
     "\"using\"",
     "\"at\"",
     "\"every\"",
@@ -129,11 +135,17 @@ public interface PilotsParserConstants {
     "<VAR>",
     "\";\"",
     "\":\"",
+    "\"=\"",
     "\"+\"",
     "\"-\"",
     "\"*\"",
     "\"/\"",
     "\"^\"",
+    "\">\"",
+    "\">=\"",
+    "\"<\"",
+    "\"<=\"",
+    "\"!=\"",
   };
 
 }

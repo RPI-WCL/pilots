@@ -10,6 +10,7 @@ public class PilotsCompiler {
     String file_ = null;
 
     public static void main( String[] args ) {
+        System.out.println( "Compiling " + args[0] + "..." );
         PilotsCompiler compiler = new PilotsCompiler( args );
         compiler.compile();
     }
