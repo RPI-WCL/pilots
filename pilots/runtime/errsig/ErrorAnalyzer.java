@@ -1,30 +1,33 @@
 package pilots.runtime.errsig;
 
-import pilots.runtime.errsig.ErrorSignatures;
+import java.util.Vector;
+import pilots.runtime.errsig.ErrorSignature;
 import pilots.runtime.errsig.SlidingWindow;
 
 public class ErrorAnalyzer {
-    private ErrorSignatures errorSigs_;
+    private Vector<ErrorSignature> errorSigs_;
+    private int omega_;
     private double tau_;
+    private SlidingWindow win_;
 
-    public ErrorAnalyzer( ErrorSignatures errorSigs, double tau ) {
+
+    public ErrorAnalyzer( Vector<ErrorSignature> errorSigs, int omega, double tau ) {
         errorSigs_ = errorSigs;
+        omega_ = omega;
         tau_ = tau;
+        win_ = new SlidingWindow( omega_ );
+    }
+    
+    public void push( double error ) {
+        win_.push( error );
     }
 
-    public void test() {
-        int numSignatures = errorSigs_.getNumSignatures();
-        System.out.println( "errorSigs=" + errorSigs_ );
-        System.out.println( "numSignatures=" + numSignatures );
-        
-        for (int mode = 0; mode < numSignatures; mode++) {
-            Double sigVal = errorSigs_.computeSignature( mode, 2, 3.0 );
-            System.out.println( "sigVal=" + sigVal );
-            System.out.println( "desc=" + errorSigs_.getDescription( mode ) );
-        }
-    }
-
-    public int analyze( double error, SlidingWindow win, int time ) {
+    public int analyze() {
         return 1;
+    }
+
+    public String getDesc( int mode ) {
+        ErrorSignature errorSig = errorSigs_.get( mode );
+        return errorSig.getDesc();
     }
 }

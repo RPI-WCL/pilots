@@ -14,6 +14,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     private Vector<OutputStream> outputs_ = null;
     private Vector<OutputStream> errors_ = null;
     private String code_ = null;
+
+    private static int depth = 0;
     
     public static void main( String[] args ) {
         try {
@@ -40,6 +42,18 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         errors_ = new Vector<OutputStream> ();
         code_ = new String();
     }
+
+    private void goDown( String node ) {
+        // for (int i = 0; i < depth; i++)
+        //     System.out.print( " " );
+        // System.out.println( node );
+        depth++;
+    }
+
+    private void goUp() {
+        depth--;
+    }
+
 
     protected void acceptChildren( SimpleNode node, Object data ) {
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
@@ -216,21 +230,27 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     public Object visit( ASTPilots node, Object data ) {
+        goDown( "Pilots" );
+
         appName_ = (String) node.jjtGetValue();
         appName_ = appName_.substring(0, 1).toUpperCase() + appName_.substring(1);
-        System.out.println( "ASTPilots: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        // System.out.println( "ASTPilots: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
 
         acceptChildren( node, null );
         generateCode();
         outputCode();
 
+        goUp();
+
         return null;
     }
 
     public Object visit(ASTInput node, Object data) {
-        System.out.println( "ASTInput: value=" + node.jjtGetValue() + 
-                            ",#children=" + node.jjtGetNumChildren() +
-                            ",data=" + data );
+        goDown( "Input" );
+
+        // System.out.println( "ASTInput: value=" + node.jjtGetValue() + 
+        //                     ",#children=" + node.jjtGetNumChildren() +
+        //                     ",data=" + data );
         InputStream input = new InputStream();
         String[] varNames = ((String) node.jjtGetValue()).split( "," );
         // for (int i = 0; i < varNames.length; i++) 
@@ -240,12 +260,16 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         acceptChildren( node, input );
 
+        goUp();
+
         return null;
     }
     public Object visit(ASTOutput node, Object data) {
-        System.out.println( "ASTOutput: value=" + node.jjtGetValue() + 
-                            ",#children=" + node.jjtGetNumChildren() +
-                            ",data=" + data );
+        goDown( "Output" );
+
+        // System.out.println( "ASTOutput: value=" + node.jjtGetValue() + 
+        //                     ",#children=" + node.jjtGetNumChildren() +
+        //                     ",data=" + data );
         OutputStream output = new OutputStream();
         output.setOutputType( OutputType.Output );
 
@@ -281,13 +305,17 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         node.jjtGetChild( 1 ).jjtAccept( this, output ); // accept Exps() only
 
+        goUp();
+
         return null;
     }
 
     public Object visit(ASTError node, Object data) {
-        System.out.println( "ASTError: value=" + node.jjtGetValue() + 
-                            ",#children=" + node.jjtGetNumChildren() +
-                            ",data=" + data );
+        goDown( "Error" );
+
+        // System.out.println( "ASTError: value=" + node.jjtGetValue() + 
+        //                     ",#children=" + node.jjtGetNumChildren() +
+        //                     ",data=" + data );
         OutputStream output = new OutputStream();
         output.setOutputType( OutputType.Error );
 
@@ -323,50 +351,68 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         node.jjtGetChild( 1 ).jjtAccept( this, output ); // accept Exps() only
 
+        goUp();
+
         return null;
     }
 
     public Object visit(ASTSignature node, Object data) {
-        System.out.println( "ASTSignature: value=" + node.jjtGetValue() + 
-                            ",#children=" + node.jjtGetNumChildren() +
-                            ",data=" + data );
+        goDown( "Signature" );
+
+        // System.out.println( "ASTSignature: value=" + node.jjtGetValue() + 
+        //                     ",#children=" + node.jjtGetNumChildren() +
+        //                     ",data=" + data );
 
         String[] str = ((String) node.jjtGetValue()).split( ":" );
-        for (int i = 0; i < str.length; i++) 
-            System.out.println( "Signature, str=" + str[i] );
+        // for (int i = 0; i < str.length; i++) 
+        //     System.out.println( "Signature, str=" + str[i] );
 
+        goUp();
         return null;
     }
 
     public Object visit(ASTCorrect node, Object data) {
-        System.out.println( "ASTCorrect: value=" + node.jjtGetValue() + 
-                            ",#children=" + node.jjtGetNumChildren() +
-                            ",data=" + data );
+        goDown( "Correct" );
+
+        // System.out.println( "ASTCorrect: value=" + node.jjtGetValue() + 
+        //                     ",#children=" + node.jjtGetNumChildren() +
+        //                     ",data=" + data );
 
         String[] str = ((String) node.jjtGetValue()).split( ":" );
-        for (int i = 0; i < str.length; i++) 
-            System.out.println( "Correct, str=" + str[i] );
+        // for (int i = 0; i < str.length; i++) 
+        //     System.out.println( "Correct, str=" + str[i] );
+
+        goUp();
 
         return null;
     }
 
     public Object visit(ASTVars node, Object data) {
-        System.out.println( "ASTVars: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Vars" );        
+        // System.out.println( "ASTVars: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        goUp();
         return null;
     }
 
     public Object visit(ASTConst node, Object data) {
-        System.out.println( "ASTConst: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Const" );        
+        // System.out.println( "ASTConst: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        goUp();
         return null;
     }
 
     public Object visit(ASTDims node, Object data) {
-        System.out.println( "ASTDims: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Dims" );
+        // System.out.println( "ASTDims: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goUp();
         return null;
     }
 
     public Object visit(ASTMethod node, Object data) {
-        System.out.println( "ASTMethod: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Method" );
+        // System.out.println( "ASTMethod: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
 
         InputStream input = (InputStream)data;
         String[] str = ((String) node.jjtGetValue()).split( ":" );
@@ -387,55 +433,72 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
         
         input.addMethod( id, args );
+        goUp();
 
         return null;
     }
 
     public Object visit(ASTMethods node, Object data) {
-        System.out.println( "ASTMethods: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Methods" );
+        // System.out.println( "ASTMethods: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
         acceptChildren( node, data );
+        goUp();
         return null;
     }
 
     public Object visit(ASTTime node, Object data) {
-        System.out.println( "ASTTime: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Time" );
+        // System.out.println( "ASTTime: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goUp();
         return null;
     }
 
     public Object visit(ASTExps node, Object data) {
-        System.out.println( "ASTExps: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Exps" );
+        // System.out.println( "ASTExps: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
         acceptChildren( node, data );
+        goUp();
         return null;
     }
 
     public Object visit(ASTExp node, Object data) {
-        System.out.println( "ASTExp: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Exp" );
+        // System.out.println( "ASTExp: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
         acceptChildren( node, data );
+        goUp();
         return null;
     }
 
     public Object visit(ASTExp2 node, Object data) {
-        System.out.println( "ASTExp2: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Exp2" );
+        // System.out.println( "ASTExp2: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
         acceptChildren( node, data );
+        goUp();
         return null;
     }
 
     public Object visit(ASTFunc node, Object data) {
-        System.out.println( "ASTFunc: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Func" );
+        // System.out.println( "ASTFunc: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goUp();
         return null;
     }
 
     public Object visit(ASTNumber node, Object data) {
-        System.out.println( "ASTNumber: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Number" );
+        // System.out.println( "ASTNumber: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goUp();
         return null;
     }
 
     public Object visit(ASTValue node, Object data) {
-        System.out.println( "ASTValue: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Value" );
+        // System.out.println( "ASTValue: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
         if (data instanceof OutputStream && (node.jjtGetValue() != null)) {
             OutputStream output = (OutputStream)data;
             output.addDeclaredVarNames( (String)node.jjtGetValue() );
         }
+        goUp();
         return null;
     }
 }

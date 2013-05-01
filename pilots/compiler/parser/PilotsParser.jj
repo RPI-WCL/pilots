@@ -72,6 +72,7 @@ TOKEN : {
 | <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
 | <#LETTER : ["A"-"Z","a"-"z","_"]>
 | <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
+| <STRING : "\"" (~["\""])* "\"" | "'" (~["'"])* "'" >
 }
 
 
@@ -94,8 +95,6 @@ ASTPilots Pilots():
         <INPUTS> (";" | (Input())*)
         <OUTPUTS> (";" | (Output())*)
         <ERRORS> (";" | (Error())*)
-        <SIGNATURES> (";" | (Signature())*)
-        <CORRECTS> (";" | (Correct())*)
     <PROGRAM_END> ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
@@ -124,6 +123,22 @@ ASTPilots Pilots():
     }
 /*@egen*/
 }
+
+
+// ASTPilots Pilots(): 
+// {
+//     Token t;
+// }
+// {
+//     <PROGRAM_START> t = <VAR> { jjtThis.jjtSetValue( t.image ); } ";"
+//         <INPUTS> (";" | (Input())*)
+//         <OUTPUTS> (";" | (Output())*)
+//         <ERRORS> (";" | (Error())*)
+//         <SIGNATURES> (";" | (Signature())*)
+//         <CORRECTS> (";" | (Correct())*)
+//     <PROGRAM_END> ";"
+//     { return jjtThis; }
+// }
 
 void Input(): 
 {/*@bgen(jjtree) Input */
@@ -248,18 +263,21 @@ void Signature():
     jjtree.openNodeScope(jjtn000);
 /*@egen*/
     String constant = null, exps;
-    Token t1, t2;
+    Token t1, t2, t3 = null;
 }
 {/*@bgen(jjtree) Signature */
     try {
 /*@egen*/
-    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() ";"/*@bgen(jjtree)*/
+    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
 /*@egen*/
-    { jjtn000.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps ); }/*@bgen(jjtree)*/
+    { if (t3 == null) 
+          jjtn000.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps );
+      else
+          jjtn000.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps + ":" + t3.image ); }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -702,6 +720,14 @@ String Exp2():
     }
 /*@egen*/
 }
+
+// String Desc():
+// {
+//     String desc = null;
+// }
+// {
+//     "[" desc = (~["\["] | ~["\]"])* "]" { return desc; }
+// }
 
 String Func(): 
 {/*@bgen(jjtree) Func */

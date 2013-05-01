@@ -68,6 +68,7 @@ TOKEN : {
 | <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
 | <#LETTER : ["A"-"Z","a"-"z","_"]>
 | <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
+| <STRING : "\"" (~["\""])* "\"" | "'" (~["'"])* "'" >
 }
 
 
@@ -121,11 +122,14 @@ void Error():
 void Signature():
 {
     String constant = null, exps;
-    Token t1, t2;
+    Token t1, t2, t3 = null;
 }
 {
-    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() ";"
-    { jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps ); }
+    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? ";"
+    { if (t3 == null) 
+          jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps );
+      else
+          jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps + ":" + t3.image ); }
 }
 
 void Correct():
@@ -231,6 +235,14 @@ String Exp2():
     func = Func() exp = Exp() exp2 = Exp2() { return func + exp + exp2; } 
     | {} { return ""; }
 }
+
+// String Desc():
+// {
+//     String desc = null;
+// }
+// {
+//     "[" desc = (~["\["] | ~["\]"])* "]" { return desc; }
+// }
 
 String Func(): 
 {

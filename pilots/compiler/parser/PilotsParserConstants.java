@@ -84,6 +84,8 @@ public interface PilotsParserConstants {
   int LETTER = 41;
   /** RegularExpression Id. */
   int VAR = 42;
+  /** RegularExpression Id. */
+  int STRING = 43;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -133,6 +135,7 @@ public interface PilotsParserConstants {
     "<REAL>",
     "<LETTER>",
     "<VAR>",
+    "<STRING>",
     "\";\"",
     "\":\"",
     "\"=\"",
