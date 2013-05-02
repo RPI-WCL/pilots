@@ -23,6 +23,9 @@ public class PilotsRuntime extends DebugPrint {
     private Socket[] errorSockets_;
     private PrintWriter[] errorWriters_;
 
+    private int omega_;
+    private double tau_;
+
     private DateFormat dateFormat_;
 
     CurrentLocationTimeService currLocTime_;
@@ -223,5 +226,13 @@ public class PilotsRuntime extends DebugPrint {
 
     protected Date getTime() {
         return currLocTime_.getTime();
+    }
+
+    protected int getOmega() {
+        return omega_;
+    }
+
+    protected double getTau() {
+        return tau_;
     }
 }
