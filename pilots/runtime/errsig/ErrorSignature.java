@@ -2,8 +2,8 @@ package pilots.runtime.errsig;
 
 
 public class ErrorSignature {
-    public static int CONST     = 0;
-    public static int LINEAR    = 1;
+    public static final int CONST     = 0;
+    public static final int LINEAR    = 1;
 
     private int type_; // CONST or LINEAR
     private double value_; // the value of a constant or slope
