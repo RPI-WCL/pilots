@@ -68,7 +68,8 @@ TOKEN : {
 | <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
 | <#LETTER : ["A"-"Z","a"-"z","_"]>
 | <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
-| <STRING : "\"" (~["\""])* "\"" | "'" (~["'"])* "'" >
+// | <STRING : "\"" (~["\""])* "\"" | "'" (~["'"])* "'" >
+| <STRING : "\"" (~["\""])* "\"" >
 }
 
 
@@ -98,7 +99,7 @@ void Input():
 {
     str = Vars() 
     { jjtThis.jjtSetValue( str ); }
-    ":" Dims() <USING> Methods() ";"
+    Dims() <USING> Methods() ";"
 }
 
 void Output(): 
@@ -112,11 +113,11 @@ void Output():
 
 void Error():
 {
-    String str, exps, time;
+    String str, exps;
 }
 {
-    str = Vars() ":" exps = Exps() <AT> <EVERY> time = Time() ";"
-    { jjtThis.jjtSetValue( str + ":" + exps + ":" + time ); }
+    str = Vars() ":" exps = Exps() ";"
+    { jjtThis.jjtSetValue( str + ":" + exps ); }
 }
 
 void Signature():

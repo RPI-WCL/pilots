@@ -2,17 +2,22 @@ package pilots.compiler.codegen;
 
 import java.io.*;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.StringTokenizer;
 import java.util.Vector;
 import pilots.compiler.parser.*;
 import pilots.runtime.*;
 
 public class PilotsCodeGenerator implements PilotsParserVisitor {
     private static final String TAB = "    ";
+    private static int indent = 0;
 
     private String appName_ = null;
     private Vector<InputStream> inputs_ = null;
     private Vector<OutputStream> outputs_ = null;
     private Vector<OutputStream> errors_ = null;
+    private Vector<Signature> sigs_ = null;
+    private Vector<Correct> corrects_ = null;
     private String code_ = null;
 
     private static int depth = 0;
@@ -40,6 +45,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         inputs_ = new Vector<InputStream> ();
         outputs_ = new Vector<OutputStream> ();
         errors_ = new Vector<OutputStream> ();
+        sigs_ = new  Vector<Signature> ();
+        corrects_ = new Vector<Correct> ();
         code_ = new String();
     }
 
@@ -54,6 +61,31 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         depth--;
     }
 
+    private void incIndent() {
+        indent++;
+    }
+
+    private void decIndent() {
+        indent--;
+    }
+
+    private String insIndent() {
+        String tab = "";
+        for (int i = 0; i < indent; i++)
+            tab += TAB;
+
+        return tab;
+    }
+
+    private String incInsIndent() {
+        incIndent();
+        return insIndent();
+    }
+
+    private String decInsIndent() {
+        decIndent();
+        return insIndent();
+    }
 
     protected void acceptChildren( SimpleNode node, Object data ) {
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
@@ -66,23 +98,168 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code_ += "\n";
         code_ += "import java.util.Timer;\n";
         code_ += "import java.util.TimerTask;\n";
+        code_ += "import java.util.Vector;\n";
         code_ += "import java.net.Socket;\n";
         code_ += "import pilots.runtime.*;\n";
+        code_ += "import pilots.runtime.errsig.*;\n";
         code_ += "\n";
     }
 
     protected void generateClassDeclaration() {
         code_ += "public class " + appName_ + " extends PilotsRuntime {\n";
-        code_ += TAB + "private Timer timer_;\n";
+        code_ += incInsIndent() + "private Timer timer_;\n";
+        for (int i = 0; i < outputs_.size(); i++) {
+            OutputStream output = outputs_.get( i );
+            String[] outputVarNames = output.getVarNames();
+            code_ += insIndent() + "private SlidingWindow win_" + outputVarNames[0] + "_;\n";
+        }
+        if (sigs_ != null) {
+            code_ += insIndent() + "private Vector<ErrorSignature> errorSigs_;\n";
+            code_ += insIndent() + "private ErrorAnalyzer errorAnalyzer_;\n";
+        }
         code_ += "\n";
     }
 
     protected void generateConstructor() {
-        code_ += TAB + "public " + appName_ + "() {\n";
-        code_ += TAB + TAB + "timer_ = new Timer();\n";
-        code_ += TAB + "}\n";
+        code_ += insIndent() + "public " + appName_ + "( String args[] ) {\n";
+        code_ += incInsIndent() + "try {\n";
+        code_ += incInsIndent() + "parseArgs( args );\n";
+        code_ += decInsIndent() + "} catch (Exception ex) {\n";
+        code_ += incInsIndent() + "ex.printStackTrace();\n";
+        code_ += decInsIndent() + "};\n";
         code_ += "\n";
-    }        
+        code_ += insIndent() + "timer_ = new Timer();\n";
+        code_ += "\n";
+        for (int i = 0; i < outputs_.size(); i++) {
+            OutputStream output = outputs_.get( i );
+            String[] outputVarNames = output.getVarNames();
+            code_ += insIndent() + "win_" + outputVarNames[0] + "_ = new SlidingWindow( getOmega() );\n";
+        }
+        code_ += "\n";
+        code_ += insIndent() + "errorSigs_ = new Vector<ErrorSignature>();\n";
+        for (int i = 0; i < sigs_.size(); i++) {
+            Signature sig = sigs_.get( i );
+            code_ += insIndent() + "errorSigs_.add( new ErrorSignature( ErrorSignature.";
+            if (sig.getConstant().equalsIgnoreCase( "null" ))
+                code_ += "CONST, ";
+            else 
+                code_ += "LINEAR, ";
+            if (sig.getDesc() != null)
+                code_ += sig.getValue() + ", " + sig.getDesc() + ") );\n";
+            else 
+                code_ += sig.getValue() + ", null ) );\n";
+        }
+        code_ += "\n";
+        code_ += insIndent() + "errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );\n";
+        code_ += decInsIndent() + "}\n";
+        code_ += "\n";
+    }
+
+
+    protected String replaceVar( String exp, HashMap<String,String> map ) {
+        String newExp = "";
+        StringTokenizer tokenizer = new StringTokenizer( exp, "()/*+-", true );
+
+        while (tokenizer.hasMoreElements()) {
+            String var = (String)tokenizer.nextElement();
+            String hashVar = map.get( var );
+            if (hashVar != null)
+                newExp += hashVar;
+            else 
+                newExp += var;
+        }
+
+        return newExp;
+    }
+
+    protected void generateGetCorrectedData() {
+        // get all input variables in vars
+        Vector<String> vars = new Vector<String>();
+        HashMap<String,String> map = new HashMap<String,String>();
+        for (int i = 0; i < inputs_.size(); i++) {
+            InputStream input = inputs_.get( i );
+            String[] inputVarNames = input.getVarNames();
+            for (int j = 0; j < inputVarNames.length; j++) {
+                vars.add( inputVarNames[j] );
+                map.put( inputVarNames[j], inputVarNames[j] + ".getValue()" );
+            }
+        }
+
+        // declaration
+        code_ += insIndent() + "public void getCorrectedData( SlidingWindow win,\n";
+        code_ += insIndent() + "                              ";
+        for (int i = 0; i < vars.size(); i++) {
+            String var = vars.get( i );
+            code_ += "Value " + var + ", ";
+        }
+        code_ += "\n";
+        code_ += insIndent() + "                              ";
+        for (int i = 0; i < vars.size(); i++) {
+            String var = vars.get( i );
+            code_ += "Value " + var + "_corrected, ";
+        }
+        code_ += "\n";
+        code_ += insIndent() + "                              Mode mode ) {\n";
+
+        // body --->
+        
+        // getData
+        incIndent();
+        for (int i = 0; i < inputs_.size(); i++) {
+            InputStream input = inputs_.get( i );
+            String[] inputVarNames = input.getVarNames();
+            for (int j = 0; j < inputVarNames.length; j++) {
+                code_ += insIndent() + inputVarNames[j] + ".setValue( getData( \"";
+                code_ += inputVarNames[j] + "\", ";
+
+                // methods
+                Vector<Method> methods = input.getMethods();
+                for (int l = 0; l < methods.size(); l++) {
+                    Method method = methods.get( l );
+                    if (l == 0)
+                        code_ += "new Method( " + method.toString() + " )";
+                    else 
+                        code_ += ", new Method( " + method.toString() + " )";
+                }
+                code_ += " ) );\n";
+            }
+        }
+
+        // e
+        code_ += insIndent() + "double e = ";
+        code_ += replaceVar( errors_.get( 0 ).getExp(), map );
+        code_ += ";\n";
+        code_ += "\n";
+
+        // win & mode
+        code_ += insIndent() + "win.push( e );\n";
+        code_ += insIndent() + "mode.setMode( errorAnalyzer_.analyze( win ) );\n";
+        code_ += "\n";
+
+        // switch
+        code_ += insIndent() + "switch (mode.getMode()) {\n";
+        for (int i = 0; i < corrects_.size(); i++) {
+            Correct correct = corrects_.get( i ) ;
+            code_ += insIndent() + "case " + correct.getMode() + ":\n";
+            code_ += incInsIndent() + correct.getVar() + "_corrected.setValue( ";
+            code_ += replaceVar( correct.getExp(), map );
+            code_ += " );\n";
+            code_ += insIndent() + "break;\n";
+            decIndent();
+        }
+        code_ += insIndent() + "default:\n"; // including mode 0
+        incIndent();
+        for (int i = 0; i < vars.size(); i++) {
+            String var = vars.get( i );
+            code_ += insIndent() + var + "_corrected.setValue( ";
+            code_ += map.get( var ) + " );\n";
+        }
+        code_ += insIndent() + "break;\n";
+        code_ += decInsIndent() + "}\n";
+        code_ += decInsIndent() + "}\n";
+        code_ += "\n";
+    }
+
 
     public String replaceMathFuncs( String exp ) {
         String[] funcs1 = { "asin", "acos", "atan" };
@@ -101,128 +278,116 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         return exp;
     }
 
-    protected void generateStartOutputs( Vector<OutputStream> outputs ) {
-        for (int i = 0; i < outputs.size(); i++) {
-            OutputStream output = outputs.get( i );
+
+    protected void generateStartOutputs() {
+        for (int i = 0; i < outputs_.size(); i++) {
+            OutputStream output = outputs_.get( i );
 
             // method declaration
             String[] outputVarNames = output.getVarNames();
-            code_ += TAB + "public void startOutput_";
-            code_ += outputVarNames[0];
-            // if (1 < varNames.length) {
-            //     for (int j = 1; j < varNames.length; j++)
-            //         code_ += "_" + varNames[j];
-            // }
-            code_ += "() {\n";
-            code_ += TAB + TAB + "try {\n";
-            if (output.getOutputType() == OutputType.Output)
-                code_ += TAB + TAB + TAB + "openSocket( OutputType.Output, " + i + ", \"" + outputVarNames[0] + "\" );\n";
-            else 
-                code_ += TAB + TAB + TAB + "openSocket( OutputType.Error, " + i + ", \"" + outputVarNames[0] + "\" );\n";
-            code_ += TAB + TAB + "} catch ( Exception ex ) {\n";
-            code_ += TAB + TAB + TAB + "ex.printStackTrace();\n";
-            code_ += TAB + TAB + "}\n";
-            code_ += TAB + "\n";
-            code_ += TAB + TAB + "timer_.scheduleAtFixedRate( new TimerTask() {\n";
-            code_ += TAB + TAB + TAB + "public void run() {\n";
+            code_ += insIndent() + "public void startOutput_" + outputVarNames[0] + "() {\n";
+
+            // openSocket
+            code_ += incInsIndent() + "try {\n";
+            code_ += incInsIndent() + "openSocket( OutputType.Output, " + i + ", \"" + outputVarNames[0] + "\" );\n";
+            code_ += decInsIndent() + "} catch ( Exception ex ) {\n";
+            code_ += incInsIndent() + "ex.printStackTrace();\n";
+            code_ += decInsIndent() + "}\n";
+            code_ += insIndent() + "\n";
+            
+            // timer thread --->
+            code_ += insIndent() + "timer_.scheduleAtFixedRate( new TimerTask() {\n";
+            incIndent();
+            code_ += incInsIndent() + "public void run() {\n";
 
             // variable declaration
-            code_ += TAB + TAB + TAB + TAB + "double ";
-            HashSet<String> set = output.getDeclaredVarNames();
-            for (int j = 0; j < outputVarNames.length; j++)
-                set.add( outputVarNames[j] ); // union of outputVarNames and declaredVarNames
-            boolean flag = true;
-            for (Object obj : set) {
-                if (flag) {
-                    code_ += (String)obj;
-                    flag = false;
-                }
-                else 
-                    code_ += ", " + (String)obj;
-            }
-            code_ += ";\n";
-
-            // input data streams
+            Vector<String> vars = new Vector<String>();
+            HashMap<String,String> map = new HashMap<String,String>();
             for (int j = 0; j < inputs_.size(); j++) {
                 InputStream input = inputs_.get( j );
-
                 String[] inputVarNames = input.getVarNames();
                 for (int k = 0; k < inputVarNames.length; k++) {
-                    if (set.contains( inputVarNames[k] )) { // is this input var actually used ?
-                        code_ += TAB + TAB + TAB + TAB + inputVarNames[k] + 
-                            " = getData( \"" + inputVarNames[k] + "\", ";
-
-                        // methods
-                        Vector<Method> methods = input.getMethods();
-                        for (int l = 0; l < methods.size(); l++) {
-                            Method method = methods.get( l );
-                            if (l == 0)
-                                code_ += "new Method( " + method.toString() + ")";
-                            else 
-                                code_ += ", new Method( " + method.toString() + ")";
-                        }
-                        code_ += " );\n";
-                    }
+                    vars.add( inputVarNames[k] );
+                    map.put( inputVarNames[k], inputVarNames[k] + "_corrected.getValue()" );
                 }
             }
-
-            // output expression
-            code_ += TAB + TAB + TAB + TAB + outputVarNames[0] + " = " + replaceMathFuncs( output.getExp() ) + ";\n";
+            incIndent();
+            for (int j = 0; j < vars.size(); j++) {
+                String var = vars.get( j );
+                code_ += insIndent() + "Value " + var + " = new Value();\n";
+                code_ += insIndent() + "Value " + var + "_corrected = new Value();\n";
+            }
+            code_ += insIndent() + "Mode mode = new Mode();\n";
+            code_ += "\n";
             
-            // finally send it
-            code_ += TAB + TAB + TAB + TAB + "try {\n";
-            if (output.getOutputType() == OutputType.Output)
-                code_ += TAB + TAB + TAB + TAB + TAB + "sendData( OutputType.Output, " + i + ", " + outputVarNames[0] + " );\n";
-            else 
-                code_ += TAB + TAB + TAB + TAB + TAB + "sendData( OutputType.Error, " + i + ", " + outputVarNames[0] + " );\n";
-            code_ += TAB + TAB + TAB + TAB + "} catch ( Exception ex ) {\n";
-            code_ += TAB + TAB + TAB + TAB + TAB + "ex.printStackTrace();\n";
-            code_ += TAB + TAB + TAB + TAB + "}\n";
-            code_ += TAB + TAB + TAB + "}\n";
-            code_ += TAB + TAB + "}, 0, " + output.getFrequency() + ");\n";
-            code_ += TAB + "}\n";
+            // getCorrectedData
+            code_ += insIndent() + "getCorrectedData( win_" + outputVarNames[0] + "_, ";
+            for (int j = 0; j < vars.size(); j++) {
+                String var = vars.get( j );
+                code_ += var + ", " + var + "_corrected, ";
+            }
+            code_ += "mode );\n";
+            code_ += insIndent() + "double " + outputVarNames[0] + " = ";
+            code_ += replaceVar( replaceMathFuncs(output.getExp()), map ) + ";\n";
+            code_ += "\n";
+
+            // errorAnalyzer
+            code_ += insIndent() + "String desc = errorAnalyzer_.getDesc( mode.getMode() );\n";
+            code_ += insIndent() + "dbgPrint( desc );\n";
+            code_ += "\n";
+
+            // sendData
+            code_ += insIndent() + "try {\n";
+            code_ += incInsIndent() + "sendData( OutputType.Output, " + i + ", " + outputVarNames[0] + " );\n";
+            code_ += decInsIndent() + "} catch ( Exception ex ) {\n";
+            code_ += incInsIndent() + "ex.printStackTrace();\n";
+            code_ += decInsIndent() + "}\n";
+            code_ += decInsIndent() + "}\n";
+            decIndent();
+            code_ += decInsIndent() + "}, 0, " + output.getFrequency() + ");\n";
+            code_ += decInsIndent() + "}\n";
             code_ += "\n";
         }
     }
 
     protected void generateMain() {
-        code_ += TAB + "public static void main( String[] args ) {\n";
-        code_ += TAB + TAB + appName_ + " app = new " + appName_ + "();\n";
-        code_ += "\n";
-        code_ += TAB + TAB + "try {\n";
-        code_ += TAB + TAB + TAB + "app.parseArgs( args );\n";
-        code_ += TAB + TAB + "} catch ( Exception ex ) {\n";
-        code_ += TAB + TAB + TAB + "ex.printStackTrace();\n";
-        code_ += TAB + TAB + "}\n";
-        code_ += "\n";
-        code_ += TAB + TAB + "app.startServer();\n";
+        code_ += insIndent() + "public static void main( String[] args ) {\n";
+        code_ += incInsIndent() + appName_ + " app = new " + appName_ + "( args );\n";
+        code_ += insIndent() + "app.startServer();\n";
         for (int i = 0; i < outputs_.size(); i++) {
             OutputStream output = outputs_.get( i );
             String[] outputVarNames = output.getVarNames();
-            code_ += TAB + TAB + "app.startOutput_" + outputVarNames[0] + "();\n";
+            code_ += insIndent() + "app.startOutput_" + outputVarNames[0] + "();\n";
         }
-        for (int i = 0; i < errors_.size(); i++) {
-            OutputStream output = errors_.get( i );
-            String[] outputVarNames = output.getVarNames();
-            code_ += TAB + TAB + "app.startOutput_" + outputVarNames[0] + "();\n";
-        }
-        code_ += TAB + "}\n";
-        code_ += "}\n";
+        code_ += decInsIndent() + "}\n";
+        code_ += decInsIndent() + "}\n";
     }
+
 
     protected void generateCode() {
         generateImports();
         generateClassDeclaration();
         generateConstructor();
+        generateGetCorrectedData();
         if (0 < outputs_.size())
-            generateStartOutputs( outputs_ );
-        if (0 < errors_.size())
-            generateStartOutputs( errors_ );
+            generateStartOutputs();
         generateMain();
     }
 
     protected void outputCode() {
-        System.out.println( code_ );
+        if (System.getProperty( "stdout" ) != null) {
+            System.out.println( code_ );
+        }
+        else {
+            try {
+                File file = new File( appName_ + ".java" );
+                PrintWriter pw = new PrintWriter( new BufferedWriter( new FileWriter( file ) ) );
+                pw.print( code_ );
+                pw.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     public Object visit(SimpleNode node, Object data) {
@@ -326,27 +491,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         String[] varNames = str[0].split( "," );
         output.setVarNames( varNames );
         output.setExp( str[1] );
-
-        int unit = 0;
-        if (str[3].equalsIgnoreCase( "nsec" ) || str[3].equalsIgnoreCase( "usec" )) {
-            unit = 0;
-        }
-        else if (str[3].equalsIgnoreCase( "msec" )) {
-            unit = 1;
-        }
-        else if (str[3].equalsIgnoreCase( "sec" )) {
-            unit = 1000;
-        }
-        else if (str[3].equalsIgnoreCase( "min" )) {
-            unit = 60 * 1000;
-        }
-        else if (str[3].equalsIgnoreCase( "hour" )) {
-            unit = 60 * 60 * 1000;
-        }
-        else if (str[3].equalsIgnoreCase( "day" )) {
-            unit = 24 * 60 * 60 * 1000;
-        }
-        output.setFrequency( (int)(Double.parseDouble( str[2] ) * unit) ); // msec
+        output.setFrequency( -1 ); // No frequency for error
         errors_.add( output );
 
         node.jjtGetChild( 1 ).jjtAccept( this, output ); // accept Exps() only
@@ -365,7 +510,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         String[] str = ((String) node.jjtGetValue()).split( ":" );
         // for (int i = 0; i < str.length; i++) 
-        //     System.out.println( "Signature, str=" + str[i] );
+        //     System.out.println( "Signature, str[" + i + "]=" + str[i] );
+
+        Signature sig = new Signature( str[0], str[1], str[3], str[4] );
+        sigs_.add( sig );
 
         goUp();
         return null;
@@ -380,7 +528,19 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         String[] str = ((String) node.jjtGetValue()).split( ":" );
         // for (int i = 0; i < str.length; i++) 
-        //     System.out.println( "Correct, str=" + str[i] );
+        //     System.out.println( "Correct, str[" + i + "]=" + str[i] );
+        
+        int mode = -1;
+        for (int i = 0; i < sigs_.size(); i++) {
+            Signature sig = sigs_.get( i ) ;
+            if (sig.getName().equalsIgnoreCase( str[0] )) {
+                mode = i;
+                break;
+            }
+        }
+
+        Correct correct = new Correct( mode, str[0], str[1], str[2], str[3] );
+        corrects_.add( correct );
 
         goUp();
 

@@ -95,6 +95,8 @@ ASTPilots Pilots():
         <INPUTS> (";" | (Input())*)
         <OUTPUTS> (";" | (Output())*)
         <ERRORS> (";" | (Error())*)
+        <SIGNATURES> (";" | (Signature())*)
+        <CORRECTS> (";" | (Correct())*)
     <PROGRAM_END> ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
@@ -124,22 +126,6 @@ ASTPilots Pilots():
 /*@egen*/
 }
 
-
-// ASTPilots Pilots(): 
-// {
-//     Token t;
-// }
-// {
-//     <PROGRAM_START> t = <VAR> { jjtThis.jjtSetValue( t.image ); } ";"
-//         <INPUTS> (";" | (Input())*)
-//         <OUTPUTS> (";" | (Output())*)
-//         <ERRORS> (";" | (Error())*)
-//         <SIGNATURES> (";" | (Signature())*)
-//         <CORRECTS> (";" | (Correct())*)
-//     <PROGRAM_END> ";"
-//     { return jjtThis; }
-// }
-
 void Input(): 
 {/*@bgen(jjtree) Input */
     ASTInput jjtn000 = new ASTInput(JJTINPUT);
@@ -153,7 +139,7 @@ void Input():
 /*@egen*/
     str = Vars() 
     { jjtn000.jjtSetValue( str ); }
-    ":" Dims() <USING> Methods() ";"/*@bgen(jjtree)*/
+    Dims() <USING> Methods() ";"/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -222,18 +208,18 @@ void Error():
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
 /*@egen*/
-    String str, exps, time;
+    String str, exps;
 }
 {/*@bgen(jjtree) Error */
     try {
 /*@egen*/
-    str = Vars() ":" exps = Exps() <AT> <EVERY> time = Time() ";"/*@bgen(jjtree)*/
+    str = Vars() ":" exps = Exps() ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
 /*@egen*/
-    { jjtn000.jjtSetValue( str + ":" + exps + ":" + time ); }/*@bgen(jjtree)*/
+    { jjtn000.jjtSetValue( str + ":" + exps ); }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
