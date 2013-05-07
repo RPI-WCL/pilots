@@ -13,6 +13,9 @@ import pilots.runtime.*;
 
 
 public class PilotsRuntime extends DebugPrint {
+    private static final int DEFAULT_OMEGA = 10;
+    private static final double DEFAULT_TAU = 0.8;
+
     // hosts, ports, sockets
     private HostsPorts input_;
     private HostsPorts outputs_;
@@ -40,6 +43,9 @@ public class PilotsRuntime extends DebugPrint {
         errors_ = new HostsPorts();
         errorSockets_ = null;
         errorWriters_ = null;
+
+        omega_ = DEFAULT_OMEGA;
+        tau_ = DEFAULT_TAU;
 
         dateFormat_ = new SimpleDateFormat( SpatioTempoData.datePattern );
 
@@ -97,6 +103,18 @@ public class PilotsRuntime extends DebugPrint {
                                                         outputs_.getPort( sockIndex ) );
             }
             sock = outputSockets_[sockIndex];
+
+            if (outputWriters_ == null) {
+                outputWriters_ = new PrintWriter[ outputs_.getSize() ];
+                for (int i = 0; i < outputWriters_.length; i++)
+                    outputWriters_[i] = null;
+            }
+            if (outputWriters_[sockIndex] == null) {
+                outputWriters_[sockIndex] = new PrintWriter( sock.getOutputStream(), true );
+                // send the first line of the output stream
+                outputWriters_[sockIndex].println( "#" + var );
+                outputWriters_[sockIndex].flush();
+            }
             break;
 
         case Error:

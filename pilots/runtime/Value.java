@@ -18,4 +18,8 @@ public class Value {
     public double getValue() {
         return value_;
     }
+
+    public String toString() {
+        return Double.toString( value_ );
+    }
 }

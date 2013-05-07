@@ -30,4 +30,8 @@ public class HostsPorts {
     public int getSize() {
         return hosts_.size();  // must be equal to ports_size()
     }
+
+    public String toString( int index ) {
+        return hosts_.get( index ) + ":" + ports_.get( index );
+    }
 }
