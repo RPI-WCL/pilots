@@ -187,18 +187,11 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         // declaration
         code_ += insIndent() + "public void getCorrectedData( SlidingWindow win,\n";
-        code_ += insIndent() + "                              ";
         for (int i = 0; i < vars.size(); i++) {
             String var = vars.get( i );
-            code_ += "Value " + var + ", ";
+            code_ += insIndent() + "                              ";
+            code_ += "Value " + var + ", Value " + var + "_corrected,\n";
         }
-        code_ += "\n";
-        code_ += insIndent() + "                              ";
-        for (int i = 0; i < vars.size(); i++) {
-            String var = vars.get( i );
-            code_ += "Value " + var + "_corrected, ";
-        }
-        code_ += "\n";
         code_ += insIndent() + "                              Mode mode ) {\n";
 
         // body --->
@@ -236,7 +229,12 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code_ += insIndent() + "mode.setMode( errorAnalyzer_.analyze( win ) );\n";
         code_ += "\n";
 
-        // switch
+        // correct values 
+        for (int i = 0; i < vars.size(); i++) {
+            String var = vars.get( i );
+            code_ += insIndent() + var + "_corrected.setValue( ";
+            code_ += map.get( var ) + " );\n";
+        }
         code_ += insIndent() + "switch (mode.getMode()) {\n";
         for (int i = 0; i < corrects_.size(); i++) {
             Correct correct = corrects_.get( i ) ;
@@ -247,15 +245,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code_ += insIndent() + "break;\n";
             decIndent();
         }
-        code_ += insIndent() + "default:\n"; // including mode 0
-        incIndent();
-        for (int i = 0; i < vars.size(); i++) {
-            String var = vars.get( i );
-            code_ += insIndent() + var + "_corrected.setValue( ";
-            code_ += map.get( var ) + " );\n";
-        }
-        code_ += insIndent() + "break;\n";
-        code_ += decInsIndent() + "}\n";
+        code_ += insIndent() + "}\n";
         code_ += decInsIndent() + "}\n";
         code_ += "\n";
     }

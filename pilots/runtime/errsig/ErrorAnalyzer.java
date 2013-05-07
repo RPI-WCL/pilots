@@ -40,7 +40,7 @@ public class ErrorAnalyzer {
                     double thisFail = 0.0;
                     double ref = win.at( j );
                     for (int k = 0; k < winSize; k++) {
-                        double anticipated = ref - ((k - j) * errorSig.getValue());
+                        double anticipated = ref + ((k - j) * errorSig.getValue());
                         thisFail += calcDiff( win.at( k ), anticipated );
                     }
                     closestFail = (thisFail < closestFail) ? thisFail : closestFail;
