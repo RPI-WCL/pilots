@@ -192,7 +192,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code_ += insIndent() + "                              ";
             code_ += "Value " + var + ", Value " + var + "_corrected,\n";
         }
-        code_ += insIndent() + "                              Mode mode ) {\n";
+        code_ += insIndent() + "                              Mode mode, int frequency ) {\n";
 
         // body --->
         
@@ -226,7 +226,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         // win & mode
         code_ += insIndent() + "win.push( e );\n";
-        code_ += insIndent() + "mode.setMode( errorAnalyzer_.analyze( win ) );\n";
+        code_ += insIndent() + "mode.setMode( errorAnalyzer_.analyze( win, frequency ) );\n";
         code_ += "\n";
 
         // correct values 
@@ -286,6 +286,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code_ += insIndent() + "\n";
             
             // timer thread --->
+            code_ += insIndent() + "final int frequency = " + output.getFrequency() + ";\n";
             code_ += insIndent() + "timer_.scheduleAtFixedRate( new TimerTask() {\n";
             incIndent();
             code_ += incInsIndent() + "public void run() {\n";
@@ -316,7 +317,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 String var = vars.get( j );
                 code_ += var + ", " + var + "_corrected, ";
             }
-            code_ += "mode );\n";
+            code_ += "mode, frequency );\n";
             code_ += insIndent() + "double " + outputVarNames[0] + " = ";
             code_ += replaceVar( replaceMathFuncs(output.getExp()), map ) + ";\n";
             code_ += "\n";
@@ -334,7 +335,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code_ += decInsIndent() + "}\n";
             code_ += decInsIndent() + "}\n";
             decIndent();
-            code_ += decInsIndent() + "}, 0, " + output.getFrequency() + ");\n";
+            code_ += decInsIndent() + "}, 0, frequency );\n";
             code_ += decInsIndent() + "}\n";
             code_ += "\n";
         }
