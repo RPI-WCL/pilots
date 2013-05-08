@@ -9,99 +9,67 @@ import pilots.runtime.HostsPorts;
 
 
 public class ArgParser {
-
-    // System.err.println( "Usage: java " + args[0] +
-    //                     "-input <port> -outputs <ipaddr:port>* -errors <ipaddr:port>*" );
-    // System.err.println( "Arguments parsing exception:" );
-    // System.err.println( "\tError: " + e );    
+    // Supported arguments format:
+    // $ java pilots.test.CorrectApp -input=8888 -outputs=127.0.0.1:9998,127.0.0.1:9999 -omega=10 -tau=0.8
 
     public static void parse( String[] args, 
-                              HostsPorts input, HostsPorts outputs, HostsPorts errors) throws ParseException {
-        int i, argStart, argEnd;
+                              HostsPorts input, HostsPorts outputs,
+                              Value omega, Value tau ) throws ParseException {
         Pattern pattern;
         Matcher matcher;
-        boolean foundInput = false, foundOutputs = false, foundErrors = false;
 
-        // parse input
-        for (i = 0; i < args.length; i++) {
-            if (args[i].equals( "-input" )) {
-                foundInput = true;
-                break;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].startsWith( "-input" )) {
+                int j = args[i].indexOf( '=' );
+                input.addHostPort( null, Integer.parseInt( args[i].substring( j + 1 ) ) );
             }
-        }
-        // System.out.println( "args.length=" + args.length + ",i=" + i );
-
-        if (!foundInput || i == args.length) { // input is mandatory
-            throw new ParseException( "No input arguments", i );
-        }
-        // add port only
-        input.addHostPort( null, Integer.parseInt( args[i + 1] ) );
-        
-        // outputs
-        for (i = 0; i < args.length; i++) {
-            if (args[i].equals( "-outputs" )) {
-                foundOutputs = true;
-                break;
-            }
-        }
-
-        if (foundOutputs) {
-            if (i == args.length) {
-                throw new ParseException( "No output arguments", i );
-            }
-
-            pattern = Pattern.compile( "[0-9]+.[0-9]+.[0-9]+.[0-9]+:[0-9]+" );
-            argStart = i + 1;
-            for (i = argStart; i < args.length; i++) {
-                matcher = pattern.matcher( args[i] );
-                if (!matcher.matches())
-                    break;
-            }
-            argEnd = i - 1;
-
-            // System.out.println( "parse, argStart=" + argStart + ", argEnd " + argEnd );
-
-            if (argStart <= argEnd) {
-                for (i = argStart; i <= argEnd; i++) {
-                    int colon = args[i].indexOf(':');
-                    outputs.addHostPort( args[i].substring( 0, colon ),
-                                         Integer.parseInt( args[i].substring( colon + 1 ) ) );
+            else if (args[i].startsWith( "-outputs" )) {
+                int j = args[i].indexOf( '=' );
+                String str = args[i].substring( j + 1 );
+                String[] ipaddrs = str.split( "," );
+                
+                for (int k = 0; k < ipaddrs.length; k++) {
+                    pattern = Pattern.compile( "[0-9]+.[0-9]+.[0-9]+.[0-9]+:[0-9]+" );
+                    matcher = pattern.matcher( ipaddrs[k] );
+                    if (!matcher.matches()) {
+                        throw new ParseException( "illegal IP Address format found for outputs: ", i );
+                    }
+                    int colon = ipaddrs[k].indexOf( ':' );
+                    outputs.addHostPort( ipaddrs[k].substring( 0, colon ),
+                                         Integer.parseInt( ipaddrs[k].substring( colon + 1 ) ) );
                 }
             }
-        }
-
-        // errors
-        for (i = 0; i < args.length; i++) {
-            if (args[i].equals( "-errors" )) {
-                foundErrors = true;
-                break;
+            else if (args[i].startsWith( "-omega" )) {
+                int j = args[i].indexOf( '=' );
+                omega.setValue( Integer.parseInt( args[i].substring( j + 1 ) ) );
             }
-        }
-        if (foundErrors) {
-            if (i == args.length) {
-                throw new ParseException( "No error arguments", i );
+            else if (args[i].startsWith( "-tau" )) {
+                int j = args[i].indexOf( '=' );
+                tau.setValue( Double.parseDouble( args[i].substring( j + 1 ) ) );
             }
-
-            argStart = i + 1;
-            // TODO: support "localhost" and "xxx.yyy.zzz"
-            pattern = Pattern.compile( "[0-9]+.[0-9]+.[0-9]+.[0-9]+:[0-9]+" );
-            for (i = argStart; i < args.length; i++) {
-                matcher = pattern.matcher( args[i] );
-                if (!matcher.matches())
-                    break;
-            }
-            argEnd = i - 1;
-
-            //System.out.println( "parse, argStart=" + argStart + ", argEnd " + argEnd );
-
-            if (argStart <= argEnd) {
-                for (i = argStart; i <= argEnd; i++) {
-                    int colon = args[i].indexOf(':');
-                    errors.addHostPort( args[i].substring( 0, colon ),
-                                        Integer.parseInt( args[i].substring( colon + 1 ) ) );
-                }
+            else {
+                throw new ParseException( "illegal option found: ", i );
             }
         }
     }
 
+
+    public static void main (String args[]) {
+        // test
+        HostsPorts input = new HostsPorts();
+        HostsPorts outputs = new HostsPorts();
+        Value omega = new Value();
+        Value tau = new Value();
+
+        try {
+            ArgParser.parse( args, input, outputs, omega, tau );
+        } catch ( Exception ex ) {
+            ex.printStackTrace();
+        }
+
+        System.out.println( "input=" + input );
+        System.out.println( "outputs=" + outputs );
+        System.out.println( "omega=" + omega );
+        System.out.println( "tau=" + tau );
+    }
 }

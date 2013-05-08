@@ -54,13 +54,24 @@ public class PilotsRuntime extends DebugPrint {
 
 
     protected void parseArgs( String[] args ) throws ParseException {
+        Value omega = new Value( Value.NULL );
+        Value tau = new Value( Value.NULL );
+
         try {
+            // ArgParser.parse( args, // input 
+            //                  input_, outputs_, errors_ ); // output
             ArgParser.parse( args, // input 
-                             input_, outputs_, errors_ ); // output
-            //dbgPrint( "inputPort = " + input_.getPort( 0 ) );
+                             input_, outputs_,
+                             omega, tau );
         } catch (ParseException ex) {
             throw ex;
         }
+
+        if (omega.getValue() != Value.NULL) 
+            omega_ = (int)omega.getValue();
+
+        if (tau.getValue() != Value.NULL) 
+            tau_ = tau.getValue();
     }
 
     protected boolean startServer() {

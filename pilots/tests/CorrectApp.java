@@ -9,7 +9,7 @@ import pilots.runtime.errsig.*;
 
 public class CorrectApp extends PilotsRuntime {
     private Timer timer_;
-    private SlidingWindow win_o_;
+    private SlidingWindow win_o1_;
     private Vector<ErrorSignature> errorSigs_;
     private ErrorAnalyzer errorAnalyzer_;
 
@@ -22,7 +22,7 @@ public class CorrectApp extends PilotsRuntime {
 
         timer_ = new Timer();
 
-        win_o_ = new SlidingWindow( getOmega() );
+        win_o1_ = new SlidingWindow( getOmega() );
 
         errorSigs_ = new Vector<ErrorSignature>();
         errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Normal mode") );
@@ -39,7 +39,6 @@ public class CorrectApp extends PilotsRuntime {
         a.setValue( getData( "a", new Method( Method.Closest, "t" ) ) );
         b.setValue( getData( "b", new Method( Method.Closest, "t" ) ) );
         double e = b.getValue()-2*a.getValue();
-        dbgPrint( "a=" + a + ", b=" + b + ", e=" + e );
 
         win.push( e );
         mode.setMode( errorAnalyzer_.analyze( win, frequency ) );
@@ -56,14 +55,14 @@ public class CorrectApp extends PilotsRuntime {
         }
     }
 
-    public void startOutput_o() {
+    public void startOutput_o1() {
         try {
-            openSocket( OutputType.Output, 0, "o" );
+            openSocket( OutputType.Output, 0, "o1" );
         } catch ( Exception ex ) {
             ex.printStackTrace();
         }
         
-        final int frequency = 2000;
+        final int frequency = 1000;
         timer_.scheduleAtFixedRate( new TimerTask() {
                 public void run() {
                     Value a = new Value();
@@ -72,15 +71,14 @@ public class CorrectApp extends PilotsRuntime {
                     Value b_corrected = new Value();
                     Mode mode = new Mode();
 
-                    getCorrectedData( win_o_, a, a_corrected, b, b_corrected, mode, frequency );
-                    double o = b_corrected.getValue()-2*a_corrected.getValue();
+                    getCorrectedData( win_o1_, a, a_corrected, b, b_corrected, mode, frequency );
+                    double o1 = b_corrected.getValue()-2*a_corrected.getValue();
 
                     String desc = errorAnalyzer_.getDesc( mode.getMode() );
-                    dbgPrint( desc + ", mode=" + mode.getMode() + 
-                              ", a_cor=" + a_corrected + ", b_cor=" + b_corrected );
+                    dbgPrint( desc );
 
                     try {
-                        sendData( OutputType.Output, 0, o );
+                        sendData( OutputType.Output, 0, o1 );
                     } catch ( Exception ex ) {
                         ex.printStackTrace();
                     }
@@ -91,6 +89,6 @@ public class CorrectApp extends PilotsRuntime {
     public static void main( String[] args ) {
         CorrectApp app = new CorrectApp( args );
         app.startServer();
-        app.startOutput_o();
+        app.startOutput_o1();
     }
 }

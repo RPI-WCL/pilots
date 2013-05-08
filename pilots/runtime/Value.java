@@ -1,10 +1,11 @@
 package pilots.runtime;
 
 public class Value {
+    public static final double NULL = Double.MAX_VALUE;
     double value_;
 
     public Value() {
-        value_ = 0.0;
+        value_ = NULL;
     }
 
     public Value( double value ) {

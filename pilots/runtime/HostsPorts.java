@@ -34,4 +34,12 @@ public class HostsPorts {
     public String toString( int index ) {
         return hosts_.get( index ) + ":" + ports_.get( index );
     }
+
+    public String toString() {
+        String str = "";
+        for (int i = 0; i < hosts_.size(); i++) 
+            str += toString( i ) + " ";
+        return str;
+    }
+            
 }
