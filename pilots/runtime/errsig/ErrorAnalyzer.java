@@ -29,9 +29,27 @@ public class ErrorAnalyzer {
 
             switch (errorSig.getType()) {
             case ErrorSignature.CONST:
-                for (int j = 0; j < winSize; j++)
-                    deltas[i] += calcDiff( win.at(j), errorSig.getValue() );
+                if (errorSig.isConstrained()) {
+                    // with constraints
+                    double closestFail = Double.MAX_VALUE;
+                    for (int j = 0; j < winSize; j++) {
+                        // find a reference point
+                        double ref = errorSig.getClosestEndPoint( win.at( j ) );
+                        double thisFail = 0.0;
+                        for (int k = 0; k < winSize; k++) 
+                            thisFail += calcDiff( win.at( k ), ref );
+
+                        closestFail = (thisFail < closestFail) ? thisFail : closestFail;
+                    }
+                    deltas[i] = closestFail;
+                }
+                else {
+                    // no constraints
+                    for (int j = 0; j < winSize; j++)
+                        deltas[i] += calcDiff( win.at(j), errorSig.getValue() );
+                }
                 break;
+
 
             case ErrorSignature.LINEAR:
                 double closestFail = Double.MAX_VALUE;

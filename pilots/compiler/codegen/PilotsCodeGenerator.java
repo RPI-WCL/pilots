@@ -140,10 +140,13 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         for (int i = 0; i < sigs_.size(); i++) {
             Signature sig = sigs_.get( i );
             code_ += insIndent() + "errorSigs_.add( new ErrorSignature( ErrorSignature.";
-            if (sig.getConstant().equalsIgnoreCase( "null" ))
+            if (sig.getType() == Signature.CONST)
                 code_ += "CONST, ";
-            else 
+            else if (sig.getType() == Signature.LINEAR)
                 code_ += "LINEAR, ";
+            else {
+                System.err.println( "No valid type found for: " + sig );
+            }
             if (sig.getDesc() != null)
                 code_ += sig.getValue() + ", " + sig.getDesc() + ") );\n";
             else 
