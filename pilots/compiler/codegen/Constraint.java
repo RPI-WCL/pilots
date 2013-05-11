@@ -44,6 +44,29 @@ public class Constraint {
         type_ = (type_ + 2) % 4;
     }
 
+    public String getTypeString() {
+        String str = null;
+
+        switch (type_) {
+        case GREATER_THAN:
+            str = "GREATER_THAN";
+            break;
+        case GREATER_THAN_OR_EQUAL_TO:
+            str = "GREATER_THAN_OR_EQUAL_TO";
+            break;
+        case LESS_THAN:
+            str = "LESS_THAN";
+            break;
+        case LESS_THAN_OR_EQUAL_TO:
+            str = "LESS_THAN_OR_EQUAL_TO";
+            break;
+        default:
+            break;
+        }
+
+        return str;
+    }
+
     public String toString() {
         String str = "";
         switch (type_) {

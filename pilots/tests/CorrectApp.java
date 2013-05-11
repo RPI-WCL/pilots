@@ -9,7 +9,7 @@ import pilots.runtime.errsig.*;
 
 public class CorrectApp extends PilotsRuntime {
     private Timer timer_;
-    private SlidingWindow win_o1_;
+    private SlidingWindow win_o_;
     private Vector<ErrorSignature> errorSigs_;
     private ErrorAnalyzer errorAnalyzer_;
 
@@ -22,12 +22,20 @@ public class CorrectApp extends PilotsRuntime {
 
         timer_ = new Timer();
 
-        win_o1_ = new SlidingWindow( getOmega() );
+        win_o_ = new SlidingWindow( getOmega() );
 
         errorSigs_ = new Vector<ErrorSignature>();
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Normal mode") );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.LINEAR, 2.0, "A failure") );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.LINEAR, -2.0, "B failure") );
+
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Normal mode" ) );
+
+        errorSigs_.add( new ErrorSignature( ErrorSignature.LINEAR, 2.0, "A failure" ) );
+
+        errorSigs_.add( new ErrorSignature( ErrorSignature.LINEAR, -2.0, "B failure" ) );
+
+        Vector<Constraint> constraints1 = new Vector<Constraint>();
+        constraints1.add( new Constraint( Constraint.GREATER_THAN, 20.0 ) );
+        constraints1.add( new Constraint( Constraint.LESS_THAN, -20.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Out-of-sync", constraints1 ) );
 
         errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );
     }
@@ -55,9 +63,9 @@ public class CorrectApp extends PilotsRuntime {
         }
     }
 
-    public void startOutput_o1() {
+    public void startOutput_o() {
         try {
-            openSocket( OutputType.Output, 0, "o1" );
+            openSocket( OutputType.Output, 0, "o" );
         } catch ( Exception ex ) {
             ex.printStackTrace();
         }
@@ -71,14 +79,14 @@ public class CorrectApp extends PilotsRuntime {
                     Value b_corrected = new Value();
                     Mode mode = new Mode();
 
-                    getCorrectedData( win_o1_, a, a_corrected, b, b_corrected, mode, frequency );
-                    double o1 = b_corrected.getValue()-2*a_corrected.getValue();
+                    getCorrectedData( win_o_, a, a_corrected, b, b_corrected, mode, frequency );
+                    double o = b_corrected.getValue()-2*a_corrected.getValue();
 
                     String desc = errorAnalyzer_.getDesc( mode.getMode() );
                     dbgPrint( desc );
 
                     try {
-                        sendData( OutputType.Output, 0, o1 );
+                        sendData( OutputType.Output, 0, o );
                     } catch ( Exception ex ) {
                         ex.printStackTrace();
                     }
@@ -89,6 +97,6 @@ public class CorrectApp extends PilotsRuntime {
     public static void main( String[] args ) {
         CorrectApp app = new CorrectApp( args );
         app.startServer();
-        app.startOutput_o1();
+        app.startOutput_o();
     }
 }

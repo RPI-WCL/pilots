@@ -136,9 +136,21 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code_ += insIndent() + "win_" + outputVarNames[0] + "_ = new SlidingWindow( getOmega() );\n";
         }
         code_ += "\n";
-        code_ += insIndent() + "errorSigs_ = new Vector<ErrorSignature>();\n";
+        code_ += insIndent() + "errorSigs_ = new Vector<ErrorSignature>();\n\n";
+
+        int constIndex = 1;
         for (int i = 0; i < sigs_.size(); i++) {
             Signature sig = sigs_.get( i );
+
+            if (sig.isConstrained()) {
+                code_ += insIndent() + "Vector<Constraint> constraints" + constIndex + " = new Vector<Constraint>();\n";
+                Vector<Constraint> constraints_ = sig.getConstraints();
+                for (int j = 0; j < constraints_.size(); j++) {
+                    Constraint c = constraints_.get( j );
+                    code_ += insIndent() + "constraints" + constIndex + ".add( new Constraint( Constraint." + c.getTypeString() + ", " + c.getValue() + " ) );\n";
+                }
+            }
+
             code_ += insIndent() + "errorSigs_.add( new ErrorSignature( ErrorSignature.";
             if (sig.getType() == Signature.CONST)
                 code_ += "CONST, ";
@@ -148,11 +160,21 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 System.err.println( "No valid type found for: " + sig );
             }
             if (sig.getDesc() != null)
-                code_ += sig.getValue() + ", " + sig.getDesc() + ") );\n";
+                code_ += sig.getValue() + ", " + sig.getDesc();
             else 
-                code_ += sig.getValue() + ", null ) );\n";
+                code_ += sig.getValue() + ", null";
+
+            if (sig.isConstrained()) {
+                code_ += ", constraints" + constIndex + " ) );\n";
+                constIndex++;
+            }
+            else
+                code_ += " ) );\n";
+            code_ += "\n";
+            
+
         }
-        code_ += "\n";
+
         code_ += insIndent() + "errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );\n";
         code_ += decInsIndent() + "}\n";
         code_ += "\n";

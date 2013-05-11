@@ -93,12 +93,11 @@ public class Signature {
             // there must be a constraint
 
             for (i = 1; i < splitExps.length; i++) {
-                Constraint constraint = extractConstraint( splitExps[i] );
-                if (constraint != null) {
+                Vector<Constraint> constraints = extractConstraints( splitExps[i] );
+                if (constraints != null) {
                     if (constraints_ == null) 
                         constraints_ = new Vector<Constraint>();
-                    constraints_.add( constraint );
-                    // System.out.println( "constraint=" + constraint );
+                    constraints_.addAll( constraints );
                 }
             }
         } 
@@ -144,7 +143,7 @@ public class Signature {
     }
 
 
-    public Constraint extractConstraint( String exp ) {
+    public Vector<Constraint> extractConstraints( String exp ) {
         String comparator = "<>=";
         String[] tokens = new String[2];
 
@@ -177,24 +176,49 @@ public class Signature {
         }
 
         tokens[0] = exp.substring( 0, i );
-        // System.out.println( "extractConstraint, tokens[0]=" + tokens[0] );
+        // System.out.println( "extractConstraints, tokens[0]=" + tokens[0] );
 
         tokens[1] = exp.substring( j + 1 );
-        // System.out.println( "extractConstraint, tokens[1]=" + tokens[1] );
+        // System.out.println( "extractConstraints, tokens[1]=" + tokens[1] );
 
         double value = -1.0;
+        Vector<Constraint> constraints = null;
         Constraint constraint = null;
-        if (tokens[0].equalsIgnoreCase( arg_ )) {  // arg_ --> 'K'
+        // regular constraint
+        if (tokens[0].equalsIgnoreCase( arg_ )) {
             value = Double.parseDouble( tokens[1] );
+            constraints = new Vector<Constraint>();
             constraint = new Constraint( type, value );
+            constraints.add( constraint );
         }
         else if (tokens[1].equalsIgnoreCase( arg_ )) {
             value = Double.parseDouble( tokens[0] );
+            constraints = new Vector<Constraint>();
             constraint = new Constraint( type, value );
             constraint.invertType();
+            constraints.add( constraint );
+        }
+        // abs constraint support
+        else if (tokens[0].equalsIgnoreCase( "abs(" + arg_ + ")" )) {
+            value = Double.parseDouble( tokens[1] );
+            constraints = new Vector<Constraint>();
+            constraint = new Constraint( type, value );
+            constraints.add( constraint );
+            constraint = new Constraint( type, -value );
+            constraint.invertType();
+            constraints.add( constraint );
+        }
+        else if (tokens[1].equalsIgnoreCase( "abs(" + arg_ + ")" )) {
+            value = Double.parseDouble( tokens[0] );
+            constraints = new Vector<Constraint>();
+            constraint = new Constraint( type, value );
+            constraint.invertType();
+            constraints.add( constraint );
+            constraint = new Constraint( type, -value );
+            constraints.add( constraint );
         }
 
-        return constraint;
+        return constraints;
     }
 
 
@@ -214,11 +238,19 @@ public class Signature {
         return arg_;
     }
 
+    public Vector<Constraint> getConstraints() {
+        return constraints_;
+    }
+
     public double getValue() {
         return value_;
     }
     
     public String getDesc() {
         return desc_;
+    }
+    
+    public boolean isConstrained() {
+        return (constraints_ != null);
     }
 }
