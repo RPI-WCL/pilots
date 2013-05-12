@@ -1,4 +1,4 @@
-package pilots.tests;
+package pilots.util;
 
 import java.io.*;
 import java.net.*;

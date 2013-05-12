@@ -10,6 +10,7 @@ import pilots.runtime.*;
 
 public class PilotsCodeGenerator implements PilotsParserVisitor {
     private static final String TAB = "    ";
+    private static final String DEFAULT_PACKAGE = "pilots.examples";
     private static int indent = 0;
 
     private String appName_ = null;
@@ -19,6 +20,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     private Vector<Signature> sigs_ = null;
     private Vector<Correct> corrects_ = null;
     private String code_ = null;
+    private boolean sim_ = false;
 
     private static int depth = 0;
     
@@ -48,6 +50,9 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         sigs_ = new  Vector<Signature> ();
         corrects_ = new Vector<Correct> ();
         code_ = new String();
+
+        if (System.getProperty( "sim" ) != null)
+            sim_ = true;
     }
 
     private void goDown( String node ) {
@@ -94,10 +99,20 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     protected void generateImports() {
-        code_ += "package pilots.tests;\n";
+        String p = System.getProperty( "package" );
+        if (p != null)
+            code_ += "package " + p + ";\n";
+        else 
+            code_ += "package " + DEFAULT_PACKAGE + ";\n";
         code_ += "\n";
-        code_ += "import java.util.Timer;\n";
-        code_ += "import java.util.TimerTask;\n";
+        if (sim_) {
+            code_ += "import java.io.BufferedReader;\n";
+            code_ += "import java.io.InputStreamReader;\n";
+        }
+        else {
+            code_ += "import java.util.Timer;\n";
+            code_ += "import java.util.TimerTask;\n";
+        }
         code_ += "import java.util.Vector;\n";
         code_ += "import java.net.Socket;\n";
         code_ += "import pilots.runtime.*;\n";
@@ -107,7 +122,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     protected void generateClassDeclaration() {
         code_ += "public class " + appName_ + " extends PilotsRuntime {\n";
-        code_ += incInsIndent() + "private Timer timer_;\n";
+        if (sim_)
+            code_ += incInsIndent() + "private int time_; // msec\n";
+        else
+            code_ += incInsIndent() + "private Timer timer_;\n";
         for (int i = 0; i < outputs_.size(); i++) {
             OutputStream output = outputs_.get( i );
             String[] outputVarNames = output.getVarNames();
@@ -128,7 +146,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code_ += incInsIndent() + "ex.printStackTrace();\n";
         code_ += decInsIndent() + "};\n";
         code_ += "\n";
-        code_ += insIndent() + "timer_ = new Timer();\n";
+        if (sim_)
+            code_ += insIndent() + "time_ = 0;\n";
+        else 
+            code_ += insIndent() + "timer_ = new Timer();\n";
         code_ += "\n";
         for (int i = 0; i < outputs_.size(); i++) {
             OutputStream output = outputs_.get( i );
@@ -245,7 +266,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         // e
         code_ += insIndent() + "double e = ";
-        code_ += replaceVar( errors_.get( 0 ).getExp(), map );
+        code_ += replaceVar( replaceMathFuncs( errors_.get( 0 ).getExp() ), map );
         code_ += ";\n";
         code_ += "\n";
 
@@ -260,7 +281,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code_ += insIndent() + var + "_corrected.setValue( ";
             code_ += map.get( var ) + " );\n";
         }
-        code_ += insIndent() + "switch (mode.getMode()) {\n";
+        if (0 < corrects_.size())
+            code_ += insIndent() + "switch (mode.getMode()) {\n";
         for (int i = 0; i < corrects_.size(); i++) {
             Correct correct = corrects_.get( i ) ;
             code_ += insIndent() + "case " + correct.getMode() + ":\n";
@@ -270,7 +292,9 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code_ += insIndent() + "break;\n";
             decIndent();
         }
-        code_ += insIndent() + "}\n";
+        if (0 < corrects_.size())
+            code_ += insIndent() + "}\n";
+
         code_ += decInsIndent() + "}\n";
         code_ += "\n";
     }
@@ -278,7 +302,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public String replaceMathFuncs( String exp ) {
         String[] funcs1 = { "asin", "acos", "atan" };
-        String[] funcs2 = { "sqrt", "sin", "cos", "abs"};
+        String[] funcs2 = { "sqrt", "sin", "cos", "abs", "PI" };
         String[] funcs3 = { "arcs", "arcc", "arct" };
 
         for (int i = 0; i < funcs1.length; i++)
@@ -312,9 +336,13 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             
             // timer thread --->
             code_ += insIndent() + "final int frequency = " + output.getFrequency() + ";\n";
-            code_ += insIndent() + "timer_.scheduleAtFixedRate( new TimerTask() {\n";
-            incIndent();
-            code_ += incInsIndent() + "public void run() {\n";
+            if (sim_)
+                code_ += insIndent() + "while (!isEndTime()) {\n";
+            else {
+                code_ += insIndent() + "timer_.scheduleAtFixedRate( new TimerTask() {\n";
+                incIndent();
+                code_ += incInsIndent() + "public void run() {\n";
+            }
 
             // variable declaration
             Vector<String> vars = new Vector<String>();
@@ -358,9 +386,21 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code_ += decInsIndent() + "} catch ( Exception ex ) {\n";
             code_ += incInsIndent() + "ex.printStackTrace();\n";
             code_ += decInsIndent() + "}\n";
-            code_ += decInsIndent() + "}\n";
-            decIndent();
-            code_ += decInsIndent() + "}, 0, frequency );\n";
+
+            if (sim_) {
+                code_ += "\n";
+                code_ += insIndent() + "time_ += frequency;\n";
+                code_ += insIndent() + "progressTime( frequency );\n";
+                code_ += decInsIndent() + "}\n";
+                code_ += "\n";
+                code_ += insIndent() + "dbgPrint( \"Finished at \" + getTime() );\n";
+            }
+            else {
+                code_ += decInsIndent() + "}\n";
+                decIndent();
+                code_ += decInsIndent() + "}, 0, frequency );\n";
+            }
+
             code_ += decInsIndent() + "}\n";
             code_ += "\n";
         }
@@ -370,6 +410,19 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code_ += insIndent() + "public static void main( String[] args ) {\n";
         code_ += incInsIndent() + appName_ + " app = new " + appName_ + "( args );\n";
         code_ += insIndent() + "app.startServer();\n";
+
+        if (sim_) {
+            code_ += "\n";
+            code_ += insIndent() + "BufferedReader reader = new BufferedReader( new InputStreamReader( System.in ) );\n";
+            code_ += insIndent() + "System.out.println( \"Hit any key after running the clients\" );\n";
+            code_ += insIndent() + "try {\n";
+            code_ += incInsIndent() + "reader.readLine();\n";
+            code_ += decInsIndent() + "} catch (Exception ex) {\n";
+            code_ += incInsIndent() + "ex.printStackTrace();\n";
+            code_ += decInsIndent() + "}\n";
+            code_ += "\n";
+        }
+
         for (int i = 0; i < outputs_.size(); i++) {
             OutputStream output = outputs_.get( i );
             String[] outputVarNames = output.getVarNames();

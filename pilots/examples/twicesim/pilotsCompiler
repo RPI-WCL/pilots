@@ -1,0 +1,1 @@
+java -Dsim -Dpackage=pilots.examples.twicesim pilots.compiler.PilotsCompiler Twice.plt

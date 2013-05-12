@@ -9,10 +9,10 @@ import java.util.Calendar;
 import pilots.runtime.*;
 
 
-public class FlightSimService extends DebugPrint implements CurrentLocationTimeService {
+public class SimTimeService extends DebugPrint implements CurrentLocationTimeService {
     private Date now_, end_;
 
-    public FlightSimService() {
+    public SimTimeService() {
         String timeSpan = System.getProperty( "timeSpan" );
         if (timeSpan == null) {
             // should throw an exception here

@@ -18,4 +18,10 @@ public class Mode {
     public int getMode() {
         return mode_;
     }
+
+    public String toString() {
+        String str = "";
+        str += mode_;
+        return str;
+    }
 }

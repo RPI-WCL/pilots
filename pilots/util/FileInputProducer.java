@@ -1,9 +1,9 @@
-package pilots.tests;
+package pilots.util;
 
 import java.io.*;
 import java.net.*;
 
-public class FlightSimClient
+public class FileInputProducer
 {
     private static final String TARGET_HOST = "localhost";
     private static final int TARGET_PORT = 8888;
@@ -17,15 +17,15 @@ public class FlightSimClient
 
     public static void main( String[] args ) {
         if (args.length < 1) {
-            System.err.println( "Usage: ./java pilots.tests.SimClient <filename>" );
+            System.err.println( "Usage: ./java pilots.util.FileInputProducer <filename>" );
             return;
         }            
 
-        FlightSimClient client = new FlightSimClient( args[0] ); // filename
+        FileInputProducer client = new FileInputProducer( args[0] ); // filename
         client.startSend();
     }
 
-    public FlightSimClient( String filename ) {
+    public FileInputProducer( String filename ) {
         filename_ = filename;
         
         try {

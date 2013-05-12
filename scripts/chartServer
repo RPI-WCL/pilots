@@ -1,1 +1,0 @@
-java -cp .:./lib/jcommon-1.0.17.jar:./lib/jfreechart-1.0.14.jar pilots.tests.ChartServer 9999

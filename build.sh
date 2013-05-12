@@ -1,19 +1,34 @@
-echo "compiling pilots/compiler/*.java..."
-javac -Xlint pilots/compiler/*.java
+export CLASSPATH=./classes:$CLASSPATH 
+DIST=./classes
+VERSION=0.2
 
-echo "compiling pilots/compiler/codegen/*.java..."
-javac -Xlint pilots/compiler/codegen/*.java
+echo "PILOTS Build Script v0.1"
+echo "Please make sure the current directory is in your CLASSPATH"
+echo ""
 
-echo "compiling pilots/compiler/parser/*.java..."
-javac -Xlint pilots/compiler/parser/*.java
+if [ -d $DIST ]; then
+		rm -rf $DIST
+fi
+echo "Making dir: "$DIST
+mkdir $DIST
 
-echo "compiling pilots/runtime/*.java..."
-javac -Xlint pilots/runtime/*.java
+echo "Compiling pilots/compiler"
+javac -Xlint:none -d $DIST `find pilots/compiler/ | grep "java$"`
 
-echo "compiling pilots/tests/*.java..."
-javac -Xlint -cp .:./lib/jcommon-1.0.17.jar:./lib/jfreechart-1.0.14.jar pilots/tests/*.java
+echo "Compiling pilots/runtime"
+javac -Xlint:none -d $DIST `find pilots/runtime/ | grep "java$"`
 
-echo "creating pilots.jar under ./lib..."
-jar cf ./lib/pilots.jar `find pilots -name *.class`
+echo "Compiling pilots/util"
+javac -Xlint:none -d $DIST `find pilots/util/ | grep "java$"`
 
+echo "Compiling pilots/examples"
+javac -Xlint:none -d $DIST `find pilots/examples/ | grep "java$"`
+
+
+echo "Generating jar file..."
+cd $DIST
+jar cf ../lib/pilots.jar `find pilots/compiler/` `find pilots/runtime/` `find pilots/util/` `find pilots/examples/`
+cd ..
+
+echo "Finished!"
 

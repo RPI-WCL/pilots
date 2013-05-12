@@ -1,4 +1,0 @@
-java pilots.tests.FlightSimClient ./pilots/data/03-Apr-2012_KALB-KFME/air_speed-air_angle.txt
-java pilots.tests.FlightSimClient ./pilots/data/03-Apr-2012_KALB-KFME/ground_speed-ground-angle.txt
-java pilots.tests.FlightSimClient ./pilots/data/03-Apr-2012_KALB-KFME/wind_speed-wind_angle.txt
-java pilots.tests.FlightSimClient ./pilots/data/03-Apr-2012_KALB-KFME/x-y-z.txt

@@ -1,4 +1,4 @@
-package pilots.tests;
+package pilots.util;
 
 import java.io.*;
 import java.net.*;
@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 
 import pilots.runtime.SpatioTempoData;
 
-public class SimpleClient extends Thread {
+public class SimpleInputProducer extends Thread {
     private static final int DATA_SEND_FREQUENCY = 1000; // [ms]
     private static final String TARGET_HOST = "localhost";
     private static final int TARGET_PORT = 8888;
@@ -31,20 +31,21 @@ public class SimpleClient extends Thread {
 
     public static void main( String[] args ) {
         if (args.length < 5) {
-            System.err.println( "Usage: ./java pilots.tests.SimpleClient <iteration> <varname> <init value> <increment value> <rand[%]>" );
+            System.err.println( "Usage: ./java pilots.util.SimpleInputProducer <iteration> <varname> <init value> <increment value> <rand[%]>" );
             return;
         }
 
-        SimpleClient client = new SimpleClient( Integer.parseInt( args[0] ), /* iteration */
-                                                args[1], /* variable name */
-                                                Integer.parseInt( args[2] ), /* init value */
-                                                Integer.parseInt( args[3] ), /* increment value */
-                                                Integer.parseInt( args[4] )  /* random range */
+        SimpleInputProducer client = 
+            new SimpleInputProducer( Integer.parseInt( args[0] ), /* iteration */
+                                     args[1], /* variable name */
+                                     Integer.parseInt( args[2] ), /* init value */
+                                     Integer.parseInt( args[3] ), /* increment value */
+                                     Integer.parseInt( args[4] )  /* random range */
             );
         client.start();
     }
     
-    SimpleClient( int iteration, String varName, int value, int increment, int randRange ) {
+    SimpleInputProducer( int iteration, String varName, int value, int increment, int randRange ) {
         iteration_ = iteration;
         varName_ = varName;
         value_ = value;

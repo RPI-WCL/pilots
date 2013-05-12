@@ -1,4 +1,4 @@
-package pilots.tests;
+package pilots.examples.twice;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -7,13 +7,13 @@ import java.net.Socket;
 import pilots.runtime.*;
 import pilots.runtime.errsig.*;
 
-public class CorrectApp extends PilotsRuntime {
+public class Twice extends PilotsRuntime {
     private Timer timer_;
     private SlidingWindow win_o_;
     private Vector<ErrorSignature> errorSigs_;
     private ErrorAnalyzer errorAnalyzer_;
 
-    public CorrectApp( String args[] ) {
+    public Twice( String args[] ) {
         try {
             parseArgs( args );
         } catch (Exception ex) {
@@ -95,7 +95,7 @@ public class CorrectApp extends PilotsRuntime {
     }
 
     public static void main( String[] args ) {
-        CorrectApp app = new CorrectApp( args );
+        Twice app = new Twice( args );
         app.startServer();
         app.startOutput_o();
     }

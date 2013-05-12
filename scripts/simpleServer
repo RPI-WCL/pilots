@@ -1,1 +1,0 @@
-java -cp ./lib/pilots.jar pilots.tests.SimpleServer 9999
