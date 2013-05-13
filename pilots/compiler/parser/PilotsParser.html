@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>BNF for PilotsParser.jj</TITLE>
+</HEAD>
+<BODY>
+<H1 ALIGN=CENTER>BNF for PilotsParser.jj</H1>
+<H2 ALIGN=CENTER>TOKENS</H2>
+<TABLE>
+ <!-- Special token -->
+ <TR>
+  <TD>
+<PRE>
+/*** Skip whitespace and comments ***/</PRE>
+  </TD>
+ </TR>
+ <!-- Token -->
+ <TR>
+  <TD>
+   <PRE>
+&lt;DEFAULT&gt; SKIP : {
+" "
+| "\t"
+| "\n"
+| "\r"
+| "\r\n"
+| "/*" : IN_COMMENT
+}
+
+   </PRE>
+  </TD>
+ </TR>
+ <!-- Token -->
+ <TR>
+  <TD>
+   <PRE>
+&lt;IN_COMMENT&gt; MORE : {
+&lt;~[]&gt;
+}
+
+   </PRE>
+  </TD>
+ </TR>
+ <!-- Token -->
+ <TR>
+  <TD>
+   <PRE>
+&lt;IN_COMMENT&gt; SKIP : {
+"/*" : {
+| "*/" : {
+}
+
+   </PRE>
+  </TD>
+ </TR>
+ <!-- Special token -->
+ <TR>
+  <TD>
+<PRE>
+/*** The keywords ***/</PRE>
+  </TD>
+ </TR>
+ <!-- Token -->
+ <TR>
+  <TD>
+   <PRE>
+&lt;DEFAULT&gt; TOKEN : {
+&lt;PROGRAM_START: "program"&gt;
+| &lt;INPUTS: "inputs"&gt;
+| &lt;OUTPUTS: "outputs"&gt;
+| &lt;ERRORS: "errors"&gt;
+| &lt;SIGNATURES: "signatures"&gt;
+| &lt;CORRECTS: "correct"&gt;
+| &lt;USING: "using"&gt;
+| &lt;AT: "at"&gt;
+| &lt;EVERY: "every"&gt;
+| &lt;CLOSEST: "closest"&gt;
+| &lt;EUCLIDEAN: "euclidean"&gt;
+| &lt;INTERPOLATE: "interpolate"&gt;
+| &lt;NSEC: "nsec"&gt;
+| &lt;USEC: "usec"&gt;
+| &lt;MSEC: "msec"&gt;
+| &lt;SEC: "sec"&gt;
+| &lt;MIN: "min"&gt;
+| &lt;HOUR: "hour"&gt;
+| &lt;DAY: "day"&gt;
+| &lt;SQRT: "sqrt"&gt;
+| &lt;SIN: "sin"&gt;
+| &lt;COS: "cos"&gt;
+| &lt;TAN: "tan"&gt;
+| &lt;ARCSIN: "asin"&gt;
+| &lt;ARCCOS: "acos"&gt;
+| &lt;ARCTAN: "atan"&gt;
+| &lt;ABS: "abs"&gt;
+| &lt;PROGRAM_END: "end"&gt;
+}
+
+   </PRE>
+  </TD>
+ </TR>
+ <!-- Token -->
+ <TR>
+  <TD>
+   <PRE>
+&lt;DEFAULT&gt; TOKEN : {
+&lt;#DIGIT: ["0"-"9"]&gt;
+| &lt;LPAR: "("&gt;
+| &lt;RPAR: ")"&gt;
+| &lt;COMMA: ","&gt;
+| &lt;INTEGER: ("+" | "-")? (&lt;DIGIT&gt;)+&gt;
+| &lt;#SCALEFACTOR: ("E" | "e") ("+" | "-")? (&lt;DIGIT&gt;)+&gt;
+| &lt;REAL: ("+" | "-")? (&lt;DIGIT&gt;)+ "." (&lt;DIGIT&gt;)* (&lt;SCALEFACTOR&gt;)?&gt;
+| &lt;#LETTER: ["A"-"Z","a"-"z","_"]&gt;
+| &lt;VAR: &lt;LETTER&gt; (&lt;LETTER&gt; | &lt;DIGIT&gt;)*&gt;
+| &lt;STRING: "\"" (~["\""])* "\""&gt;
+}
+
+   </PRE>
+  </TD>
+ </TR>
+</TABLE>
+<H2 ALIGN=CENTER>NON-TERMINALS</H2>
+<TABLE>
+ <!-- Special token -->
+ <TR>
+  <TD>
+<PRE>
+/**************************************/
+/********** START OF GRAMMAR **********/
+/**************************************/</PRE>
+  </TD>
+ </TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod1">Pilots</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;PROGRAM_START&gt; &lt;VAR&gt; ";" &lt;INPUTS&gt; ( ";" | ( <A HREF="#prod2">Input</A> )* ) &lt;OUTPUTS&gt; ( ";" | ( <A HREF="#prod3">Output</A> )* ) ( &lt;ERRORS&gt; ( ";" | ( <A HREF="#prod4">Error</A> )* ) )? ( &lt;SIGNATURES&gt; ( ";" | ( <A HREF="#prod5">Signature</A> )* ) )? ( &lt;CORRECTS&gt; ( ";" | ( <A HREF="#prod6">Correct</A> )* ) )? &lt;PROGRAM_END&gt; ";"</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod2">Input</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod7">Vars</A> <A HREF="#prod8">Dims</A> &lt;USING&gt; <A HREF="#prod9">Methods</A> ";"</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod3">Output</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod7">Vars</A> ":" <A HREF="#prod10">Exps</A> &lt;AT&gt; &lt;EVERY&gt; <A HREF="#prod11">Time</A> ";"</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod4">Error</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod7">Vars</A> ":" <A HREF="#prod10">Exps</A> ";"</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod5">Signature</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;VAR&gt; ( <A HREF="#prod12">Const</A> )? ":" &lt;VAR&gt; "=" <A HREF="#prod10">Exps</A> ( &lt;STRING&gt; )? ";"</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod6">Correct</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;VAR&gt; ( <A HREF="#prod12">Const</A> )? ":" &lt;VAR&gt; "=" <A HREF="#prod13">Exp</A> ";"</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod7">Vars</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;VAR&gt; ( "," &lt;VAR&gt; )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod12">Const</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>"(" &lt;VAR&gt; ")"</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod8">Dims</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>"(" <A HREF="#prod10">Exps</A> ")"</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod14">Method</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;CLOSEST&gt; | &lt;EUCLIDEAN&gt; | &lt;INTERPOLATE&gt; ) "(" <A HREF="#prod10">Exps</A> ")"</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod9">Methods</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod14">Method</A> ( "," <A HREF="#prod14">Method</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod11">Time</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod15">Number</A> ( &lt;NSEC&gt; | &lt;USEC&gt; | &lt;MSEC&gt; | &lt;SEC&gt; | &lt;MIN&gt; | &lt;HOUR&gt; | &lt;DAY&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod10">Exps</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod13">Exp</A> ( "," <A HREF="#prod13">Exp</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod13">Exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod16">Func</A> "(" <A HREF="#prod10">Exps</A> ")" <A HREF="#prod17">Exp2</A> | "(" <A HREF="#prod13">Exp</A> ")" <A HREF="#prod17">Exp2</A> | <A HREF="#prod18">Value</A> <A HREF="#prod17">Exp2</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod17">Exp2</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod16">Func</A> <A HREF="#prod13">Exp</A> <A HREF="#prod17">Exp2</A> |  )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod16">Func</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( "+" | "-" | "*" | "/" | "^" | "&gt;" | "&gt;=" | "&lt;" | "&lt;=" | "!=" | &lt;SQRT&gt; | &lt;SIN&gt; | &lt;COS&gt; | &lt;TAN&gt; | &lt;ARCSIN&gt; | &lt;ARCCOS&gt; | &lt;ARCTAN&gt; | &lt;ABS&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod15">Number</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;INTEGER&gt; | &lt;REAL&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod18">Value</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod15">Number</A> | &lt;VAR&gt; )</TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>

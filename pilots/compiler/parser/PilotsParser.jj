@@ -725,14 +725,6 @@ String Exp2():
 /*@egen*/
 }
 
-// String Desc():
-// {
-//     String desc = null;
-// }
-// {
-//     "[" desc = (~["\["] | ~["\]"])* "]" { return desc; }
-// }
-
 String Func(): 
 {/*@bgen(jjtree) Func */
     ASTFunc jjtn000 = new ASTFunc(JJTFUNC);

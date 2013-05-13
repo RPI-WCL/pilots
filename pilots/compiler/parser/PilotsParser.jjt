@@ -254,14 +254,6 @@ String Exp2():
     | {} { return ""; }
 }
 
-// String Desc():
-// {
-//     String desc = null;
-// }
-// {
-//     "[" desc = (~["\["] | ~["\]"])* "]" { return desc; }
-// }
-
 String Func(): 
 {
     Token t;

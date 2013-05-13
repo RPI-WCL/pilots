@@ -814,13 +814,6 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     throw new Error("Missing return statement in function");
   }
 
-// String Desc():
-// {
-//     String desc = null;
-// }
-// {
-//     "[" desc = (~["\["] | ~["\]"])* "]" { return desc; }
-// }
   final public String Func() throws ParseException {
  /*@bgen(jjtree) Func */
     ASTFunc jjtn000 = new ASTFunc(JJTFUNC);
