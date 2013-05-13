@@ -174,7 +174,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     try {
       str = Vars();
       jjtn000.jjtSetValue( str );
-      Dims();
+      Dim();
       jj_consume_token(USING);
       Methods();
       jj_consume_token(48);
@@ -427,9 +427,9 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     throw new Error("Missing return statement in function");
   }
 
-  final public void Dims() throws ParseException {
-              /*@bgen(jjtree) Dims */
-  ASTDims jjtn000 = new ASTDims(JJTDIMS);
+  final public void Dim() throws ParseException {
+             /*@bgen(jjtree) Dim */
+  ASTDim jjtn000 = new ASTDim(JJTDIM);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {

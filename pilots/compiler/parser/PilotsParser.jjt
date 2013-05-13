@@ -116,7 +116,7 @@ void Input():
 {
     str = Vars() 
     { jjtThis.jjtSetValue( str ); }
-    Dims() <USING> Methods() ";"
+    Dim() <USING> Methods() ";"
 }
 
 void Output(): 
@@ -182,7 +182,7 @@ String Const():
     { return str; }                                     
 }
 
-void Dims(): {}
+void Dim(): {}
 {
     // "(t)" | "(x,t)" | "(x,y,t)" | "(x,y,z,t)"
     // "(" ["x," ["y,"["z,"]]] "t" ")"

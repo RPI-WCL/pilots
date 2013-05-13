@@ -736,9 +736,9 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         return null;
     }
 
-    public Object visit(ASTDims node, Object data) {
-        goDown( "Dims" );
-        // System.out.println( "ASTDims: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+    public Object visit(ASTDim node, Object data) {
+        goDown( "Dim" );
+        // System.out.println( "ASTDim: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
         goUp();
         return null;
     }

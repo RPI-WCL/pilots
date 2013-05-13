@@ -11,7 +11,7 @@ public interface PilotsParserTreeConstants
   public int JJTCORRECT = 5;
   public int JJTVARS = 6;
   public int JJTCONST = 7;
-  public int JJTDIMS = 8;
+  public int JJTDIM = 8;
   public int JJTMETHOD = 9;
   public int JJTMETHODS = 10;
   public int JJTTIME = 11;
@@ -32,7 +32,7 @@ public interface PilotsParserTreeConstants
     "Correct",
     "Vars",
     "Const",
-    "Dims",
+    "Dim",
     "Method",
     "Methods",
     "Time",
@@ -44,4 +44,4 @@ public interface PilotsParserTreeConstants
     "Value",
   };
 }
-/* JavaCC - OriginalChecksum=79cbce03ca67e485991aefdfc95dc3c7 (do not edit this line) */
+/* JavaCC - OriginalChecksum=d156671348ce7cfb1fcc91ae31cd1bcb (do not edit this line) */

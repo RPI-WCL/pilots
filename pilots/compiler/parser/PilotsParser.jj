@@ -157,7 +157,7 @@ void Input():
 /*@egen*/
     str = Vars() 
     { jjtn000.jjtSetValue( str ); }
-    Dims() <USING> Methods() ";"/*@bgen(jjtree)*/
+    Dim() <USING> Methods() ";"/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -401,12 +401,12 @@ String Const():
 /*@egen*/                                     
 }
 
-void Dims(): {/*@bgen(jjtree) Dims */
-  ASTDims jjtn000 = new ASTDims(JJTDIMS);
+void Dim(): {/*@bgen(jjtree) Dim */
+  ASTDim jjtn000 = new ASTDim(JJTDIM);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
 /*@egen*/}
-{/*@bgen(jjtree) Dims */
+{/*@bgen(jjtree) Dim */
     try {
 /*@egen*/
     // "(t)" | "(x,t)" | "(x,y,t)" | "(x,y,z,t)"

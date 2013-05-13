@@ -14,7 +14,6 @@ import org.jfree.data.time.*;
 import org.jfree.ui.*;
 import org.jfree.data.*;
 import org.jfree.data.general.*;
-//import org.jfree.data.xy.*;
 
 import pilots.runtime.*;
 
@@ -117,6 +116,10 @@ public class ChartServer {
         
     public void configChart() {
         XYPlot xyPlot = chart_.getXYPlot();
+        xyPlot.setRenderer( new XYLineAndShapeRenderer() );
+
+        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer)xyPlot.getRenderer();
+        renderer.setSeriesStroke( 0, new BasicStroke( 2.0f ) );
 
         ValueAxis xAxis = xyPlot.getDomainAxis();
         xAxis.setAutoRange(true);
