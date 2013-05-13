@@ -11,84 +11,86 @@ public interface PilotsParserConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int PROGRAM_START = 6;
+  int PROGRAM_START = 10;
   /** RegularExpression Id. */
-  int INPUTS = 7;
+  int INPUTS = 11;
   /** RegularExpression Id. */
-  int OUTPUTS = 8;
+  int OUTPUTS = 12;
   /** RegularExpression Id. */
-  int ERRORS = 9;
+  int ERRORS = 13;
   /** RegularExpression Id. */
-  int SIGNATURES = 10;
+  int SIGNATURES = 14;
   /** RegularExpression Id. */
-  int CORRECTS = 11;
+  int CORRECTS = 15;
   /** RegularExpression Id. */
-  int USING = 12;
+  int USING = 16;
   /** RegularExpression Id. */
-  int AT = 13;
+  int AT = 17;
   /** RegularExpression Id. */
-  int EVERY = 14;
+  int EVERY = 18;
   /** RegularExpression Id. */
-  int CLOSEST = 15;
+  int CLOSEST = 19;
   /** RegularExpression Id. */
-  int EUCLIDEAN = 16;
+  int EUCLIDEAN = 20;
   /** RegularExpression Id. */
-  int INTERPOLATE = 17;
+  int INTERPOLATE = 21;
   /** RegularExpression Id. */
-  int NSEC = 18;
+  int NSEC = 22;
   /** RegularExpression Id. */
-  int USEC = 19;
+  int USEC = 23;
   /** RegularExpression Id. */
-  int MSEC = 20;
+  int MSEC = 24;
   /** RegularExpression Id. */
-  int SEC = 21;
+  int SEC = 25;
   /** RegularExpression Id. */
-  int MIN = 22;
+  int MIN = 26;
   /** RegularExpression Id. */
-  int HOUR = 23;
+  int HOUR = 27;
   /** RegularExpression Id. */
-  int DAY = 24;
+  int DAY = 28;
   /** RegularExpression Id. */
-  int SQRT = 25;
+  int SQRT = 29;
   /** RegularExpression Id. */
-  int SIN = 26;
+  int SIN = 30;
   /** RegularExpression Id. */
-  int COS = 27;
+  int COS = 31;
   /** RegularExpression Id. */
-  int TAN = 28;
+  int TAN = 32;
   /** RegularExpression Id. */
-  int ARCSIN = 29;
+  int ARCSIN = 33;
   /** RegularExpression Id. */
-  int ARCCOS = 30;
+  int ARCCOS = 34;
   /** RegularExpression Id. */
-  int ARCTAN = 31;
+  int ARCTAN = 35;
   /** RegularExpression Id. */
-  int ABS = 32;
+  int ABS = 36;
   /** RegularExpression Id. */
-  int PROGRAM_END = 33;
+  int PROGRAM_END = 37;
   /** RegularExpression Id. */
-  int DIGIT = 34;
+  int DIGIT = 38;
   /** RegularExpression Id. */
-  int LPAR = 35;
+  int LPAR = 39;
   /** RegularExpression Id. */
-  int RPAR = 36;
+  int RPAR = 40;
   /** RegularExpression Id. */
-  int COMMA = 37;
+  int COMMA = 41;
   /** RegularExpression Id. */
-  int INTEGER = 38;
+  int INTEGER = 42;
   /** RegularExpression Id. */
-  int SCALEFACTOR = 39;
+  int SCALEFACTOR = 43;
   /** RegularExpression Id. */
-  int REAL = 40;
+  int REAL = 44;
   /** RegularExpression Id. */
-  int LETTER = 41;
+  int LETTER = 45;
   /** RegularExpression Id. */
-  int VAR = 42;
+  int VAR = 46;
   /** RegularExpression Id. */
-  int STRING = 43;
+  int STRING = 47;
 
   /** Lexical state. */
   int DEFAULT = 0;
+  /** Lexical state. */
+  int IN_COMMENT = 1;
 
   /** Literal token values. */
   String[] tokenImage = {
@@ -98,6 +100,10 @@ public interface PilotsParserConstants {
     "\"\\n\"",
     "\"\\r\"",
     "\"\\r\\n\"",
+    "\"/*\"",
+    "<token of kind 7>",
+    "\"/*\"",
+    "\"*/\"",
     "\"program\"",
     "\"inputs\"",
     "\"outputs\"",

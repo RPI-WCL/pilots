@@ -244,25 +244,26 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         
         // getData
         incIndent();
-        for (int i = 0; i < inputs_.size(); i++) {
-            InputStream input = inputs_.get( i );
-            String[] inputVarNames = input.getVarNames();
-            for (int j = 0; j < inputVarNames.length; j++) {
-                code_ += insIndent() + inputVarNames[j] + ".setValue( getData( \"";
-                code_ += inputVarNames[j] + "\", ";
+        generateGetData();
+        // for (int i = 0; i < inputs_.size(); i++) {
+        //     InputStream input = inputs_.get( i );
+        //     String[] inputVarNames = input.getVarNames();
+        //     for (int j = 0; j < inputVarNames.length; j++) {
+        //         code_ += insIndent() + inputVarNames[j] + ".setValue( getData( \"";
+        //         code_ += inputVarNames[j] + "\", ";
 
-                // methods
-                Vector<Method> methods = input.getMethods();
-                for (int l = 0; l < methods.size(); l++) {
-                    Method method = methods.get( l );
-                    if (l == 0)
-                        code_ += "new Method( " + method.toString() + " )";
-                    else 
-                        code_ += ", new Method( " + method.toString() + " )";
-                }
-                code_ += " ) );\n";
-            }
-        }
+        //         // methods
+        //         Vector<Method> methods = input.getMethods();
+        //         for (int l = 0; l < methods.size(); l++) {
+        //             Method method = methods.get( l );
+        //             if (l == 0)
+        //                 code_ += "new Method( " + method.toString() + " )";
+        //             else 
+        //                 code_ += ", new Method( " + method.toString() + " )";
+        //         }
+        //         code_ += " ) );\n";
+        //     }
+        // }
 
         // e
         code_ += insIndent() + "double e = ";
@@ -297,6 +298,28 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         code_ += decInsIndent() + "}\n";
         code_ += "\n";
+    }
+
+    public void generateGetData() {
+        for (int i = 0; i < inputs_.size(); i++) {
+            InputStream input = inputs_.get( i );
+            String[] inputVarNames = input.getVarNames();
+            for (int j = 0; j < inputVarNames.length; j++) {
+                code_ += insIndent() + inputVarNames[j] + ".setValue( getData( \"";
+                code_ += inputVarNames[j] + "\", ";
+
+                // methods
+                Vector<Method> methods = input.getMethods();
+                for (int l = 0; l < methods.size(); l++) {
+                    Method method = methods.get( l );
+                    if (l == 0)
+                        code_ += "new Method( " + method.toString() + " )";
+                    else 
+                        code_ += ", new Method( " + method.toString() + " )";
+                }
+                code_ += " ) );\n";
+            }
+        }
     }
 
 
@@ -363,8 +386,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             }
             code_ += insIndent() + "Mode mode = new Mode();\n";
             code_ += "\n";
-            
-            // getCorrectedData
             code_ += insIndent() + "getCorrectedData( win_" + outputVarNames[0] + "_, ";
             for (int j = 0; j < vars.size(); j++) {
                 String var = vars.get( j );
@@ -378,6 +399,83 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             // errorAnalyzer
             code_ += insIndent() + "String desc = errorAnalyzer_.getDesc( mode.getMode() );\n";
             code_ += insIndent() + "dbgPrint( desc );\n";
+            code_ += "\n";
+
+            // sendData
+            code_ += insIndent() + "try {\n";
+            code_ += incInsIndent() + "sendData( OutputType.Output, " + i + ", " + outputVarNames[0] + " );\n";
+            code_ += decInsIndent() + "} catch ( Exception ex ) {\n";
+            code_ += incInsIndent() + "ex.printStackTrace();\n";
+            code_ += decInsIndent() + "}\n";
+
+            if (sim_) {
+                code_ += "\n";
+                code_ += insIndent() + "time_ += frequency;\n";
+                code_ += insIndent() + "progressTime( frequency );\n";
+                code_ += decInsIndent() + "}\n";
+                code_ += "\n";
+                code_ += insIndent() + "dbgPrint( \"Finished at \" + getTime() );\n";
+            }
+            else {
+                code_ += decInsIndent() + "}\n";
+                decIndent();
+                code_ += decInsIndent() + "}, 0, frequency );\n";
+            }
+
+            code_ += decInsIndent() + "}\n";
+            code_ += "\n";
+        }
+    }
+
+    protected void generateStartOutputsNoCorrection() {
+        for (int i = 0; i < outputs_.size(); i++) {
+            OutputStream output = outputs_.get( i );
+
+            // method declaration
+            String[] outputVarNames = output.getVarNames();
+            code_ += insIndent() + "public void startOutput_" + outputVarNames[0] + "() {\n";
+
+            // openSocket
+            code_ += incInsIndent() + "try {\n";
+            code_ += incInsIndent() + "openSocket( OutputType.Output, " + i + ", \"" + outputVarNames[0] + "\" );\n";
+            code_ += decInsIndent() + "} catch ( Exception ex ) {\n";
+            code_ += incInsIndent() + "ex.printStackTrace();\n";
+            code_ += decInsIndent() + "}\n";
+            code_ += insIndent() + "\n";
+            
+            // timer thread --->
+            code_ += insIndent() + "final int frequency = " + output.getFrequency() + ";\n";
+            if (sim_)
+                code_ += insIndent() + "while (!isEndTime()) {\n";
+            else {
+                code_ += insIndent() + "timer_.scheduleAtFixedRate( new TimerTask() {\n";
+                incIndent();
+                code_ += incInsIndent() + "public void run() {\n";
+            }
+
+            // variable declaration
+            Vector<String> vars = new Vector<String>();
+            HashMap<String,String> map = new HashMap<String,String>();
+            for (int j = 0; j < inputs_.size(); j++) {
+                InputStream input = inputs_.get( j );
+                String[] inputVarNames = input.getVarNames();
+                for (int k = 0; k < inputVarNames.length; k++) {
+                    vars.add( inputVarNames[k] );
+                    map.put( inputVarNames[k], inputVarNames[k] + ".getValue()" );
+                }
+            }
+            incIndent();
+            for (int j = 0; j < vars.size(); j++) {
+                String var = vars.get( j );
+                code_ += insIndent() + "Value " + var + " = new Value();\n";
+            }
+            code_ += "\n";
+            
+            // getData
+            generateGetData();
+
+            code_ += insIndent() + "double " + outputVarNames[0] + " = ";
+            code_ += replaceVar( replaceMathFuncs(output.getExp()), map ) + ";\n";
             code_ += "\n";
 
             // sendData
@@ -434,12 +532,18 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
 
     protected void generateCode() {
+        boolean correction = (0 < errors_.size() && 0 < sigs_.size() && 0 < corrects_.size());
+
         generateImports();
         generateClassDeclaration();
         generateConstructor();
-        generateGetCorrectedData();
-        if (0 < outputs_.size())
+        if (correction) {
+            generateGetCorrectedData();
             generateStartOutputs();
+        }
+        else {
+            generateStartOutputsNoCorrection();
+        }
         generateMain();
     }
 

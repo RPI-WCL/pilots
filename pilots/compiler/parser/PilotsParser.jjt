@@ -17,6 +17,12 @@ PARSER_END(PilotsParser)
 /********** TOKEN DEFINITIONS **********/
 /***************************************/
 
+TOKEN_MGR_DECLS :
+{
+  static int commentNesting;  // Current level of nesting of comments
+}
+
+
 /*** Skip whitespace and comments ***/
 SKIP : {
 " "
@@ -24,7 +30,18 @@ SKIP : {
 | "\n"
 | "\r"
 | "\r\n"
+| "/*"  { commentNesting=1; } : IN_COMMENT
 }
+<IN_COMMENT> MORE:
+{
+  < ~[] >
+}
+<IN_COMMENT> SKIP:
+{
+  < "/*" > { commentNesting++; } 
+| < "*/" > { commentNesting--; if (commentNesting==0) SwitchTo(DEFAULT); }
+}
+
 
 /*** The keywords ***/
 TOKEN : {
@@ -85,9 +102,9 @@ ASTPilots Pilots():
     <PROGRAM_START> t = <VAR> { jjtThis.jjtSetValue( t.image ); } ";"
         <INPUTS> (";" | (Input())*)
         <OUTPUTS> (";" | (Output())*)
-        <ERRORS> (";" | (Error())*)
-        <SIGNATURES> (";" | (Signature())*)
-        <CORRECTS> (";" | (Correct())*)
+        (<ERRORS> (";" | (Error())*))?
+        (<SIGNATURES> (";" | (Signature())*))?
+        (<CORRECTS> (";" | (Correct())*))?
     <PROGRAM_END> ";"
     { return jjtThis; }
 }
