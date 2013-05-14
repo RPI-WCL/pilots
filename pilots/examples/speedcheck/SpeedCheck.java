@@ -26,18 +26,25 @@ public class SpeedCheck extends PilotsRuntime {
 
         errorSigs_ = new Vector<ErrorSignature>();
 
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Normal" ) );
-
         Vector<Constraint> constraints1 = new Vector<Constraint>();
-        constraints1.add( new Constraint( Constraint.LESS_THAN, 100.0 ) );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Pitot tube failure", constraints1 ) );
-
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, -150.0, "GPS failure" ) );
+        constraints1.add( new Constraint( Constraint.GREATER_THAN, -40.0 ) );
+        constraints1.add( new Constraint( Constraint.LESS_THAN, 25.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "No error", constraints1 ) );
 
         Vector<Constraint> constraints2 = new Vector<Constraint>();
-        constraints2.add( new Constraint( Constraint.GREATER_THAN, -150.0 ) );
-        constraints2.add( new Constraint( Constraint.LESS_THAN, 0.0 ) );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Pitot tube + GPS failure", constraints2 ) );
+        constraints2.add( new Constraint( Constraint.GREATER_THAN, 50.0 ) );
+        constraints2.add( new Constraint( Constraint.LESS_THAN, 100.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Pitot tube failure", constraints2 ) );
+
+        Vector<Constraint> constraints3 = new Vector<Constraint>();
+        constraints3.add( new Constraint( Constraint.GREATER_THAN, -150.0 ) );
+        constraints3.add( new Constraint( Constraint.LESS_THAN, -100.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "GPS failure", constraints3 ) );
+
+        Vector<Constraint> constraints4 = new Vector<Constraint>();
+        constraints4.add( new Constraint( Constraint.GREATER_THAN, -100.0 ) );
+        constraints4.add( new Constraint( Constraint.LESS_THAN, -40.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Pitot tube + GPS failure", constraints4 ) );
 
         errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );
     }
@@ -96,10 +103,11 @@ public class SpeedCheck extends PilotsRuntime {
             double o = ground_speed_corrected.getValue()-Math.sqrt(air_speed_corrected.getValue()*air_speed_corrected.getValue()+2*air_speed_corrected.getValue()*wind_speed_corrected.getValue()*Math.cos((2*Math.PI/360)*(wind_angle_corrected.getValue()-air_angle_corrected.getValue()))+wind_speed_corrected.getValue()*wind_speed_corrected.getValue());
 
             String desc = errorAnalyzer_.getDesc( mode.getMode() );
-            dbgPrint( desc );
+            // dbgPrint( mode.getMode() + ", " + desc + ", o=" + o + " at " + getTime() );
+            System.out.println( mode.getMode() );
 
             try {
-                sendData( OutputType.Output, 0, o );
+                sendData( OutputType.Output, 0, mode.getMode() );
             } catch ( Exception ex ) {
                 ex.printStackTrace();
             }

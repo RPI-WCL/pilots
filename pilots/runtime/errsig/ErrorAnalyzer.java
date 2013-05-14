@@ -4,8 +4,9 @@ import java.util.Vector;
 import java.util.Arrays;
 import pilots.runtime.errsig.ErrorSignature;
 import pilots.runtime.errsig.SlidingWindow;
+import pilots.runtime.DebugPrint;
 
-public class ErrorAnalyzer {
+public class ErrorAnalyzer extends DebugPrint {
     private Vector<ErrorSignature> errorSigs_;
     private double tau_;
 
@@ -35,6 +36,7 @@ public class ErrorAnalyzer {
                     for (int j = 0; j < winSize; j++) {
                         // find a reference point
                         double ref = errorSig.getClosestEndPoint( win.at( j ) );
+                        // System.out.println( "win.at(" + j + ")=" + win.at( j ) + " --> ref=" + ref );
                         double thisFail = 0.0;
                         for (int k = 0; k < winSize; k++) 
                             thisFail += calcDiff( win.at( k ), ref );
@@ -82,6 +84,18 @@ public class ErrorAnalyzer {
             likelihood[i] = (deltas[i] == 0) ? 1 : minDelta / deltas[i];
             if (likelihood[i] == 1)
                 mode = i;
+        }
+
+        // debug info
+        String dbgInfo = "d = { ";
+        if (System.getProperty( "debug" ) != null) {
+            for (int i = 0; i < numSignatures; i++)
+                dbgInfo += deltas[i] + " ";
+            dbgInfo += "}, l = { ";
+            for (int i = 0; i < numSignatures; i++)
+                dbgInfo += likelihood[i] + " ";
+            dbgInfo += "}, mode = " + mode;
+            dbgPrint( dbgInfo );
         }
 
         // sort the likelihood vector in asceding order (i.e., likelihood[numSignatures - 1] is the largest)

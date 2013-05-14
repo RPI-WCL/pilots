@@ -8,20 +8,20 @@ public class Constraint {
     public static final int LESS_THAN = 2;
     public static final int LESS_THAN_OR_EQUAL_TO = 3;
 
-    private int type_; // GREATER_THAN, LESS_THAN, ...
-    private double value_; // the value of a endpoint
+    private int ineq_; // GREATER_THAN, LESS_THAN, ...
+    private double endPoint_; // the value of a endpoint
 
-    public Constraint( int type, double value ) {
-        type_ = type;
-        value_ = value;
+    public Constraint( int ineq, double endPoint ) {
+        ineq_ = ineq;
+        endPoint_ = endPoint;
     }
 
-    public int getType() {
-        return type_;
+    public int getIneq() {
+        return ineq_;
     }
 
-    public double getValue() {
-        return value_;
+    public double getEndPoint() {
+        return endPoint_;
     }
 
 }

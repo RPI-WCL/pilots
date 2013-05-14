@@ -13,16 +13,16 @@ echo "Making dir: "$DIST
 mkdir $DIST
 
 echo "Compiling pilots/compiler"
-javac -Xlint:none -d $DIST `find pilots/compiler/ | grep "java$"`
+javac -Xlint:none -g -d $DIST `find pilots/compiler/ | grep "java$"`
 
 echo "Compiling pilots/runtime"
-javac -Xlint:none -d $DIST `find pilots/runtime/ | grep "java$"`
+javac -Xlint:none -g -d $DIST `find pilots/runtime/ | grep "java$"`
 
 echo "Compiling pilots/util"
-javac -Xlint:none -d $DIST `find pilots/util/ | grep "java$"`
+javac -Xlint:none -g -d $DIST `find pilots/util/ | grep "java$"`
 
 echo "Compiling pilots/examples"
-javac -Xlint:none -d $DIST `find pilots/examples/ | grep "java$"`
+javac -Xlint:none -g -d $DIST `find pilots/examples/ | grep "java$"`
 
 
 echo "Generating jar file..."

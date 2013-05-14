@@ -12,9 +12,8 @@ program SpeedCheck;
 		   				  		2 * air_speed * wind_speed * cos((2 * PI/360) * (wind_angle - air_angle)) +
 								wind_speed * wind_speed );
     signatures
-		s0: e = 0                       "Normal";
-		s1(K): e = K, K < 100           "Pitot tube failure";
-		s2: e = -150                    "GPS failure";
-		s3(K): e = K, -150 < K, K < 0   "Pitot tube + GPS failure";
-	correct;    
+		s0(K): e = K, -40 < K, K < 25     "No error";
+		s1(K): e = K, 50 < K, K < 100     "Pitot tube failure";
+		s2(K): e = K, -150 < K, K < -100  "GPS failure";
+		s3(K): e = K, -100 < K, K < -40   "Pitot tube + GPS failure";
 end;

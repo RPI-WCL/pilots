@@ -398,7 +398,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
             // errorAnalyzer
             code_ += insIndent() + "String desc = errorAnalyzer_.getDesc( mode.getMode() );\n";
-            code_ += insIndent() + "dbgPrint( desc );\n";
+            code_ += insIndent() + "dbgPrint( desc + \", " + outputVarNames[0] + "=\" + " + outputVarNames[0] + " + \" at \" + getTime() );\n";
             code_ += "\n";
 
             // sendData
@@ -478,6 +478,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code_ += replaceVar( replaceMathFuncs(output.getExp()), map ) + ";\n";
             code_ += "\n";
 
+            code_ += insIndent() + "dbgPrint( \"" + outputVarNames[0] + "=\" + " + outputVarNames[0] + " + \" at \" + getTime() );\n";
+
             // sendData
             code_ += insIndent() + "try {\n";
             code_ += incInsIndent() + "sendData( OutputType.Output, " + i + ", " + outputVarNames[0] + " );\n";
@@ -532,7 +534,11 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
 
     protected void generateCode() {
-        boolean correction = (0 < errors_.size() && 0 < sigs_.size() && 0 < corrects_.size());
+        boolean correction = (0 < errors_.size() && 0 < sigs_.size());
+        // System.out.println( "####### correction=" + correction + 
+        //                     ",e=" + errors_.size() + 
+        //                     ",s=" + sigs_.size() + 
+        //                     ",c=" + corrects_.size() );
 
         generateImports();
         generateClassDeclaration();
