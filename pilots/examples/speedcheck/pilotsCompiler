@@ -1,1 +1,0 @@
-java -Dsim -Dpackage=pilots.examples.speedcheck pilots.compiler.PilotsCompiler SpeedCheck.plt

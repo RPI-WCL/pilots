@@ -34,7 +34,7 @@ public class SpeedCheck extends PilotsRuntime {
         Vector<Constraint> constraints2 = new Vector<Constraint>();
         constraints2.add( new Constraint( Constraint.GREATER_THAN, 50.0 ) );
         constraints2.add( new Constraint( Constraint.LESS_THAN, 100.0 ) );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Pitot tube failure", constraints2 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Airspeed failure", constraints2 ) );
 
         Vector<Constraint> constraints3 = new Vector<Constraint>();
         constraints3.add( new Constraint( Constraint.GREATER_THAN, -150.0 ) );
@@ -103,11 +103,10 @@ public class SpeedCheck extends PilotsRuntime {
             double o = ground_speed_corrected.getValue()-Math.sqrt(air_speed_corrected.getValue()*air_speed_corrected.getValue()+2*air_speed_corrected.getValue()*wind_speed_corrected.getValue()*Math.cos((2*Math.PI/360)*(wind_angle_corrected.getValue()-air_angle_corrected.getValue()))+wind_speed_corrected.getValue()*wind_speed_corrected.getValue());
 
             String desc = errorAnalyzer_.getDesc( mode.getMode() );
-            // dbgPrint( mode.getMode() + ", " + desc + ", o=" + o + " at " + getTime() );
-            System.out.println( mode.getMode() );
+            dbgPrint( desc + ", o=" + o + " at " + getTime() );
 
             try {
-                sendData( OutputType.Output, 0, mode.getMode() );
+                sendData( OutputType.Output, 0, o );
             } catch ( Exception ex ) {
                 ex.printStackTrace();
             }

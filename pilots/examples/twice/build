@@ -1,0 +1,14 @@
+DIST=../../../classes
+
+java -Dpackage=pilots.examples.twice pilots.compiler.PilotsCompiler Twice.plt
+
+echo "Compiling generated java code"
+javac -Xlint:none -d $DIST Twice.java 
+
+echo "Updating jar file..."
+CURRENT=$PWD
+cd $DIST
+jar cf ../lib/pilots.jar `find pilots/compiler/` `find pilots/runtime/` `find pilots/util/` `find pilots/examples/`
+cd $CURRENT
+
+echo "Finished!"

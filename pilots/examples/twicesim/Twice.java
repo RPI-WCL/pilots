@@ -82,7 +82,7 @@ public class Twice extends PilotsRuntime {
             double o = b_corrected.getValue()-2*a_corrected.getValue();
 
             String desc = errorAnalyzer_.getDesc( mode.getMode() );
-            dbgPrint( desc );
+            dbgPrint( desc + ", o=" + o + " at " + getTime() );
 
             try {
                 sendData( OutputType.Output, 0, o );

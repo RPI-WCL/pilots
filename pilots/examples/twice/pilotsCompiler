@@ -1,1 +1,0 @@
-java -Dpackage=pilots.examples.twice pilots.compiler.PilotsCompiler Twice.plt

@@ -2,6 +2,8 @@ package pilots.compiler.codegen;
 
 import java.util.Vector;
 import java.text.ParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import pilots.compiler.codegen.Constraint;
 import pilots.runtime.Value;
 
@@ -82,7 +84,14 @@ public class Signature {
         if (type_ == LINEAR)
             value_ = extractValue( splitExps[0] );
         else {
+            Pattern pattern = Pattern.compile( "[A-Za-z]+" );
+            Matcher matcher = pattern.matcher( splitExps[0] );
+
             // constant value or 'K'
+            if (arg_.equals( "null" ) && matcher.matches()) {
+                throw new ParseException( "constant must be defined on the left side", 0 );
+            }
+
             if (!arg_.equalsIgnoreCase( splitExps[0] ))
                 value_ = Double.parseDouble( splitExps[0] );
         }
