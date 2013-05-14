@@ -288,7 +288,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             Correct correct = corrects_.get( i ) ;
             code_ += insIndent() + "case " + correct.getMode() + ":\n";
             code_ += incInsIndent() + correct.getVar() + "_corrected.setValue( ";
-            code_ += replaceVar( correct.getExp(), map );
+            code_ += replaceVar( replaceMathFuncs( correct.getExp() ), map );
             code_ += " );\n";
             code_ += insIndent() + "break;\n";
             decIndent();
