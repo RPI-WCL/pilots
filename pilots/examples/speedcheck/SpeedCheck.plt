@@ -16,4 +16,10 @@ program SpeedCheck;
 		s1(K): e = K, 50 < K, K < 100     "Airspeed failure";
 		s2(K): e = K, -150 < K, K < -100  "GPS failure";
 		s3(K): e = K, -100 < K, K < -40   "Pitot tube + GPS failure";
+		
+	correct
+		/*s1: air_speed = */
+		s2: ground_speed = sqrt( air_speed * air_speed + 
+		   				  		2 * air_speed * wind_speed * cos((2 * PI/360) * (wind_angle - air_angle)) +
+								wind_speed * wind_speed ) at every 1 min;
 end;
