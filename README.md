@@ -18,37 +18,37 @@ README for PILOTS ver 0.2
 
 3. Building PILOTS library
 ----------------------------------------------------------------------------------------------
-1. Run the following shell script from $PILOTS_HOME to setup CLASSPATH. This script also configures several alias commands for the PILOTS compiler.
+* Run the following shell script from $PILOTS_HOME to setup CLASSPATH. This script also configures several alias commands for the PILOTS compiler.
 
-  $ source setenv
+	$ source setenv
 
-2. From $PILOTS_HOME run the build script and $PILOTS_HOME/lib/pilots.jar will be created.
+* From $PILOTS\_HOME run `build` and $PILOTS_DIR/lib/pilots.jar will be created.
 
 
 3. Compiling a PILOTS program
 ----------------------------------------------------------------------------------------------
 
-1. Compile your PILOTS program (YourProgram.plt) into Java source code by the following:
+* Compile your PILOTS program (YourProgram.plt) into Java source code by the following:
 
 	$ java pilots.compiler.PilotsCompiler YourProgram.plt
 	
 	OR
 	
-	$ plc YourProgram (`plc` stands for PILOTS compiler and is an alias for the above java command)
+	$ plc YourProgram (`plc` is an alias for the above java command)
 
    The command line options for the PILOTS compiler are:
-      - -Dstdout  : sends generated code to standard output 
+      - -Dstdout  : sends generated code to standard output instead
       - -Dsim     : compilation switch for simulation mode
       - -Dpackage : changes the generated code's target package
 
-3. Compile the generated java code.  The result is the PILOTS application and can be run using Java.
+* Compile the generated java code.  The result is the PILOTS application and can be run using Java.
      
      $ javac YourProgram.java
 
 
 4. Executing a PILOTS application
 ----------------------------------------------------------------------------------------------
-PILOTS applications assume all input and output are communicated over TCP/IP sockets.  
+* PILOTS applications assume all input and output are communicated over TCP/IP sockets.  
 Thus most PILOTS applications will require you to run external programs that act as data input producers or output handlers.
 The order of execution must be: 
 
@@ -56,17 +56,25 @@ The order of execution must be:
     2. PILOTS application
     3. data input producers
 
-The IP addresses that will be used for socket communication between the PILOTS application and the external programs must be specified.
-The PILOTS application takes -input, -outputs as arguments as follows:
+* The IP addresses that will be used for socket communication between the PILOTS application and the external programs must be specified.
+The PILOTS application takes -input and -outputs arguments along with error detection parameters -tau and -omega as follows:
 
-     $ java <your PILOTS application> -input=<port> -outputs=<ipaddr:port>*
+     $ java <your PILOTS application> -input=<port> -outputs=<ipaddr:port>* -tau=<t> -omega=<w>
      (* means one or more)
 
-For example, the following SimpleApp application listens to the port 8888, and sends the outputs to 127.0.0.1:9998 and 127.0.0.2:9999.
+* For example, the following SimpleApp application listens to the port 8888, and sends the outputs to 127.0.0.1:9998 and 127.0.0.2:9999.
 
-     $ java pilots.tests.SimpleApp -input=8888 -outputs=127.0.0.1:9999,127.0.0.2:9999
+     $ java pilots.tests.SimpleApp -input=8888 -outputs=127.0.0.1:9999,127.0.0.2:9999 -tau=0.6 -omega=10
 
-!!!Input/Output file format (slide as well)
+* PILOTS applications handle spatio-temporal input/output data using a specific format.  All input/output in a PILOTS application looks like:
+	var0, var1, ... varn \r\n   [first line of file]
+	space:time:v0,...,vn \r\n   [all other lines]
+
+space and time are specified as points (ex: x,y, or t), or ranges (ex: x0~x1, t0~t1). 
+
+Simulation mode, as opposed to real-time mode, relies on a different algorithm that uses simulated time.  When running a PILOTS application in simulation mode, the -Dtimespan=<tb~te> (where tb and te are both timestamps) argument must be specified. 
+
+See $PILOTS_HOME/pilots/data for example input files.
 
 5. Running examples
 ----------------------------------------------------------------------------------------------
@@ -104,7 +112,7 @@ You can simulate some sensor failure situations by replacing *speedCheckProducer
 * Language only supports error signatures that are a constant, or a linear function. Examples are:
   - S: e = 100, <constraints>
   - S(K): e = 2*t + K, <constraints>
-  - The presence of (K) is currently being used to differentiate these two cases.
+  - The presence of '(K)' is currently being used to differentiate these two cases.
 
 
 7. Future Work
