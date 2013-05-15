@@ -10,7 +10,6 @@ import pilots.runtime.*;
 
 public class PilotsCodeGenerator implements PilotsParserVisitor {
     private static final String TAB = "    ";
-    private static final String DEFAULT_PACKAGE = "pilots.examples";
     private static int indent = 0;
 
     private String appName_ = null;
@@ -102,8 +101,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         String p = System.getProperty( "package" );
         if (p != null)
             code_ += "package " + p + ";\n";
-        else 
-            code_ += "package " + DEFAULT_PACKAGE + ";\n";
         code_ += "\n";
         if (sim_) {
             code_ += "import java.io.BufferedReader;\n";
@@ -514,7 +511,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         if (sim_) {
             code_ += "\n";
             code_ += insIndent() + "BufferedReader reader = new BufferedReader( new InputStreamReader( System.in ) );\n";
-            code_ += insIndent() + "System.out.println( \"Hit any key after running the clients\" );\n";
+            code_ += insIndent() + "System.out.println( \"Hit any key after running input producer(s)\" );\n";
             code_ += insIndent() + "try {\n";
             code_ += incInsIndent() + "reader.readLine();\n";
             code_ += decInsIndent() + "} catch (Exception ex) {\n";
