@@ -70,17 +70,17 @@ The PILOTS application takes -input and -outputs arguments along with error dete
 	var0, var1, ... varn \r\n   [first line of file]
 	space:time:v0,...,vn \r\n   [all other lines]
 
-space and time are specified as points (ex: x,y, or t), or ranges (ex: x0~x1, t0~t1). 
+* space and time are specified as points (ex: x,y, or t), or ranges (ex: x0~x1, t0~t1). 
 
-Simulation mode, as opposed to real-time mode, relies on a different algorithm that uses simulated time.  When running a PILOTS application in simulation mode, the -Dtimespan=<tb~te> (where tb and te are both timestamps) argument must be specified. 
+* Simulation mode, as opposed to real-time mode, relies on a different algorithm that uses simulated time.  When running a PILOTS application in simulation mode, the -Dtimespan=<tb~te> (where tb and te are both timestamps) argument must be specified. 
 
-See $PILOTS_HOME/pilots/data for example input files.
+* See $PILOTS_HOME/pilots/data for example input files.
 
 5. Running examples
 ----------------------------------------------------------------------------------------------
 
-There are several test scripts under *$PILOTS_HOME/pilots/examples directory* to simulate experiments shown in the [QUeST 2012 workshop paper](http://wcl.cs.rpi.edu/papers/quest2012.pdf).
-Please note that there have been syntax changes in the PILOTS language since the QUeST paper, so the *.plt files look different.
+* There are several test scripts under *$PILOTS_HOME/pilots/examples directory* to simulate experiments shown in the publications.
+Please note that there have been syntax changes in the PILOTS language since the earlier papers, so the *.plt files look different.
 
 * Twice
 
