@@ -7,13 +7,14 @@ README for PILOTS ver 0.2
 * [JFreeChart](http://www.jfree.org/jfreechart/download.html) 1.0.14 or newer to visualize outputs from PILOTS applications.
 * (Optional) [JavaCC](http://javacc.java.net/) if you want to modify PILOTS grammar.
 
+* Note: the following instructions assume a Unix based system that uses the Bash shell.  Users of different operating systems and shells may have to adjust the following instructions slightly.
 
 2. Downloading PILOTS library and JFreeChart
 ----------------------------------------------------------------------------------------------
 * Download the zipped [PILOTS](https://github.com/RPI-WCL/pilots/archive/v0.2.zip) library source tree.
   The directory in which the zipped PILOTS library is extracted to will be referred to as *$PILOTS_HOME*.
 
-* Download *jfreechart-1.0.14.jar* and *jcommon-1.0.17.jar* (or newer) from [JFreeChart](http://www.jfree.org/jfreechart/download.html) and place them under $PILOTS\_HOME/lib directory.
+* Download *jfreechart-1.0.14.jar* and *jcommon-1.0.17.jar* (or newer) from [JFreeChart](http://www.jfree.org/jfreechart/download.html) and place them under $PILOTS_HOME/lib directory.
 
 
 3. Building PILOTS library
@@ -22,7 +23,7 @@ README for PILOTS ver 0.2
 
 	$ source setenv
 
-* From $PILOTS\_HOME run `build` and $PILOTS_DIR/lib/pilots.jar will be created.
+* From $PILOTS_HOME run `build` and $PILOTS_DIR/lib/pilots.jar will be created.
 
 
 3. Compiling a PILOTS program
@@ -62,7 +63,7 @@ The PILOTS application takes -input and -outputs arguments along with error dete
      $ java <your PILOTS application> -input=<port> -outputs=<ipaddr:port>* -tau=<t> -omega=<w>
      (* means one or more)
 
-* For example, the following SimpleApp application listens to the port 8888, and sends the outputs to 127.0.0.1:9998 and 127.0.0.2:9999.
+* As an example, we will show how to run the twice example found in $PILOTS_HOME/examples.  In this example, the PILOTS application listens to the port 8888, and sends the output to 127.0.0.1:9998 and error to 127.0.0.2:9999.
 
      $ java pilots.tests.SimpleApp -input=8888 -outputs=127.0.0.1:9999,127.0.0.2:9999 -tau=0.6 -omega=10
 
