@@ -63,19 +63,45 @@ The PILOTS application takes -input and -outputs arguments along with error dete
      $ java <your PILOTS application> -input=<port> -outputs=<ipaddr:port>* -tau=<t> -omega=<w>
      (* means one or more)
 
-* As an example, we will show how to run the twice example found in $PILOTS_HOME/examples.  In this example, the PILOTS application listens to the port 8888, and sends the output to 127.0.0.1:9998 and error to 127.0.0.2:9999.
-
-     $ java pilots.tests.SimpleApp -input=8888 -outputs=127.0.0.1:9999,127.0.0.2:9999 -tau=0.6 -omega=10
-
 * PILOTS applications handle spatio-temporal input/output data using a specific format.  All input/output in a PILOTS application looks like:
+
 	var0, var1, ... varn \r\n   [first line of file]
+
 	space:time:v0,...,vn \r\n   [all other lines]
 
-* space and time are specified as points (ex: x,y, or t), or ranges (ex: x0~x1, t0~t1). 
+* Space and time are specified as points (ex: x,y, or t), or ranges (ex: x0~x1, t0~t1). 
 
-* Simulation mode, as opposed to real-time mode, relies on a different algorithm that uses simulated time.  When running a PILOTS application in simulation mode, the -Dtimespan=<tb~te> (where tb and te are both timestamps) argument must be specified. 
+* Simulation mode, as opposed to real-time mode, relies on a different algorithm that uses simulated time.  When running a PILOTS application in simulation mode, the -Dtimespan=tb~te (where tb and te are both timestamps) argument must be specified. 
 
 * See $PILOTS_HOME/pilots/data for example input files.
+
+* As a convenient example, we will show how to run the twice example found in $PILOTS_HOME/pilots/examples/twice.  In this example, the PILOTS application listens to the port 8888, and sends the output to 127.0.0.1:9999.  We have provided the external software components that handle the input (pilots.util.SimpleInputProducer) and the output (pilots.util.ChartServer).  These external components are invoked using the scripts in the $PILOTS_HOME/pilots/examples/twice directory.  
+    1. Compile the Twice.plt example program using:
+
+       $ java -Dpackage=pilots.examples.twice pilots.compiler.PilotsCompiler Twice.plt
+
+    2. Now compile the resulting Twice.java file using:
+    
+       $ javac
+    
+    3. Finally we must rebuild the pilots.jar file.  This can be done in one line by executing the following command from the $PILOTS_HOME/classes directory:
+
+       $ jar cf ../lib/pilots.jar `find pilots/compiler/` `find pilots/util/` `find pilots/runtime/` `find pilots/examples/`
+
+* Now $PILOTS_HOME/classes/pilots/twice/Twice.class exists, and the application can be run by opening four separate terminals and executing the following steps (from the $PILOTS_HOME/pilots/examples/twice directory):
+    1. execute $./outputHandler (external software component that listens for output on port 9999 and graphs it)
+
+    2. On another terminal, execute 
+        $java pilots.examples.twice.Twice -input=8888 -outputs=127.0.0.1:9999 -tau=0.6 -omega=10 (or just run the twice script)
+
+    3a. On the 3rd terminal, execute $./twiceProducerA jitter   (where jitter is a number from 0-100 corresponding to the percentage of timing jitter)
+    3b. On the 4th terminal, execute $./twiceProducerB jitter
+
+* Try to execute steps 3a and 3b immediately after one another for the best results.
+
+* After running ./outputHandler a window should pop up to begin listening to the socket and graphing the output.
+
+* Simple errors (failure to generate data) can be simulated by simply killing one of the Producer processes.
 
 5. Running examples
 ----------------------------------------------------------------------------------------------
@@ -83,23 +109,35 @@ The PILOTS application takes -input and -outputs arguments along with error dete
 * There are several test scripts under *$PILOTS_HOME/pilots/examples directory* to simulate experiments shown in the publications.
 Please note that there have been syntax changes in the PILOTS language since the earlier papers, so the *.plt files look different.
 
-* Twice
+* For convenience, the examples come with scripts to make compiling and running the applications much easier.  Each example has an associated build script that can be used for quick compilation, along with scripts to invoke the application and its external components.
 
-Go to *$PILOTS_HOME/pilots/examples/twicesim* directory and run the following scripts in different terminals.
+* Each example is initially compiled when the PILOTS language is build, so recompiling the examples is unnecessary unless changes are made to the originals.
 
+* twice -- pilots.examples.twice (real-time version of twice example)
+
+     $./outputHandler
+     $./twice
+     $./twiceProducerA jitter
+     $./twiceProducerB jitter
+
+* twicesim -- pilots.examples.twicesim (simulated-time version of twice example)
      $./outputHandler
      $./twicesim
      $./twiceProducer
+     
+     -Note that after ./twiceProducer has been executed, you must activate the window running ./twicesim and press any key to initiate the simulation.
 
-* SpeedCheck
+* speedcheck -- pilots.examples.speedcheck (simulated-time example using real flight data)
 
-Go to *$PILOTS_HOME/pilots/examples/speedcheck* directory and run the following script in different terminals.
+Go to the *$PILOTS_HOME/pilots/examples/speedcheck* directory and run the following script in different terminals.
 
      $./outputHandler
      $./speedCheck 
      $./speedCheckProducer
 
-You can simulate some sensor failure situations by replacing *speedCheckProducer* with one of *speedCheckProducer_PitotTubeFail*, *speedCheckProducer_GpsFail*, and *speedCheckProducer_BothFail*.
+     -Note that after ./speedCheckProducer (or equivalent) has been executed, you must activate the window running ./speedCheck and press any key to initiate the simulation.
+
+* You can simulate specific errors by replacing *speedCheckProducer* with one of *speedCheckProducer_PitotTubeFail*, *speedCheckProducer_GpsFail*, and *speedCheckProducer_BothFail*.
 
 
 6. Limitations/Known bugs
@@ -125,6 +163,9 @@ You can simulate some sensor failure situations by replacing *speedCheckProducer
     -   S(K1,K2): e = K1*t + K2, K1 != 0, K2 > thresh
 
 * Support for multiple error functions (will require additional logic in the error analysis phase)
+
+* Better syntax support for intervals (in signature constraints)
+    - i.e., K in (0,10) or K not in (-10,10)
 
 * External software components: simulation and visualization
     - more defined and customizable

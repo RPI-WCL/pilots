@@ -26,25 +26,13 @@ public class SpeedCheck extends PilotsRuntime {
 
         errorSigs_ = new Vector<ErrorSignature>();
 
-        Vector<Constraint> constraints1 = new Vector<Constraint>();
-        constraints1.add( new Constraint( Constraint.GREATER_THAN, -40.0 ) );
-        constraints1.add( new Constraint( Constraint.LESS_THAN, 25.0 ) );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "No error", constraints1 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "No error" ) );
 
-        Vector<Constraint> constraints2 = new Vector<Constraint>();
-        constraints2.add( new Constraint( Constraint.GREATER_THAN, 50.0 ) );
-        constraints2.add( new Constraint( Constraint.LESS_THAN, 100.0 ) );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Airspeed failure", constraints2 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 100.0, "Airspeed failure" ) );
 
-        Vector<Constraint> constraints3 = new Vector<Constraint>();
-        constraints3.add( new Constraint( Constraint.GREATER_THAN, -150.0 ) );
-        constraints3.add( new Constraint( Constraint.LESS_THAN, -100.0 ) );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "GPS failure", constraints3 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, -150.0, "GPS failure" ) );
 
-        Vector<Constraint> constraints4 = new Vector<Constraint>();
-        constraints4.add( new Constraint( Constraint.GREATER_THAN, -100.0 ) );
-        constraints4.add( new Constraint( Constraint.LESS_THAN, -40.0 ) );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Pitot tube + GPS failure", constraints4 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, -50.0, "Pitot tube + GPS failure" ) );
 
         errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );
     }
@@ -74,6 +62,14 @@ public class SpeedCheck extends PilotsRuntime {
         air_angle_corrected.setValue( air_angle.getValue() );
         ground_speed_corrected.setValue( ground_speed.getValue() );
         ground_angle_corrected.setValue( ground_angle.getValue() );
+        switch (mode.getMode()) {
+        case 1:
+            air_speed_corrected.setValue( Math.sqrt(ground_speed.getValue()*ground_speed.getValue()+2*ground_speed.getValue()*wind_speed.getValue()*Math.cos((2*Math.PI/360)*(ground_angle.getValue()-wind_angle.getValue()))+wind_speed.getValue()*wind_speed.getValue()) );
+            break;
+        case 2:
+            ground_speed_corrected.setValue( Math.sqrt(air_speed.getValue()*air_speed.getValue()+2*air_speed.getValue()*wind_speed.getValue()*Math.cos((2*Math.PI/360)*(wind_angle.getValue()-air_angle.getValue()))+wind_speed.getValue()*wind_speed.getValue()) );
+            break;
+        }
     }
 
     public void startOutput_o() {
@@ -123,7 +119,7 @@ public class SpeedCheck extends PilotsRuntime {
         app.startServer();
 
         BufferedReader reader = new BufferedReader( new InputStreamReader( System.in ) );
-        System.out.println( "Hit any key after running the clients" );
+        System.out.println( "Hit any key after running input producer(s)" );
         try {
             reader.readLine();
         } catch (Exception ex) {

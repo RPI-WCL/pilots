@@ -1,4 +1,4 @@
-DIST=../../../classes
+DIST=$PILOTS_HOME/classes
 
 java -Dsim -Dpackage=pilots.examples.speedcheck pilots.compiler.PilotsCompiler SpeedCheck.plt
 

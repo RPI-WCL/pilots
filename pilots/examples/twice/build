@@ -1,4 +1,4 @@
-DIST=../../../classes
+DIST=$PILOTS_HOME/classes
 
 java -Dpackage=pilots.examples.twice pilots.compiler.PilotsCompiler Twice.plt
 
@@ -8,7 +8,7 @@ javac -Xlint:none -d $DIST Twice.java
 echo "Updating jar file..."
 CURRENT=$PWD
 cd $DIST
-jar cf ../lib/pilots.jar `find pilots/compiler/` `find pilots/runtime/` `find pilots/util/` `find pilots/examples/`
+jar cf ../lib/pilots.jar `find pilots/compiler/` `find pilots/util/` `find pilots/runtime/` `find pilots/examples/`
 cd $CURRENT
 
 echo "Finished!"

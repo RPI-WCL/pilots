@@ -12,10 +12,10 @@ program SpeedCheck;
 		   				  		2 * air_speed * wind_speed * cos((2 * PI/360) * (wind_angle - air_angle)) +
 								wind_speed * wind_speed );
 	signatures
-		s0(K): e = K, -40 < K, K < 25     "No error";
-		s1(K): e = K, 75 < K, K < 125     "Airspeed failure";
-		s2(K): e = K, -175 < K, K < -125  "GPS failure";
-		s3(K): e = K, -75 < K, K < -25    "Pitot tube + GPS failure";
+		s0(K): e = 0     "No error";
+		s1(K): e = 100   "Airspeed failure";
+		s2(K): e = -150  "GPS failure";
+		s3(K): e = -50   "Pitot tube + GPS failure";
 		
 	correct
 		s1: air_speed = sqrt( ground_speed * ground_speed +
