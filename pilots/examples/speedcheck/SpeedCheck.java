@@ -51,7 +51,7 @@ public class SpeedCheck extends PilotsRuntime {
         air_angle.setValue( getData( "air_angle", new Method( Method.Euclidean, "x", "y" ), new Method( Method.Closest, "t" ) ) );
         ground_speed.setValue( getData( "ground_speed", new Method( Method.Euclidean, "x", "y" ), new Method( Method.Closest, "t" ) ) );
         ground_angle.setValue( getData( "ground_angle", new Method( Method.Euclidean, "x", "y" ), new Method( Method.Closest, "t" ) ) );
-        double e = ground_speed.getValue()-Math.sqrt(air_speed.getValue()*air_speed.getValue()+2*air_speed.getValue()*wind_speed.getValue()*Math.cos((2*Math.PI/360)*(wind_angle.getValue()-air_angle.getValue()))+wind_speed.getValue()*wind_speed.getValue());
+        double e = ground_speed.getValue()-Math.sqrt(air_speed.getValue()*air_speed.getValue()+wind_speed.getValue()*wind_speed.getValue()+2*air_speed.getValue()*wind_speed.getValue()*Math.cos((Math.PI/180)*(wind_angle.getValue()-air_angle.getValue())));
 
         win.push( e );
         mode.setMode( errorAnalyzer_.analyze( win, frequency ) );
@@ -64,10 +64,10 @@ public class SpeedCheck extends PilotsRuntime {
         ground_angle_corrected.setValue( ground_angle.getValue() );
         switch (mode.getMode()) {
         case 1:
-            air_speed_corrected.setValue( Math.sqrt(ground_speed.getValue()*ground_speed.getValue()+2*ground_speed.getValue()*wind_speed.getValue()*Math.cos((2*Math.PI/360)*(ground_angle.getValue()-wind_angle.getValue()))+wind_speed.getValue()*wind_speed.getValue()) );
+            air_speed_corrected.setValue( Math.sqrt(ground_speed.getValue()*ground_speed.getValue()+wind_speed.getValue()*wind_speed.getValue()-2*ground_speed.getValue()*wind_speed.getValue()*Math.cos((Math.PI/180)*(ground_angle.getValue()-wind_angle.getValue()))) );
             break;
         case 2:
-            ground_speed_corrected.setValue( Math.sqrt(air_speed.getValue()*air_speed.getValue()+2*air_speed.getValue()*wind_speed.getValue()*Math.cos((2*Math.PI/360)*(wind_angle.getValue()-air_angle.getValue()))+wind_speed.getValue()*wind_speed.getValue()) );
+            ground_speed_corrected.setValue( Math.sqrt(air_speed.getValue()*air_speed.getValue()+wind_speed.getValue()*wind_speed.getValue()+2*air_speed.getValue()*wind_speed.getValue()*Math.cos((Math.PI/180)*(wind_angle.getValue()-air_angle.getValue()))) );
             break;
         }
     }
@@ -96,7 +96,7 @@ public class SpeedCheck extends PilotsRuntime {
             Mode mode = new Mode();
 
             getCorrectedData( win_o_, wind_speed, wind_speed_corrected, wind_angle, wind_angle_corrected, air_speed, air_speed_corrected, air_angle, air_angle_corrected, ground_speed, ground_speed_corrected, ground_angle, ground_angle_corrected, mode, frequency );
-            double o = ground_speed_corrected.getValue()-Math.sqrt(air_speed_corrected.getValue()*air_speed_corrected.getValue()+2*air_speed_corrected.getValue()*wind_speed_corrected.getValue()*Math.cos((2*Math.PI/360)*(wind_angle_corrected.getValue()-air_angle_corrected.getValue()))+wind_speed_corrected.getValue()*wind_speed_corrected.getValue());
+            double o = ground_speed_corrected.getValue()-Math.sqrt(air_speed_corrected.getValue()*air_speed_corrected.getValue()+wind_speed_corrected.getValue()*wind_speed_corrected.getValue()+2*air_speed_corrected.getValue()*wind_speed_corrected.getValue()*Math.cos((Math.PI/180)*(wind_angle_corrected.getValue()-air_angle_corrected.getValue())));
 
             String desc = errorAnalyzer_.getDesc( mode.getMode() );
             dbgPrint( desc + ", o=" + o + " at " + getTime() );
