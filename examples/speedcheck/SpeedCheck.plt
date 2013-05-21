@@ -11,7 +11,7 @@ program SpeedCheck;
 		   				  		2*air_speed*wind_speed*cos((PI/180)*(wind_angle-air_angle)));
 	signatures
 		s0(K): e = 0     "No error";
-		s1(K): e = 100   "Airspeed failure";
+		s1(K): e = 100   "Pitot tube failure";
 		s2(K): e = -150  "GPS failure";
 		s3(K): e = -50   "Pitot tube + GPS failure";
 		

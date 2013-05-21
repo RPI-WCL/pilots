@@ -1,14 +1,12 @@
-package pilots.examples.speedcheck;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 import java.net.Socket;
 import pilots.runtime.*;
 import pilots.runtime.errsig.*;
 
 public class SpeedCheck extends PilotsRuntime {
-    private int time_; // msec
+    private Timer timer_;
     private SlidingWindow win_o_;
     private Vector<ErrorSignature> errorSigs_;
     private ErrorAnalyzer errorAnalyzer_;
@@ -20,7 +18,7 @@ public class SpeedCheck extends PilotsRuntime {
             ex.printStackTrace();
         };
 
-        time_ = 0;
+        timer_ = new Timer();
 
         win_o_ = new SlidingWindow( getOmega() );
 
@@ -28,7 +26,7 @@ public class SpeedCheck extends PilotsRuntime {
 
         errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "No error" ) );
 
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 100.0, "Airspeed failure" ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 100.0, "Pitot tube failure" ) );
 
         errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, -150.0, "GPS failure" ) );
 
@@ -80,52 +78,40 @@ public class SpeedCheck extends PilotsRuntime {
         }
         
         final int frequency = 60000;
-        while (!isEndTime()) {
-            Value wind_speed = new Value();
-            Value wind_speed_corrected = new Value();
-            Value wind_angle = new Value();
-            Value wind_angle_corrected = new Value();
-            Value air_speed = new Value();
-            Value air_speed_corrected = new Value();
-            Value air_angle = new Value();
-            Value air_angle_corrected = new Value();
-            Value ground_speed = new Value();
-            Value ground_speed_corrected = new Value();
-            Value ground_angle = new Value();
-            Value ground_angle_corrected = new Value();
-            Mode mode = new Mode();
+        timer_.scheduleAtFixedRate( new TimerTask() {
+                public void run() {
+                    Value wind_speed = new Value();
+                    Value wind_speed_corrected = new Value();
+                    Value wind_angle = new Value();
+                    Value wind_angle_corrected = new Value();
+                    Value air_speed = new Value();
+                    Value air_speed_corrected = new Value();
+                    Value air_angle = new Value();
+                    Value air_angle_corrected = new Value();
+                    Value ground_speed = new Value();
+                    Value ground_speed_corrected = new Value();
+                    Value ground_angle = new Value();
+                    Value ground_angle_corrected = new Value();
+                    Mode mode = new Mode();
 
-            getCorrectedData( win_o_, wind_speed, wind_speed_corrected, wind_angle, wind_angle_corrected, air_speed, air_speed_corrected, air_angle, air_angle_corrected, ground_speed, ground_speed_corrected, ground_angle, ground_angle_corrected, mode, frequency );
-            double o = ground_speed_corrected.getValue()-Math.sqrt(air_speed_corrected.getValue()*air_speed_corrected.getValue()+wind_speed_corrected.getValue()*wind_speed_corrected.getValue()+2*air_speed_corrected.getValue()*wind_speed_corrected.getValue()*Math.cos((Math.PI/180)*(wind_angle_corrected.getValue()-air_angle_corrected.getValue())));
+                    getCorrectedData( win_o_, wind_speed, wind_speed_corrected, wind_angle, wind_angle_corrected, air_speed, air_speed_corrected, air_angle, air_angle_corrected, ground_speed, ground_speed_corrected, ground_angle, ground_angle_corrected, mode, frequency );
+                    double o = ground_speed_corrected.getValue()-Math.sqrt(air_speed_corrected.getValue()*air_speed_corrected.getValue()+wind_speed_corrected.getValue()*wind_speed_corrected.getValue()+2*air_speed_corrected.getValue()*wind_speed_corrected.getValue()*Math.cos((Math.PI/180)*(wind_angle_corrected.getValue()-air_angle_corrected.getValue())));
 
-            String desc = errorAnalyzer_.getDesc( mode.getMode() );
-            dbgPrint( desc + ", o=" + o + " at " + getTime() );
+                    String desc = errorAnalyzer_.getDesc( mode.getMode() );
+                    dbgPrint( desc + ", o=" + o + " at " + getTime() );
 
-            try {
-                sendData( OutputType.Output, 0, o );
-            } catch ( Exception ex ) {
-                ex.printStackTrace();
-            }
-
-            time_ += frequency;
-            progressTime( frequency );
-        }
-
-        dbgPrint( "Finished at " + getTime() );
+                    try {
+                        sendData( OutputType.Output, 0, o );
+                    } catch ( Exception ex ) {
+                        ex.printStackTrace();
+                    }
+                }
+        }, 0, frequency );
     }
 
     public static void main( String[] args ) {
         SpeedCheck app = new SpeedCheck( args );
         app.startServer();
-
-        BufferedReader reader = new BufferedReader( new InputStreamReader( System.in ) );
-        System.out.println( "Hit any key after running input producer(s)" );
-        try {
-            reader.readLine();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
         app.startOutput_o();
     }
 }

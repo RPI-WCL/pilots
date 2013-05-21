@@ -1,6 +1,7 @@
 package pilots.compiler;
 
 import java.io.*;
+import pilots.Version;
 import pilots.compiler.parser.*;
 import pilots.compiler.codegen.*;
 
@@ -10,7 +11,7 @@ public class PilotsCompiler {
     String file_ = null;
 
     public static void main( String[] args ) {
-        System.out.println( "Compiling " + args[0] + "..." );
+        System.out.println( "PILOTS Compiler v" + Version.ver + " compiling " + args[0] + "..." );
         PilotsCompiler compiler = new PilotsCompiler( args );
         compiler.compile();
     }

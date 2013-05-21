@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
+import pilots.Version;
 import pilots.runtime.*;
 
 
@@ -50,6 +51,8 @@ public class PilotsRuntime extends DebugPrint {
         dateFormat_ = new SimpleDateFormat( SpatioTempoData.datePattern );
 
         currLocTime_ = ServiceFactory.getCurrentLocationTime();
+
+        System.out.println( "PILOTS Runtime v" + Version.ver + " has started." );
     }
 
 

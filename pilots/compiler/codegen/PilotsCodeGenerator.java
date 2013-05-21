@@ -99,9 +99,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     protected void generateImports() {
         String p = System.getProperty( "package" );
-        if (p != null)
+        if (p != null) {
             code_ += "package " + p + ";\n";
-        code_ += "\n";
+            code_ += "\n";
+        }
         if (sim_) {
             code_ += "import java.io.BufferedReader;\n";
             code_ += "import java.io.InputStreamReader;\n";
@@ -511,7 +512,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         if (sim_) {
             code_ += "\n";
             code_ += insIndent() + "BufferedReader reader = new BufferedReader( new InputStreamReader( System.in ) );\n";
-            code_ += insIndent() + "System.out.println( \"Hit any key after running input producer(s)\" );\n";
+            code_ += insIndent() + "System.out.println( \"Hit ENTER key after running input producer(s).\" );\n";
             code_ += insIndent() + "try {\n";
             code_ += incInsIndent() + "reader.readLine();\n";
             code_ += decInsIndent() + "} catch (Exception ex) {\n";

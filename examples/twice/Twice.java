@@ -1,5 +1,3 @@
-package pilots.examples.twice;
-
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
