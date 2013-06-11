@@ -105,7 +105,7 @@ ASTPilots Pilots():
         (<ERRORS> (";" | (Error())*))?
         (<SIGNATURES> (";" | (Signature())*))?
         (<CORRECTS> (";" | (Correct())*))?
-    <PROGRAM_END> ";"
+    <PROGRAM_END> (";")?
     { return jjtThis; }
 }
 

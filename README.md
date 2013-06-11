@@ -1,126 +1,41 @@
-README for PILOTS ver 0.2
+README for PILOTS ver 0.2.1
 ===============================================
 
 1. Software Requirements
 ----------------------------------------------------------------------------------------------
 * Java JDK 1.6 or newer
-* [JFreeChart](http://www.jfree.org/jfreechart/download.html) 1.0.14 or newer to visualize outputs from PILOTS applications.
+* (Optional) [JFreeChart](http://www.jfree.org/jfreechart/download.html) 1.0.14 or newer to visualize outputs from PILOTS applications.
 * (Optional) [JavaCC](http://javacc.java.net/) if you want to modify PILOTS grammar.
-
-* Note: the following instructions assume a Unix based system that uses the Bash shell.  Users of different operating systems and shells may have to adjust the following instructions slightly.
-
+  
 2. Downloading PILOTS library and JFreeChart
 ----------------------------------------------------------------------------------------------
-* Download the zipped [PILOTS](https://github.com/RPI-WCL/pilots/archive/v0.2.zip) library source tree.
-  The directory in which the zipped PILOTS library is extracted to will be referred to as *$PILOTS_HOME*.
+* Download the the pilots tarball from wcl.cs.rpi.edu/pilots.
+  The directory to which this tarball is extracted to will be referred to as *$PILOTS_HOME*.
 
-* Download *jfreechart-1.0.14.jar* and *jcommon-1.0.17.jar* (or newer) from [JFreeChart](http://www.jfree.org/jfreechart/download.html) and place them under $PILOTS_HOME/lib directory.
+* The jar files required for JFreeChart (jfreechart-1.0.14.jar and jcommon-1.0.17.jar) are included in the *$PILOTS_HOME/lib* directory.
+  These libraries are under the GNU LGPL (see *$PILOTS_HOME/lib/lgpl.html*) for details.
 
+* When using the PILOTS libraries be sure that your java CLASSPATH includes the three .jar files found in *$PILOTS_HOME/lib*.  These include jfreechar-1.0.14.jar, jcommon-1.0.17.jar and pilots.jar.  We have provided an example of setting the CLASSPATH along with some recommended aliases in the *$PILOTS_HOME/setenv* script.
 
-3. Building PILOTS library
+3. Getting Started With PILOTS - Running Pre-compiled Examples
 ----------------------------------------------------------------------------------------------
-* Run the following shell script from $PILOTS_HOME to setup CLASSPATH. This script also configures several alias commands for the PILOTS compiler.
-
-	$ source setenv
-
-* From $PILOTS_HOME run `build` and $PILOTS_DIR/lib/pilots.jar will be created.
-
-
-3. Compiling a PILOTS program
-----------------------------------------------------------------------------------------------
-
-* Compile your PILOTS program (YourProgram.plt) into Java source code by the following:
-
-	$ java pilots.compiler.PilotsCompiler YourProgram.plt
-	
-	OR
-	
-	$ plc YourProgram (`plc` is an alias for the above java command)
-
-   The command line options for the PILOTS compiler are:
-      - -Dstdout  : sends generated code to standard output instead
-      - -Dsim     : compilation switch for simulation mode
-      - -Dpackage : changes the generated code's target package
-
-* Compile the generated java code.  The result is the PILOTS application and can be run using Java.
-     
-     $ javac YourProgram.java
-
-
-4. Executing a PILOTS application
-----------------------------------------------------------------------------------------------
-* PILOTS applications assume all input and output are communicated over TCP/IP sockets.  
-Thus most PILOTS applications will require you to run external programs that act as data input producers or output handlers.
-The order of execution must be: 
-
-    1. output handler
-    2. PILOTS application
-    3. data input producers
-
-* The IP addresses that will be used for socket communication between the PILOTS application and the external programs must be specified.
-The PILOTS application takes -input and -outputs arguments along with error detection parameters -tau and -omega as follows:
-
-     $ java <your PILOTS application> -input=<port> -outputs=<ipaddr:port>* -tau=<t> -omega=<w>
-     (* means one or more)
-
-* PILOTS applications handle spatio-temporal input/output data using a specific format.  All input/output in a PILOTS application looks like:
-
-	var0, var1, ... varn \r\n   [first line of file]
-
-	space:time:v0,...,vn \r\n   [all other lines]
-
-* Space and time are specified as points (ex: x,y, or t), or ranges (ex: x0~x1, t0~t1). 
-
-* Simulation mode, as opposed to real-time mode, relies on a different algorithm that uses simulated time.  When running a PILOTS application in simulation mode, the -Dtimespan=tb~te (where tb and te are both timestamps) argument must be specified. 
-
-* See $PILOTS_HOME/pilots/data for example input files.
-
-* As a convenient example, we will show how to run the twice example found in $PILOTS_HOME/pilots/examples/twice.  In this example, the PILOTS application listens to the port 8888, and sends the output to 127.0.0.1:9999.  We have provided the external software components that handle the input (pilots.util.SimpleInputProducer) and the output (pilots.util.ChartServer).  These external components are invoked using the scripts in the $PILOTS_HOME/pilots/examples/twice directory.  
-    1. Compile the Twice.plt example program using:
-
-       $ java -Dpackage=pilots.examples.twice pilots.compiler.PilotsCompiler Twice.plt
-
-    2. Now compile the resulting Twice.java file using:
-    
-       $ javac
-    
-    3. Finally we must rebuild the pilots.jar file.  This can be done in one line by executing the following command from the $PILOTS_HOME/classes directory:
-
-       $ jar cf ../lib/pilots.jar `find pilots/compiler/` `find pilots/util/` `find pilots/runtime/` `find pilots/examples/`
-
-* Now $PILOTS_HOME/classes/pilots/twice/Twice.class exists, and the application can be run by opening four separate terminals and executing the following steps (from the $PILOTS_HOME/pilots/examples/twice directory):
-    1. execute $./outputHandler (external software component that listens for output on port 9999 and graphs it)
-
-    2. On another terminal, execute 
-        $java pilots.examples.twice.Twice -input=8888 -outputs=127.0.0.1:9999 -tau=0.6 -omega=10 (or just run the twice script)
-
-    3a. On the 3rd terminal, execute $./twiceProducerA jitter   (where jitter is a number from 0-100 corresponding to the percentage of timing jitter)
-    3b. On the 4th terminal, execute $./twiceProducerB jitter
-
-* Try to execute steps 3a and 3b immediately after one another for the best results.
-
-* After running ./outputHandler a window should pop up to begin listening to the socket and graphing the output.
-
-* Simple errors (failure to generate data) can be simulated by simply killing one of the Producer processes.
-
-5. Running examples
-----------------------------------------------------------------------------------------------
+If you are only interested in replicating the results found in our publications, then this section applies to you and the rest of this README can be safely ignored.
+Detailed instructions on how to run the examples can be found at http://wcl.cs.rpi.edu/pilots/tutorial/examples.html.
 
 * There are several test scripts under *$PILOTS_HOME/pilots/examples directory* to simulate experiments shown in the publications.
-Please note that there have been syntax changes in the PILOTS language since the earlier papers, so the *.plt files look different.
 
 * For convenience, the examples come with scripts to make compiling and running the applications much easier.  Each example has an associated build script that can be used for quick compilation, along with scripts to invoke the application and its external components.
 
-* Each example is initially compiled when the PILOTS language is build, so recompiling the examples is unnecessary unless changes are made to the originals.
+* Each example is initially compiled when the PILOTS language is built, so recompiling the examples is unnecessary unless changes are made to the originals.
 
 * twice -- pilots.examples.twice (real-time version of twice example)
 
      $./outputHandler
      $./twice
-     $./twiceProducerA jitter
-     $./twiceProducerB jitter
+     $./twiceProducerA
+     $./twiceProducerB
 
-* twicesim -- pilots.examples.twicesim (simulated-time version of twice example)
+* twicesim -- pilots.examples.twicesim (simulated-time version of twice example, data found in *$PILOTS_HOME/data/11-May-2013_Twice* )
      $./outputHandler
      $./twicesim
      $./twiceProducer
@@ -139,8 +54,108 @@ Go to the *$PILOTS_HOME/pilots/examples/speedcheck* directory and run the follow
 
 * You can simulate specific errors by replacing *speedCheckProducer* with one of *speedCheckProducer_PitotTubeFail*, *speedCheckProducer_GpsFail*, and *speedCheckProducer_BothFail*.
 
+4. Writing PILOTS programs
+----------------------------------------------------------------------------------------------
+PILOTS programs are very declarative in nature.
+The applications generated by a PILOTS program is domain specific: the inputs and outputs must be spatio-temporal streams.
+We provide basic techniques to generate input streams of the appropriate format, and to visualize the output stream that is produced (see *$PILOTS_HOME/pilots/util*).
+A tutorial on writing PILOTS programs can be found at http://wcl.cs.rpi.edu/pilots/tutorial/programming.html.
 
-6. Limitations/Known bugs
+5. Compiling a PILOTS program
+----------------------------------------------------------------------------------------------
+
+* Compile your PILOTS program (*YourProgram.plt*) into Java source code by the following:
+
+	$ java pilots.compiler.PilotsCompiler YourProgram.plt
+	
+	OR
+	
+	$ plc YourProgram (`plc` is an alias for the above java command)
+
+* The command line options for the PILOTS compiler are:
+      - -Dstdout  : sends generated code to standard output instead
+      - -Dsim     : compilation switch for simulation mode
+      - -Dpackage : changes the generated code's target package
+
+* Compile the generated Java code.  The result is the PILOTS application and can be run using Java.
+     
+     $ javac YourProgram.java
+
+* The resulting java class, *YourProgram.class*, is the executable pilots application.  Note that you can not simply run *\"$ java YourProgram\"* because PILOTS applications use TCP/IP sockets for input and output.  For examples of external java programs that can produce PILOTS input and visualize output, see *$PILOTS_HOME/pilots/util*.
+
+6. PILOTS spatio-temporal data format
+----------------------------------------------------------------------------------------------
+* PILOTS applications handle spatio-temporal input/output data of a specific format.  All input/output in a PILOTS application looks like:
+
+  	#var0, var1, ... varn \r\n   [first line of file]
+
+	\<space\>:\<time\>:v0,...,vn \r\n   [all other lines]
+
+	- var0,...,varn identifies the name of the data stream, which can be used in the inputs clause of a PILOTS program.
+
+	- \<space\> may have up to three dimensions (latitude, longitude, height) separated by commas, and \<time\> is specified in Java date/time format (using 24-hour time).
+
+	- Additionally, each specification of \<space\> or \<time\> may be a single point or a range between two points separated by '~'.
+
+	- Examples of the spatio-temporal data format can be found in *$PILOTS_HOME/data/*
+
+
+7. External software: producing input and visualizing output
+----------------------------------------------------------------------------------------------
+* PILOTS applications assume all input and output are communicated over TCP/IP sockets.  Thus PILOTS applications require you to run external programs that act as data input producers or output handlers.
+
+* The PILOTS distribution provides simple input/output handler programs which can be found in *$PILOTS_HOME/pilots/util*.
+      - ChartServer.java is an output handler (data sink) that, given a port number, listens to a socket on that port and graphs the data over time (using jfreechart).
+      	+ Parameters: \<port_number\>
+
+      - FileInputProducer.java is an input handler (data source) that simply relays the contents of a file which contains spatio-temporal data over a designated socket on port 8888 of the local machine.
+        + Parameters: \<filename\>
+
+      - LinearInputProducer.java is an input handler (data source) that generates temporal data that increments linearly over time (with optional timing jitter) and relays the data over a designated socket on port 8888 of the local machine.
+        + Parameters (all required, in order): \<num_iterations\> \<variable_name\> \<initial_value\> \<increment_value\> \<random_timing_jitter\>
+
+8. Executing a PILOTS application
+----------------------------------------------------------------------------------------------
+* To run an application, all data sinks must be initialized before sources.  Thus the order of process execution must be: 
+    1. output handlers
+    2. PILOTS application
+    3. data input producers
+
+* The IP addresses that will be used for socket communication between the PILOTS application and the external programs must be specified. The PILOTS application takes -input and -outputs arguments along with error detection parameters -tau and -omega as follows:
+
+     $ java \<your PILOTS application\> -input=\<port\> -outputs=\<ipaddr:port\>+ -tau=\<t\> -omega=\<w\>
+     (+ means one or more)
+
+* Simulation mode, as opposed to real-time mode, relies on a different algorithm that uses simulated time.  When running a PILOTS application in simulation mode, the -Dtimespan=tb~te (where tb and te are both java date/time format strings) argument must be specified. 
+
+* As an example, we will show how to run the twice example found in $PILOTS_HOME/pilots/examples/twice.  In this example, the PILOTS application listens to the port 8888, and sends the output to 127.0.0.1:9999.  We have provided the external software components that handle the input (pilots.util.LinearInputProducer) and the output (pilots.util.ChartServer).  These external components are invoked using the scripts in the $PILOTS_HOME/pilots/examples/twice directory.  
+    1. Compile the Twice.plt example program using:
+
+       $ java -Dpackage=pilots.examples.twice pilots.compiler.PilotsCompiler Twice.plt
+
+    2. Now compile the resulting Twice.java file using:
+    
+       $ javac Twice.java
+
+* Now the application can be run (with visualization) by opening four separate terminals and executing the following steps (from the $PILOTS_HOME/examples/twice directory):
+    1. execute $./outputHandler (external software component that listens for output on port 9999 and visualizes it)
+
+    2. On another terminal, execute 
+        $java pilots.examples.twice.Twice -input=8888 -outputs=127.0.0.1:9999 -tau=0.6 -omega=10 (or just run the twice script)
+
+    3a. On the 3rd terminal, execute $./twiceProducerA 
+    3b. On the 4th terminal, execute $./twiceProducerB 
+
+    - Try to execute steps 3a and 3b immediately after one another to synchronize a and b.
+
+* After running ./outputHandler and twice, a window will pop up to begin listening to the socket and graphing the application's output.
+
+* Simple errors (failure to generate data) can be simulated by simply killing one of the Producer processes.
+
+9. Modifying the language
+----------------------------------------------------------------------------------------------
+
+10. Limitations/Known bugs
 ----------------------------------------------------------------------------------------------
 * PILOTS is still in a proof-of-concept state
 
@@ -149,12 +164,11 @@ Go to the *$PILOTS_HOME/pilots/examples/speedcheck* directory and run the follow
 * The error clause only allows a single error function.  
 
 * Language only supports error signatures that are a constant, or a linear function. Examples are:
-  - S: e = 100, <constraints>
-  - S(K): e = 2*t + K, <constraints>
-  - The presence of '(K)' is currently being used to differentiate these two cases.
+  - S: e = 100;
+  - S(K): e = K, abs(K) > 25;
+  - S(K): e = 2*t + K, K < 0, k > -100;
 
-
-7. Future Work
+11. Future Work
 ----------------------------------------------------------------------------------------------
 * types of error signatures we would like to support eventually:
     -   S(K): e = K
@@ -183,5 +197,3 @@ Go to the *$PILOTS_HOME/pilots/examples/speedcheck* directory and run the follow
 * Enhanced error analysis accuracy
     - different interpolation methods
     - more types of error signatures
-
-  

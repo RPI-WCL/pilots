@@ -1,5 +1,6 @@
-Please download jfreechart-1.0.14.jar and jcommon-1.0.17.jar 
-to this directory from:
+jfreechart-1.0.14.jar and jcommon-1.0.17.jar are under the GNU Lesser General Public License (see $PILOTS_HOME/lib/lgpl.html for details)
+
+Please download each jar file to this directory from:
     http://www.jfree.org/jfreechart/download.html
 
 

@@ -1,1 +1,1 @@
-java -cp .:../../lib/jcommon-1.0.17.jar:../../lib/jfreechart-1.0.14.jar:../../lib/pilots.jar pilots.util.ChartServer 9999
+java pilots.util.ChartServer 9999

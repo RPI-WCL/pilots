@@ -140,7 +140,14 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
         ;
       }
       jj_consume_token(PROGRAM_END);
-      jj_consume_token(48);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case 48:
+        jj_consume_token(48);
+        break;
+      default:
+        jj_la1[13] = jj_gen;
+        ;
+      }
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
       {if (true) return jjtn000;}
@@ -283,7 +290,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
         constant = Const();
         break;
       default:
-        jj_la1[13] = jj_gen;
+        jj_la1[14] = jj_gen;
         ;
       }
       jj_consume_token(49);
@@ -295,7 +302,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
         t3 = jj_consume_token(STRING);
         break;
       default:
-        jj_la1[14] = jj_gen;
+        jj_la1[15] = jj_gen;
         ;
       }
       jj_consume_token(48);
@@ -339,7 +346,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
         constant = Const();
         break;
       default:
-        jj_la1[15] = jj_gen;
+        jj_la1[16] = jj_gen;
         ;
       }
       jj_consume_token(49);
@@ -387,7 +394,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
           ;
           break;
         default:
-          jj_la1[16] = jj_gen;
+          jj_la1[17] = jj_gen;
           break label_6;
         }
         jj_consume_token(COMMA);
@@ -478,7 +485,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
                            id = t.image;
         break;
       default:
-        jj_la1[17] = jj_gen;
+        jj_la1[18] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -523,7 +530,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
           ;
           break;
         default:
-          jj_la1[18] = jj_gen;
+          jj_la1[19] = jj_gen;
           break label_7;
         }
         jj_consume_token(COMMA);
@@ -602,7 +609,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
                    {if (true) return number + ":" + t.image;}
         break;
       default:
-        jj_la1[19] = jj_gen;
+        jj_la1[20] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -642,7 +649,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
           ;
           break;
         default:
-          jj_la1[20] = jj_gen;
+          jj_la1[21] = jj_gen;
           break label_8;
         }
         jj_consume_token(COMMA);
@@ -727,7 +734,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
                                       {if (true) return value + exp2;}
         break;
       default:
-        jj_la1[21] = jj_gen;
+        jj_la1[22] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -786,7 +793,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
                                               {if (true) return func + exp + exp2;}
         break;
       default:
-        jj_la1[22] = jj_gen;
+        jj_la1[23] = jj_gen;
 
            jjtree.closeNodeScope(jjtn000, true);
            jjtc000 = false;
@@ -930,7 +937,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
                   {if (true) return t.image;}
         break;
       default:
-        jj_la1[23] = jj_gen;
+        jj_la1[24] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -962,7 +969,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
                    {if (true) return t.image;}
         break;
       default:
-        jj_la1[24] = jj_gen;
+        jj_la1[25] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -997,7 +1004,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
                                                       {if (true) return t.image;}
         break;
       default:
-        jj_la1[25] = jj_gen;
+        jj_la1[26] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1032,7 +1039,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[26];
+  final private int[] jj_la1 = new int[27];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -1040,10 +1047,10 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x2000,0x0,0x0,0x4000,0x0,0x0,0x8000,0x0,0x0,0x0,0x0,0x380000,0x0,0x1fc00000,0x0,0xe0000000,0xe0000000,0xe0000000,0x0,0x0,};
+      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x2000,0x0,0x0,0x4000,0x0,0x0,0x8000,0x0,0x0,0x0,0x0,0x0,0x380000,0x0,0x1fc00000,0x0,0xe0000000,0xe0000000,0xe0000000,0x0,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x4000,0x10000,0x4000,0x10000,0x4000,0x10000,0x0,0x4000,0x10000,0x0,0x4000,0x10000,0x0,0x80,0x8000,0x80,0x200,0x0,0x200,0x0,0x200,0x1ff8549f,0x1ff8001f,0x1ff8001f,0x1400,0x5400,};
+      jj_la1_1 = new int[] {0x4000,0x10000,0x4000,0x10000,0x4000,0x10000,0x0,0x4000,0x10000,0x0,0x4000,0x10000,0x0,0x10000,0x80,0x8000,0x80,0x200,0x0,0x200,0x0,0x200,0x1ff8549f,0x1ff8001f,0x1ff8001f,0x1400,0x5400,};
    }
 
   /** Constructor with InputStream. */
@@ -1057,7 +1064,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1072,7 +1079,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -1082,7 +1089,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1093,7 +1100,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -1102,7 +1109,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1112,7 +1119,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 26; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 27; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -1168,7 +1175,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 26; i++) {
+    for (int i = 0; i < 27; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

@@ -1,1 +1,1 @@
-java -cp .:../../lib/pilots.jar pilots.util.SimpleInputProducer -1 b 0 2 $1
+java pilots.util.LinearInputProducer -1 b 0 2 0

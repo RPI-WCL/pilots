@@ -115,7 +115,7 @@ ASTPilots Pilots():
         (<ERRORS> (";" | (Error())*))?
         (<SIGNATURES> (";" | (Signature())*))?
         (<CORRECTS> (";" | (Correct())*))?
-    <PROGRAM_END> ";"/*@bgen(jjtree)*/
+    <PROGRAM_END> (";")?/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;

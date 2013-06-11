@@ -1,2 +1,2 @@
-java -cp .:../../lib/pilots.jar pilots.util.FileInputProducer ../../data/11-May-2013_Twice/a.txt
-java -cp .:../../lib/pilots.jar pilots.util.FileInputProducer ../../data/11-May-2013_Twice/b.txt
+java pilots.util.FileInputProducer ../../data/11-May-2013_Twice/a.txt
+java pilots.util.FileInputProducer ../../data/11-May-2013_Twice/b.txt
