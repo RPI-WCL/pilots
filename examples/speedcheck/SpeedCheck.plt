@@ -7,4 +7,4 @@ program SpeedCheck;
 		o: ground_speed - sqrt(air_speed*air_speed + wind_speed*wind_speed + 
 		   				  		2*air_speed*wind_speed*cos((PI/180)*(wind_angle-air_angle))) at every 1 min;
 
-end;
+end
