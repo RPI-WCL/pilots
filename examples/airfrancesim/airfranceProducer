@@ -1,0 +1,3 @@
+java pilots.util.FileInputProducer ../../data/AirFranceSim/angles.txt
+java pilots.util.FileInputProducer ../../data/AirFranceSim/speeds.txt
+
