@@ -12,6 +12,7 @@ import pilots.runtime.Dimension;
 
 public class SpatioTempoData {
     public static String datePattern = "yyyy-MM-dd HHmmssSSSZ";
+    /*public static String datePattern = "HH-mm-ss";*/
     public static String timeZoneID = "America/New_York";
 
     private static int currentId_ = 0;
@@ -53,7 +54,7 @@ public class SpatioTempoData {
         dimension_ = null;
         isLocationInterval_ = false;
 
-        dateFormat_ = new SimpleDateFormat( datePattern );
+	dateFormat_ = new SimpleDateFormat( datePattern );
         times_ = null;
         isTimeInterval_ = false;
         TimeZone.setDefault( TimeZone.getTimeZone( timeZoneID ) );
