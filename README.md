@@ -1,4 +1,4 @@
-README for PILOTS ver 0.2.2
+README for PILOTS ver 0.2.3
 ===============================================
 
 1. Software Requirements
