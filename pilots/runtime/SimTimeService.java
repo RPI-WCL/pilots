@@ -61,6 +61,10 @@ public class SimTimeService extends DebugPrint implements CurrentLocationTimeSer
             }
         }
 
+// System.out.println( "loc[0]=" + locations[0] + 
+//                     ",loc[1]=" + locations[1] +
+//                     ",loc[2]=" + locations[2] );
+
         return locations;
     }
 

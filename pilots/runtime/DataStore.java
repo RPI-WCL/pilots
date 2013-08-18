@@ -116,20 +116,26 @@ public class DataStore extends DebugPrint {
 
             for (int i = 0; i < data.size(); i++) {
                 SpatioTempoData stData = data.get( i );
-                long diff = stData.calcTimeDiff( currTime );
-// System.out.println( "minDiff=" + minDiff + ", diff=" + diff );
-// stData.print();                
 
-                if (diff < minDiff) {
-// System.out.println( "Clo, dist < minDist: ");
-                    newData.clear();
+                if (!stData.hasTimes()) {
+                    // if the data has no time, we just add all the data to newData
                     newData.add( stData );
-                    minDiff = diff;
                 }
-                else if (diff == minDiff ) {
+                else {
+                    long diff = stData.calcTimeDiff( currTime );
+// System.out.println( "i=" + i + ", minDiff=" + minDiff + ", diff=" + diff );
+// stData.print();                
+                    if (diff < minDiff) {
+// System.out.println( "Clo, dist < minDist: ");
+                        newData.clear();
+                        newData.add( stData );
+                        minDiff = diff;
+                    }
+                    else if (diff == minDiff ) {
 // System.out.println( "Clo, dist == minDist: ");
-                    newData.add( stData );
-                }                
+                        newData.add( stData );
+                    }
+                }
             }
         }
         else {
@@ -139,24 +145,33 @@ public class DataStore extends DebugPrint {
 
             for (int i = 0; i < data.size(); i++) {
                 SpatioTempoData stData = data.get( i );
-                double diff = stData.calcLocationDiff( coord, currLocation[ coord ] );
 
-                if (diff < minDiff) {
-                    newData.clear();
+                if (!stData.hasLocations()) {
                     newData.add( stData );
-                    minDiff = diff;
                 }
-                else if (diff == minDiff) {
-                    newData.add( stData );
-                }                
+                else {
+                    double diff = stData.calcLocationDiff( coord, currLocation[ coord ] );
+
+                    if (diff < minDiff) {
+                        newData.clear();
+                        newData.add( stData );
+                        minDiff = diff;
+                    }
+                    else if (diff == minDiff) {
+                        newData.add( stData );
+                    }                
+                }
             }
         }
+
+// for (int i = 0; i < newData.size(); i++) 
+//     System.out.println( "newData[" + i + "]=" + newData.get(i) );
 
         return newData;
     }
 
     private Vector<SpatioTempoData> applyEuclidean( Vector<SpatioTempoData> data, String[] args ) {
-//System.out.println( "### applyEuclidean" );
+// System.out.println( "### applyEuclidean" );
 
         Vector<SpatioTempoData> newData = new Vector<SpatioTempoData>();
 
@@ -176,7 +191,6 @@ public class DataStore extends DebugPrint {
 // for (int i = 0; i < currLoc.length; i++)
 //     System.out.println( "Euc, currLoc[" + i + "]=" + currLoc[i]  );
 
-
         for (int i = 0; i < data.size(); i++) {
             SpatioTempoData stData = data.get( i );
 
@@ -189,14 +203,14 @@ public class DataStore extends DebugPrint {
             double dist = Math.sqrt( sum );
 
             if (dist < minDist) {
-// System.out.print( "Euc, dist < minDist: ");
+// System.out.print( "Euc, dist(" + dist + ") < minDist(" + minDist + "): ");
 // stData.print();
                 newData.clear();
                 newData.add( stData );
                 minDist = dist;
             }
             else if (dist == minDist) {
-// System.out.print( "Euc, dist == minDist: ");
+// System.out.print( "Euc, dist(" + dist + ") == minDist(" + minDist + "): ");
 // stData.print();
                 newData.add( stData );
             }
@@ -255,7 +269,7 @@ public class DataStore extends DebugPrint {
 
         
     private Double applyInterpolation( Vector<SpatioTempoData> data, String[] args, int varIndex ) {
-///System.out.println( "### applyInterpolation" );
+// System.out.println( "### applyInterpolation" );
 
         int dimension = args.length - 1; // last arg is n_interp
         int numInterp;
@@ -315,7 +329,7 @@ public class DataStore extends DebugPrint {
         double sum = 0.0;
         // stDataArray must be sorted in ascending order of whatever distance
         for (int i = 0; i < numInterp; i++) {
-//stDataArray[i].print();
+// stDataArray[i].print();
             sum += stDataArray[i].getDist();
         }
         double interpVal = 0.0;
@@ -342,7 +356,7 @@ public class DataStore extends DebugPrint {
         Vector<SpatioTempoData> workData = new Vector<SpatioTempoData>();
         workData = data_;  // shallow copy
 
-        //System.out.println ("DataStore.getData, varName=" + varName );
+// System.out.println ("DataStore.getData, varName=" + varName );
 
         int varIndex = getVarIndex( varName );
         
@@ -413,7 +427,20 @@ public class DataStore extends DebugPrint {
                 d = stData.getData( varIndex - 1 );  // -1: workaround due to an issue on parseVarNames 
                 break;
             }
+
+            // System.out.println( "workData.size()=" + workData.size() );
         }
+
+        if (!interpolated && 1 < workData.size()) {
+            // tie case, give priority to the first one
+            stData = workData.get( 0 );
+            d = stData.getData( varIndex - 1 );  // -1: workaround due to an issue on parseVarNames 
+        }
+
+        // if (varName.equals( "air_speed" ) && (d == 50.0)) {
+        //     System.err.println( "########## Unusual airspeed found!!" );
+        //     System.exit( 1 );
+        // }
         
         return d;
     }

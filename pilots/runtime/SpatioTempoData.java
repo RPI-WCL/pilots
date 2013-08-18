@@ -21,10 +21,12 @@ public class SpatioTempoData {
     private double[][] locations_;
     private Dimension dimension_;
     private boolean isLocationInterval_;
+    private boolean hasLocations_;
 
     private DateFormat dateFormat_;     // not thread safe
     private Date[] times_;
     private boolean isTimeInterval_;
+    private boolean hasTimes_;
 
     private Vector<Double> values_;
 
@@ -36,10 +38,12 @@ public class SpatioTempoData {
         locations_ = null;
         dimension_ = null;
         isLocationInterval_ = false;
+        hasLocations_ = false;
 
         dateFormat_ = new SimpleDateFormat( datePattern );
         times_ = null;
         isTimeInterval_ = false;
+        hasTimes_ = false;
         TimeZone.setDefault( TimeZone.getTimeZone( timeZoneID ) );
 
         values_ = new Vector<Double>();
@@ -53,10 +57,12 @@ public class SpatioTempoData {
         locations_ = null;
         dimension_ = null;
         isLocationInterval_ = false;
+        hasLocations_ = false;
 
-	dateFormat_ = new SimpleDateFormat( datePattern );
+        dateFormat_ = new SimpleDateFormat( datePattern );
         times_ = null;
         isTimeInterval_ = false;
+        hasTimes_ = false;
         TimeZone.setDefault( TimeZone.getTimeZone( timeZoneID ) );
 
         values_ = new Vector<Double>();
@@ -87,7 +93,7 @@ public class SpatioTempoData {
         // calculate the time difference between the given base and time
 
         long diff = 0;
-        if (isLocationInterval_) {
+        if (isTimeInterval_) {
             diff = Math.min( Math.abs( times_[0].getTime() - base.getTime() ),
                              Math.abs( times_[1].getTime() - base.getTime() ) );
         }
@@ -132,7 +138,8 @@ public class SpatioTempoData {
                 for (int j = 0; j < dimensionStr.length; j++) {
                     locations_[i][j] = Double.parseDouble( dimensionStr[j] );
                 }
-            }   
+            }
+            hasLocations_ = true;
         }
 
         // Temporal part
@@ -155,6 +162,7 @@ public class SpatioTempoData {
                     System.out.println( e );
                 }
             }
+            hasTimes_ = true;
         }
 
         // Value part
@@ -236,6 +244,34 @@ public class SpatioTempoData {
     public Vector<Double> getValues() {
         return values_;
     }
+
+    public boolean hasLocations() {
+        return hasLocations_;
+    }
+
+    public boolean hasTimes() {
+        return hasTimes_;
+    }
+
+    public String toString() {
+        // skip locations for now
+        
+        String str = "";
+        if (times_.length == 2)
+            str += times_[0] + "~" + times_[1] + ":";
+        else if (times_.length ==1)
+            str += times_[0] + ":";
+
+        for (int i= 0; i < values_.size(); i++) {
+            if (i == values_.size() - 1) 
+                str += values_.get( i );
+            else
+                str += values_.get( i ) + ",";
+        }
+
+        return str;
+    }
+
 }
     
 

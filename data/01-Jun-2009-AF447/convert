@@ -1,0 +1,1 @@
+java pilots.util.DataFormatter $1 ./raw/$1-raw.txt "2009-06-01 020900000-0500"

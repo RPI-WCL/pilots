@@ -30,7 +30,7 @@ public class PilotsRuntime extends DebugPrint {
     private int omega_;
     private double tau_;
 
-    private DateFormat dateFormat_;
+    protected DateFormat dateFormat_;
 
     CurrentLocationTimeService currLocTime_;
 
@@ -239,6 +239,10 @@ public class PilotsRuntime extends DebugPrint {
         double d = 0;
 
         if (store != null) {
+            // for (int i = 0; i < methods.length; i++)
+            //     System.out.println( "methods[" + i + "]=" + methods[i] );
+            // System.out.println( "store=" + store + ",var=" + var + ",methods=" + methods );
+
             d = store.getData( var, methods );
         }
         else {
@@ -258,6 +262,10 @@ public class PilotsRuntime extends DebugPrint {
 
     protected Date getTime() {
         return currLocTime_.getTime();
+    }
+
+    protected double[] getLocation() {
+        return currLocTime_.getLocation();
     }
 
     protected int getOmega() {
