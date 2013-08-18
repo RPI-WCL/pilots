@@ -1,4 +1,4 @@
-java pilots.util.FileInputProducer ../../data/SpeedCheck/air_speed-air_angle.txt
-java pilots.util.FileInputProducer ../../data/SpeedCheck/ground_speed-ground-angle.txt
-java pilots.util.FileInputProducer ../../data/SpeedCheck/wind_speed-wind_angle.txt
-java pilots.util.FileInputProducer ../../data/SpeedCheck/x-y-z.txt
+java pilots.util.FileInputProducer ../../data/03-Apr-2012-KALB-KFME/air_speed-air_angle.txt
+java pilots.util.FileInputProducer ../../data/03-Apr-2012-KALB-KFME/ground_speed-ground-angle.txt
+java pilots.util.FileInputProducer ../../data/03-Apr-2012-KALB-KFME/wind_speed-wind_angle.txt
+java pilots.util.FileInputProducer ../../data/03-Apr-2012-KALB-KFME/x-y-z.txt
