@@ -34,6 +34,11 @@ public class PilotsRuntime extends DebugPrint {
 
     CurrentLocationTimeService currLocTime_;
 
+    // newly added for animation effect for the simulation mode
+    private boolean animation_;
+    private double timeSpeed_;
+    private Calendar prevDate_;
+
     public PilotsRuntime() {
         input_ = new HostsPorts();
 
@@ -51,6 +56,22 @@ public class PilotsRuntime extends DebugPrint {
         dateFormat_ = new SimpleDateFormat( SpatioTempoData.datePattern );
 
         currLocTime_ = ServiceFactory.getCurrentLocationTime();
+
+        animation_ = false;
+        timeSpeed_ = 1.0;
+        prevDate_ = null;
+
+        String timeSpan = System.getProperty("timeSpan");
+        String timeSpeed = System.getProperty("timeSpeed");
+        if ((timeSpan != null) && (timeSpeed != null)) {
+            if ((timeSpeed.charAt(0) != 'x') && (timeSpeed.charAt(0) != 'X')) {
+                System.err.println( "ERROR: -DtimeSpeed format: \"x\" 1*DIGIT (e.g., x100)" );
+            }
+            else {
+                animation_ = true;
+                timeSpeed_ = Double.parseDouble( timeSpeed.substring(1) );
+            }
+        }
 
         System.out.println( "PILOTS Runtime v" + Version.ver + " has started." );
     }
@@ -225,11 +246,27 @@ public class PilotsRuntime extends DebugPrint {
 
     protected void sendData( OutputType outputType, int sockIndex, double val ) {
         Date date = currLocTime_.getTime();
+        
+        if (animation_ && (prevDate_ != null)) {
+            long currTime = date.getTime();
+            long prevTime = prevDate_.getTime().getTime();
+            long waitTime = (long)((currTime - prevTime) / timeSpeed_);
+            // System.out.println( "sendData, curr=" + (currTime - prevTime) + ", " + waitTime ); 
+            try {
+                Thread.sleep( waitTime  );
+            } catch (InterruptedException ex) {
+                System.err.println( ex );
+            }
+        }
 
         // write the value on the socket
         PrintWriter printWriter = getWriter( outputType, sockIndex );
         printWriter.println( ":" + dateFormat_.format( date ) + ":" + val );
         printWriter.flush();
+
+        if (prevDate_ == null)
+            prevDate_ = Calendar.getInstance();
+        prevDate_.setTime( date );
     }
 
 

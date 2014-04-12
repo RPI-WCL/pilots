@@ -40,12 +40,18 @@ public class DataFormatter {
             String str = null;
             while ((str = in.readLine()) != null) {
                 String[] data = str.split( "," );
-                double timeSec = Double.parseDouble( data[0] );
+                double timeSec = Double.parseDouble( data[0] );  // assuming data[0] is time
                 long timeMsec = (long)(timeSec * 1000);
                 now_.setTime( baseTime_ + timeMsec );
 
                 String timeStr = dateFormat_.format( now_ );
-                out.println( ":" + timeStr + ":" + data[1] );
+                out.print( ":" + timeStr + ":" );
+                for (int i = 1; i < data.length; i++) {
+                    if (i == data.length - 1)
+                        out.println( data[i] );
+                    else
+                        out.print( data[i] + "," );
+                }
             }
 
             out.close();
