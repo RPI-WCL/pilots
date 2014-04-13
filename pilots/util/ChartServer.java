@@ -2,6 +2,9 @@ package pilots.util;
 
 import java.io.*;
 import java.net.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -21,6 +24,9 @@ public class ChartServer {
     private int port_;
     private TimeSeries[] timeSeries_;
     private JFreeChart chart_;
+    final static int AVAILABLE_COLORS = 13;
+    private Color[] defaultColorMap;
+    private HashMap<String, Color> colorMap;
 
 
     public ChartServer( int port ) {
@@ -33,6 +39,35 @@ public class ChartServer {
         //                                              "range",
         //                                              new TimeSeriesCollection( timeSeries_ ),
         //                                              true, true, true);
+        defaultColorMap = new Color[AVAILABLE_COLORS];
+        defaultColorMap[0] = Color.red;
+        defaultColorMap[1] = Color.green;
+        defaultColorMap[2] = Color.cyan;
+        defaultColorMap[3] = Color.darkGray;
+        defaultColorMap[4] = Color.gray;
+        defaultColorMap[5] = Color.black;
+        defaultColorMap[6] = Color.lightGray;
+        defaultColorMap[7] = Color.magenta;
+        defaultColorMap[8] = Color.orange;
+        defaultColorMap[9] = Color.pink;
+        defaultColorMap[10] = Color.blue;
+        defaultColorMap[11] = Color.white;
+        defaultColorMap[12] = Color.yellow;
+
+        colorMap = new HashMap<String, Color>();
+        colorMap.put("blue", Color.blue);
+        colorMap.put("green", Color.green);
+        colorMap.put("cyan", Color.cyan);
+        colorMap.put("darkGray", Color.darkGray);
+        colorMap.put("gray", Color.gray);
+        colorMap.put("black", Color.black);
+        colorMap.put("lightGray", Color.lightGray);
+        colorMap.put("magenta", Color.magenta);
+        colorMap.put("orange", Color.orange);
+        colorMap.put("pink", Color.pink);
+        colorMap.put("red", Color.red);
+        colorMap.put("white", Color.white);
+        colorMap.put("yellow", Color.yellow);
     }
 
     protected void initChart( String[] varNames ) {
@@ -89,7 +124,7 @@ public class ChartServer {
                     String[] varNames = str.split( "[#, ]" );
 
                     initChart( varNames ); // this will create a chart
-                    configChart();
+                    configChart( varNames );
                     drawChart();
                 }
                 else {
@@ -114,18 +149,70 @@ public class ChartServer {
         }
     }
         
-    public void configChart() {
+    public void configChart( String[] varNames ) {
         XYPlot xyPlot = chart_.getXYPlot();
         xyPlot.setRenderer( new XYLineAndShapeRenderer() );
 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer)xyPlot.getRenderer();
-        renderer.setSeriesStroke( 0, new BasicStroke( 2.0f ) );
 
+        // setting strokes
+        for (int i = 0; i < varNames.length; i++)
+            renderer.setSeriesStroke( i, new BasicStroke( 2.0f ) );
+
+        // configuring colors
+        String seriesColors = System.getProperty( "seriesColors" );
+        if (seriesColors != null) {
+            // colors are specified by the user
+            String[] colors = seriesColors.split( "," );
+            for (int i = 0; i < colors.length; i++)
+                renderer.setSeriesPaint( i, colorMap.get( colors[i] ) );
+        }
+        else {
+            // configure default colors
+            for (int i = 0; i < varNames.length; i++)
+                renderer.setSeriesPaint( i, defaultColorMap[i % AVAILABLE_COLORS] );
+        }
+
+        // cofiguring X-Axis
         ValueAxis xAxis = xyPlot.getDomainAxis();
-        xAxis.setAutoRange(true);
 
+        String timeSpan = System.getProperty( "timeSpan" );
+        String timeRange = System.getProperty( "timeRange" );
+        timeRange = (timeSpan != null) ? timeSpan : timeRange;
+        if (timeRange != null) {
+            String[] timeStrs = timeRange.split( "~" );
+            String datePattern = "yyyy-MM-dd HHmmssZ";
+            DateFormat dateFormat = new SimpleDateFormat( datePattern );
+            Date[] times = new Date[2];
+            for (int i = 0; i < 2; i++) {
+                if (timeStrs[i] != null) {
+                    try {
+                        times[i] = dateFormat.parse( timeStrs[i] );
+                    } catch (ParseException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            xAxis.setRange( times[0].getTime(), times[1].getTime() );
+        }
+        else {
+            xAxis.setAutoRange(true);            
+        }
+
+        // cofiguring Y-Axis
         ValueAxis yAxis = xyPlot.getRangeAxis();
-        yAxis.setAutoRange(true);
+
+        String valueRange = System.getProperty( "valueRange" );
+        if (valueRange != null) {
+            String[] valueStrs = valueRange.split( "~" );
+            double[] values = new double[2];
+            values[0] = Double.parseDouble( valueStrs[0] );
+            values[1] = Double.parseDouble( valueStrs[1] );
+            yAxis.setRange( values[0], values[1] );
+        }
+        else {
+            yAxis.setAutoRange(true);
+        }
     }
 
     public void drawChart() {
