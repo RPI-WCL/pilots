@@ -1,1 +1,1 @@
-java -DseriesColors=magenta -DtimeRange="2009-06-01 020900-0500~2009-06-01 021140-0500" -DvalueRange=0~600 pilots.util.ChartServer 9999
+java -DXseriesColors=magenta -DchartTitle="AF447 AirSpeed Error Correction -- Speed & Error" -DxAxisLegend="Time" -DyAxisLegend="Speed & Error [knots]" -DtimeRange="2009-06-01 020900-0500~2009-06-01 021140-0500" -DvalueRange=-100~600 pilots.util.ChartServer 9999

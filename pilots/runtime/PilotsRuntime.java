@@ -120,7 +120,7 @@ public class PilotsRuntime extends DebugPrint {
     }
 
 
-    protected Socket openSocket( OutputType outputType, int sockIndex, String var ) 
+    protected Socket openSocket( OutputType outputType, int sockIndex, String... vars ) 
         throws UnknownHostException, IOException {
         
         Socket sock;
@@ -147,7 +147,13 @@ public class PilotsRuntime extends DebugPrint {
             if (outputWriters_[sockIndex] == null) {
                 outputWriters_[sockIndex] = new PrintWriter( sock.getOutputStream(), true );
                 // send the first line of the output stream
-                outputWriters_[sockIndex].println( "#" + var );
+                outputWriters_[sockIndex].print( "#" );
+                for (int i = 0; i < vars.length; i++) {
+                    if (i == vars.length - 1)
+                        outputWriters_[sockIndex].println( vars[i] );
+                    else
+                        outputWriters_[sockIndex].print( vars[i] + "," );
+                }
                 outputWriters_[sockIndex].flush();
             }
             break;
@@ -175,7 +181,14 @@ public class PilotsRuntime extends DebugPrint {
             if (errorWriters_[sockIndex] == null) {
                 errorWriters_[sockIndex] = new PrintWriter( sock.getOutputStream(), true );
                 // send the first line of the output stream
-                errorWriters_[sockIndex].println( "#" + var );
+
+                errorWriters_[sockIndex].print( "#" );
+                for (int i = 0; i < vars.length; i++) {
+                    if (i == vars.length - 1)
+                        errorWriters_[sockIndex].println( vars[i] );
+                    else
+                        errorWriters_[sockIndex].print( vars[i] + "," );
+                }
                 errorWriters_[sockIndex].flush();
             }
             break;
@@ -244,7 +257,32 @@ public class PilotsRuntime extends DebugPrint {
 
     
 
-    protected void sendData( OutputType outputType, int sockIndex, double val ) {
+    // protected void sendData( OutputType outputType, int sockIndex, double val ) {
+    //     Date date = currLocTime_.getTime();
+        
+    //     if (animation_ && (prevDate_ != null)) {
+    //         long currTime = date.getTime();
+    //         long prevTime = prevDate_.getTime().getTime();
+    //         long waitTime = (long)((currTime - prevTime) / timeSpeed_);
+    //         // System.out.println( "sendData, curr=" + (currTime - prevTime) + ", " + waitTime ); 
+    //         try {
+    //             Thread.sleep( waitTime  );
+    //         } catch (InterruptedException ex) {
+    //             System.err.println( ex );
+    //         }
+    //     }
+
+    //     // write the value on the socket
+    //     PrintWriter printWriter = getWriter( outputType, sockIndex );
+    //     printWriter.println( ":" + dateFormat_.format( date ) + ":" + val );
+    //     printWriter.flush();
+
+    //     if (prevDate_ == null)
+    //         prevDate_ = Calendar.getInstance();
+    //     prevDate_.setTime( date );
+    // }
+
+    protected void sendData( OutputType outputType, int sockIndex, double... values ) {
         Date date = currLocTime_.getTime();
         
         if (animation_ && (prevDate_ != null)) {
@@ -261,13 +299,20 @@ public class PilotsRuntime extends DebugPrint {
 
         // write the value on the socket
         PrintWriter printWriter = getWriter( outputType, sockIndex );
-        printWriter.println( ":" + dateFormat_.format( date ) + ":" + val );
+        printWriter.print( ":" + dateFormat_.format( date ) + ":" );
+        for (int i = 0; i < values.length; i++) {
+            if (i == values.length - 1)
+                printWriter.println( values[i] );
+            else
+                printWriter.print( values[i] + "," );
+        }
         printWriter.flush();
 
         if (prevDate_ == null)
             prevDate_ = Calendar.getInstance();
         prevDate_.setTime( date );
     }
+
 
 
     protected double getData( String var, Method... methods ) {

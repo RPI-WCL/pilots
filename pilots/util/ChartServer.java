@@ -40,17 +40,17 @@ public class ChartServer {
         //                                              new TimeSeriesCollection( timeSeries_ ),
         //                                              true, true, true);
         defaultColorMap = new Color[AVAILABLE_COLORS];
-        defaultColorMap[0] = Color.red;
-        defaultColorMap[1] = Color.green;
-        defaultColorMap[2] = Color.cyan;
-        defaultColorMap[3] = Color.darkGray;
-        defaultColorMap[4] = Color.gray;
-        defaultColorMap[5] = Color.black;
-        defaultColorMap[6] = Color.lightGray;
-        defaultColorMap[7] = Color.magenta;
-        defaultColorMap[8] = Color.orange;
-        defaultColorMap[9] = Color.pink;
-        defaultColorMap[10] = Color.blue;
+        defaultColorMap[0] = Color.green;
+        defaultColorMap[1] = Color.red;
+        defaultColorMap[2] = Color.blue;
+        defaultColorMap[3] = Color.magenta;
+        defaultColorMap[4] = Color.cyan;
+        defaultColorMap[5] = Color.darkGray;
+        defaultColorMap[6] = Color.gray;
+        defaultColorMap[7] = Color.black;
+        defaultColorMap[8] = Color.lightGray;
+        defaultColorMap[9] = Color.orange;
+        defaultColorMap[10] = Color.pink;
         defaultColorMap[11] = Color.white;
         defaultColorMap[12] = Color.yellow;
 
@@ -83,9 +83,14 @@ public class ChartServer {
                                                  "timeSeries range" );
             timeSeriesCollection.addSeries( timeSeries_[i - 1] );
         }
-        chart_ = ChartFactory.createTimeSeriesChart ("PilotsChartServer",
-                                                     "Time",
-                                                     "Value",
+        String chartTitle = System.getProperty( "chartTitle" );
+        chartTitle = (chartTitle == null) ? "PilotsChartServer" : chartTitle;
+        String xAxisLegend = System.getProperty( "xAxisLegend" );
+        xAxisLegend = (xAxisLegend == null) ? "Value" : xAxisLegend;
+        String yAxisLegend = System.getProperty( "yAxisLegend" );
+        yAxisLegend = (yAxisLegend == null) ? "Time" : yAxisLegend;
+
+        chart_ = ChartFactory.createTimeSeriesChart (chartTitle, xAxisLegend, yAxisLegend, 
                                                      timeSeriesCollection,
                                                      true, true, true);
     }

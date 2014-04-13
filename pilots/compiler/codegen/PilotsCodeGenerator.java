@@ -349,7 +349,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
             // openSocket
             code_ += incInsIndent() + "try {\n";
-            code_ += incInsIndent() + "openSocket( OutputType.Output, " + i + ", \"" + outputVarNames[0] + "\" );\n";
+            code_ += incInsIndent() + "openSocket( OutputType.Output, " + i + ", new String( \"" + outputVarNames[0] + "\" ) );\n";
             code_ += decInsIndent() + "} catch ( Exception ex ) {\n";
             code_ += incInsIndent() + "ex.printStackTrace();\n";
             code_ += decInsIndent() + "}\n";
