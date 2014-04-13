@@ -23,14 +23,22 @@ import pilots.runtime.*;
 public class ChartServer {
     private int port_;
     private TimeSeries[] timeSeries_;
+    private TimeSeriesCollection timeSeriesCollection_;
     private JFreeChart chart_;
-    final static int AVAILABLE_COLORS = 13;
+    private final static int MAX_TIME_SERIES = 10;
+    private static int currSeries_;
+
+    // color support
+    private final static int AVAILABLE_COLORS = 13;
     private Color[] defaultColorMap;
     private HashMap<String, Color> colorMap;
 
 
     public ChartServer( int port ) {
         port_ = port;
+        timeSeries_ = new TimeSeries[ MAX_TIME_SERIES ];
+        timeSeriesCollection_ = new TimeSeriesCollection();
+        currSeries_ = 0;
         // timeSeries_ = new TimeSeries("Series 1",
         //                              "timeSeries domain",
         //                              "timeSeries range" );
@@ -68,21 +76,14 @@ public class ChartServer {
         colorMap.put("red", Color.red);
         colorMap.put("white", Color.white);
         colorMap.put("yellow", Color.yellow);
+        
+        initChart();
+        configChart();
+        drawChart();
     }
 
-    protected void initChart( String[] varNames ) {
-        // varNames[0] does not have a value
+    protected void initChart() {
 
-        timeSeries_ = new TimeSeries[ varNames.length - 1 ];
-        TimeSeriesCollection timeSeriesCollection = new TimeSeriesCollection();
-        
-
-        for (int i = 1; i < varNames.length; i++) {
-            timeSeries_[i - 1] = new TimeSeries( varNames[i], 
-                                                 "timeSeries domain",
-                                                 "timeSeries range" );
-            timeSeriesCollection.addSeries( timeSeries_[i - 1] );
-        }
         String chartTitle = System.getProperty( "chartTitle" );
         chartTitle = (chartTitle == null) ? "PilotsChartServer" : chartTitle;
         String xAxisLegend = System.getProperty( "xAxisLegend" );
@@ -91,7 +92,7 @@ public class ChartServer {
         yAxisLegend = (yAxisLegend == null) ? "Time" : yAxisLegend;
 
         chart_ = ChartFactory.createTimeSeriesChart (chartTitle, xAxisLegend, yAxisLegend, 
-                                                     timeSeriesCollection,
+                                                     timeSeriesCollection_,
                                                      true, true, true);
     }
         
@@ -99,7 +100,7 @@ public class ChartServer {
     protected void addChartData( Date date, Vector<Double> values ) {
         try {
             for (int i = 0; i < values.size(); i++) {
-                timeSeries_[i].add( new Millisecond( date ), values.get( i ) );
+                timeSeries_[currSeries_ + i].add( new Millisecond( date ), values.get( i ) );
             }
         } catch (SeriesException ex) {
             ex.printStackTrace();
@@ -108,60 +109,69 @@ public class ChartServer {
         chart_.fireChartChanged();
     }
 
+
     public void startServer() {
         try {
             ServerSocket serverSock = new ServerSocket( port_ );
-            System.out.println( "Started listening to port:" + port_ );
 
-            Socket newSock = serverSock.accept();
-            BufferedReader in = new BufferedReader( new InputStreamReader( newSock.getInputStream() ) );
-            String str = null;
+            while (true) {
+                System.out.println( "Started listening to port:" + port_ );
+                Socket newSock = serverSock.accept();
+                BufferedReader in = new BufferedReader( new InputStreamReader( newSock.getInputStream() ) );
+                String str = null;
+                String[] varNames = null;
 
-            System.out.println( "Connection accepted" );
+                System.out.println( "Connection accepted" );
 
-            while ( (str = in.readLine() ) != null ) {
-                if ( str.length() == 0 ) {
-                    System.out.println( "EOS marker received" );
-                    break;
+                while ( (str = in.readLine() ) != null ) {
+                    if ( str.length() == 0 ) {
+                        System.out.println( "EOS marker received" );
+                        break;
+                    }
+                    else if ( str.charAt(0) == '#' ) {
+                        System.out.println( "first line received: " + str );
+                        varNames = str.split( "[#, ]" );
+                        addTimeSeries( varNames );
+                    }
+                    else {
+                        SpatioTempoData stData = new SpatioTempoData( str );
+                        Date[] times = stData.getTimes();
+                        Vector<Double> values = stData.getValues();
+                        addChartData( times[0], values );
+
+                        // just print the value
+                        System.out.println( str );
+                    }
                 }
-                else if ( str.charAt(0) == '#' ) {
-                    System.out.println( "first line received: " + str );
-                    String[] varNames = str.split( "[#, ]" );
-
-                    initChart( varNames ); // this will create a chart
-                    configChart( varNames );
-                    drawChart();
-                }
-                else {
-                    // just print the value
-                    SpatioTempoData stData = new SpatioTempoData( str );
-                    Date[] times = stData.getTimes();
-                    Vector<Double> values = stData.getValues();
-                    addChartData( times[0], values );
-                    
-                    System.out.println( str );
-                }
-
+                currSeries_ += varNames.length - 1;
+                System.out.println( "Finished receiving time series" );
+                in.close();
+                newSock.close();
             }
-
-            System.out.println( "Server is going to exit" );
-
-            in.close();
-            newSock.close();
 
         } catch (Exception ex ) {
             ex.printStackTrace();
         }
     }
+
+    protected void addTimeSeries( String[] varNames ) {
+        for (int i = 1; i < varNames.length; i++) {
+            timeSeries_[currSeries_ + i - 1] = new TimeSeries( varNames[i], 
+                                                               "timeSeries domain",
+                                                               "timeSeries range" );
+            timeSeriesCollection_.addSeries( timeSeries_[currSeries_ + i - 1] );
+        }
+    }
         
-    public void configChart( String[] varNames ) {
+        
+    protected void configChart() {
         XYPlot xyPlot = chart_.getXYPlot();
         xyPlot.setRenderer( new XYLineAndShapeRenderer() );
 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer)xyPlot.getRenderer();
 
         // setting strokes
-        for (int i = 0; i < varNames.length; i++)
+        for (int i = 0; i < MAX_TIME_SERIES; i++)
             renderer.setSeriesStroke( i, new BasicStroke( 2.0f ) );
 
         // configuring colors
@@ -174,7 +184,7 @@ public class ChartServer {
         }
         else {
             // configure default colors
-            for (int i = 0; i < varNames.length; i++)
+            for (int i = 0; i < MAX_TIME_SERIES; i++)
                 renderer.setSeriesPaint( i, defaultColorMap[i % AVAILABLE_COLORS] );
         }
 
@@ -220,7 +230,7 @@ public class ChartServer {
         }
     }
 
-    public void drawChart() {
+    protected void drawChart() {
         ChartFrame cFrame = new ChartFrame( "PilotsChartFrame", chart_ );
         RefineryUtilities.centerFrameOnScreen( cFrame );
         cFrame.setSize( 800, 500 );
