@@ -167,6 +167,8 @@ public class ChartServer {
     protected void configChart() {
         XYPlot xyPlot = chart_.getXYPlot();
         xyPlot.setRenderer( new XYLineAndShapeRenderer() );
+        // xyPlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+        xyPlot.setForegroundAlpha(0.50f);
 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer)xyPlot.getRenderer();
 
@@ -233,7 +235,7 @@ public class ChartServer {
     protected void drawChart() {
         ChartFrame cFrame = new ChartFrame( "PilotsChartFrame", chart_ );
         RefineryUtilities.centerFrameOnScreen( cFrame );
-        cFrame.setSize( 800, 500 );
+        cFrame.setSize( 700, 350 );
         cFrame.setVisible( true );
         cFrame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
     }
