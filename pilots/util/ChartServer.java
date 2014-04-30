@@ -87,9 +87,9 @@ public class ChartServer {
         String chartTitle = System.getProperty( "chartTitle" );
         chartTitle = (chartTitle == null) ? "PilotsChartServer" : chartTitle;
         String xAxisLegend = System.getProperty( "xAxisLegend" );
-        xAxisLegend = (xAxisLegend == null) ? "Value" : xAxisLegend;
+        xAxisLegend = (xAxisLegend == null) ? "Time" : xAxisLegend;
         String yAxisLegend = System.getProperty( "yAxisLegend" );
-        yAxisLegend = (yAxisLegend == null) ? "Time" : yAxisLegend;
+        yAxisLegend = (yAxisLegend == null) ? "Value" : yAxisLegend;
 
         chart_ = ChartFactory.createTimeSeriesChart (chartTitle, xAxisLegend, yAxisLegend, 
                                                      timeSeriesCollection_,
