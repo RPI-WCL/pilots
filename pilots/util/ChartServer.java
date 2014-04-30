@@ -122,31 +122,36 @@ public class ChartServer {
                 String[] varNames = null;
 
                 System.out.println( "Connection accepted" );
+                
+                try {
+	                while ( (str = in.readLine() ) != null ) {
+	                    if ( str.length() == 0 ) {
+	                        System.out.println( "EOS marker received" );
+	                        break;
+	                    }
+	                    else if ( str.charAt(0) == '#' ) {
+	                        System.out.println( "first line received: " + str );
+	                        varNames = str.split( "[#, ]" );
+	                        addTimeSeries( varNames );
+	                    }
+	                    else {
+	                        SpatioTempoData stData = new SpatioTempoData( str );
+	                        Date[] times = stData.getTimes();
+	                        Vector<Double> values = stData.getValues();
+	                        addChartData( times[0], values );
 
-                while ( (str = in.readLine() ) != null ) {
-                    if ( str.length() == 0 ) {
-                        System.out.println( "EOS marker received" );
-                        break;
-                    }
-                    else if ( str.charAt(0) == '#' ) {
-                        System.out.println( "first line received: " + str );
-                        varNames = str.split( "[#, ]" );
-                        addTimeSeries( varNames );
-                    }
-                    else {
-                        SpatioTempoData stData = new SpatioTempoData( str );
-                        Date[] times = stData.getTimes();
-                        Vector<Double> values = stData.getValues();
-                        addChartData( times[0], values );
-
-                        // just print the value
-                        System.out.println( str );
-                    }
+	                        // just print the value
+	                        System.out.println( str );
+	                    }
+	                }
+	            } catch (SocketException ex) {
+	                System.out.println( "Connectin reset by peer" );
+				} finally {
+	                System.out.println( "Finished receiving time series" );
+	                currSeries_ += varNames.length - 1;
+		            in.close();
+	                newSock.close();	
                 }
-                currSeries_ += varNames.length - 1;
-                System.out.println( "Finished receiving time series" );
-                in.close();
-                newSock.close();
             }
 
         } catch (Exception ex ) {
