@@ -1,0 +1,61 @@
+{
+  "baseCase":[
+    {
+      "name": "meter", "symbol": "m", "measure": "length", "coefficient":[1,0]
+    },
+    {
+      "name": "kilogram", "symbol": "kg", "measure": "mass", "coefficient":[1,0]
+    },
+    {
+      "name": "second", "symbol": "s", "measure": "time", "coefficient":[1,0]
+    },
+    {
+      "name": "ampere", "symbol": "A", "measure": "electric current", "coefficient":[1,0]
+    },
+    {
+      "name": "kelvin", "symbol": "K", "measure": "temperature", "coefficient":[1,0]
+    },
+    {
+      "name": "mole", "symbol": "mol", "measure": "amount of substance", "coefficient":[1,0]
+    },
+    {
+      "name": "candela", "symbol": "cd", "measure": "luminous intensity", "coefficient":[1,0]
+    },
+    {
+      "name": "pascal", "symbol": "Pa", "measure": "pressure", "coefficient":[1,0]
+    },
+    {
+      "name": "meter per second", "symbol": "m/s", "measure": "speed", "coefficient": [1,0]
+    },
+    {
+      "name": "radian", "symbol": "rad", "measure": "angle", "coefficient": [1,0]
+    },
+    {
+      "name": "newton", "symbol": "F", "measure": "force", "coefficient": [1,0]
+    }
+  ]
+  ,
+  "derivedCase":[
+    {
+      "name": "celsius", "symbol":"°C", "measure": "temperature", "coefficient": [1, 273.15]
+    },
+    {
+      "name": "fahrenheit", "symbol":"°F", "measure": "temperature", "coefficient":["5.0/9", "5.0/9*459.67"]
+    },
+    {
+      "name": "inches of mercury", "symbol":"inHG", "measure": "pressure", "coefficient":[3386.389, 0]
+    },
+    {
+      "name": "knot", "symbol":"kn", "measure":"speed","coefficient":[0.51444444, 0]
+    },
+    {
+      "name": "pound", "symbol":"lb", "measure":"mass", "coefficient":[0.45359237, 0]
+    },
+    {
+      "name": "pound", "symbol":"lb", "measure":"force", "coefficient": [4.4482216152605,0]
+    },
+    {
+      "name": "degree", "symbol":"°", "measure":"angle","coefficient":["3.1415926535897932384626/180", 0]
+    }
+  ]
+}
