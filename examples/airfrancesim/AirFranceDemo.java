@@ -31,8 +31,8 @@ public class AirFranceDemo extends PilotsRuntime {
         errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "No error", constraints1 ) );
 
         Vector<Constraint> constraints2 = new Vector<Constraint>();
-        constraints2.add( new Constraint( Constraint.GREATER_THAN, 266.33 ) );
-        constraints2.add( new Constraint( Constraint.LESS_THAN, 423.0 ) );
+        constraints2.add( new Constraint( Constraint.GREATER_THAN, 220.9 ) );
+        constraints2.add( new Constraint( Constraint.LESS_THAN, 517.0 ) );
         errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Pitot tube failure", constraints2 ) );
 
         Vector<Constraint> constraints3 = new Vector<Constraint>();
@@ -85,16 +85,16 @@ public class AirFranceDemo extends PilotsRuntime {
 
     public void startOutput_true_air_speed_out() {
         try {
-            openSocket( OutputType.Output, 0, 
+            openSocket( OutputType.Output, 0,
                         // new String( "airspeed_failed" ),
                         new String( "corrected_airspeed" ),
                         new String( "error" ) );
-            openSocket( OutputType.Output, 1, 
+            openSocket( OutputType.Output, 1,
                         new String( "mode" ) );
         } catch ( Exception ex ) {
             ex.printStackTrace();
         }
-        
+
         final int frequency = 1000;
         while (!isEndTime()) {
             Value true_air_speed = new Value();
@@ -118,8 +118,8 @@ public class AirFranceDemo extends PilotsRuntime {
             dbgPrint( desc + ", true_air_speed_out=" + true_air_speed_out + " at " + getTime() );
 
             try {
-                sendData( OutputType.Output, 0, 
-                          // true_air_speed.getValue(), 
+                sendData( OutputType.Output, 0,
+                          // true_air_speed.getValue(),
                           true_air_speed_out,
                           error );
                 sendData( OutputType.Output, 1, mode.getMode() );

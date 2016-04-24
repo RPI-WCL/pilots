@@ -7,7 +7,7 @@ import pilots.runtime.errsig.*;
 
 public class AirFrance extends PilotsRuntime {
     private int time_; // msec
-    private SlidingWindow win_air_angle_o_;
+    private SlidingWindow win_true_air_speed_out_;
     private Vector<ErrorSignature> errorSigs_;
     private ErrorAnalyzer errorAnalyzer_;
 
@@ -20,40 +20,99 @@ public class AirFrance extends PilotsRuntime {
 
         time_ = 0;
 
-        win_air_angle_o_ = new SlidingWindow( getOmega() );
+        win_true_air_speed_out_ = new SlidingWindow( getOmega() );
 
         errorSigs_ = new Vector<ErrorSignature>();
+
+        Vector<Constraint> constraints1 = new Vector<Constraint>();
+        constraints1.add( new Constraint( Constraint.GREATER_THAN, -47.0 ) );
+        constraints1.add( new Constraint( Constraint.LESS_THAN, 47.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "No error", constraints1 ) );
+
+        Vector<Constraint> constraints2 = new Vector<Constraint>();
+        constraints2.add( new Constraint( Constraint.GREATER_THAN, 220.9 ) );
+        constraints2.add( new Constraint( Constraint.LESS_THAN, 517.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Pitot tube failure", constraints2 ) );
+
+        Vector<Constraint> constraints3 = new Vector<Constraint>();
+        constraints3.add( new Constraint( Constraint.GREATER_THAN, -517.0 ) );
+        constraints3.add( new Constraint( Constraint.LESS_THAN, -423.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "GPS failure", constraints3 ) );
+
+        Vector<Constraint> constraints4 = new Vector<Constraint>();
+        constraints4.add( new Constraint( Constraint.GREATER_THAN, -203.66 ) );
+        constraints4.add( new Constraint( Constraint.LESS_THAN, -47.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Pitot tube + GPS failure", constraints4 ) );
 
         errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );
     }
 
-    public void startOutput_air_angle_o() {
+    public void getCorrectedData( SlidingWindow win,
+                                  Value true_air_speed, Value true_air_speed_corrected,
+                                  Value ground_speed, Value ground_speed_corrected,
+                                  Value wind_speed, Value wind_speed_corrected,
+                                  Value air_angle, Value air_angle_corrected,
+                                  Value ground_angle, Value ground_angle_corrected,
+                                  Value wind_angle, Value wind_angle_corrected,
+                                  Mode mode, int frequency ) {
+        true_air_speed.setValue( getData( "true_air_speed", new Method( Method.Closest, "t" ) ) );
+        ground_speed.setValue( getData( "ground_speed", new Method( Method.Closest, "t" ) ) );
+        wind_speed.setValue( getData( "wind_speed", new Method( Method.Closest, "t" ) ) );
+        air_angle.setValue( getData( "air_angle", new Method( Method.Closest, "t" ) ) );
+        ground_angle.setValue( getData( "ground_angle", new Method( Method.Closest, "t" ) ) );
+        wind_angle.setValue( getData( "wind_angle", new Method( Method.Closest, "t" ) ) );
+        double e = ground_speed.getValue()-Math.sqrt(true_air_speed.getValue()*true_air_speed.getValue()+wind_speed.getValue()*wind_speed.getValue()+2*true_air_speed.getValue()*wind_speed.getValue()*Math.cos((Math.PI/180)*(wind_angle.getValue()-air_angle.getValue())));
+
+        win.push( e );
+        mode.setMode( errorAnalyzer_.analyze( win, frequency ) );
+
+        true_air_speed_corrected.setValue( true_air_speed.getValue() );
+        ground_speed_corrected.setValue( ground_speed.getValue() );
+        wind_speed_corrected.setValue( wind_speed.getValue() );
+        air_angle_corrected.setValue( air_angle.getValue() );
+        ground_angle_corrected.setValue( ground_angle.getValue() );
+        wind_angle_corrected.setValue( wind_angle.getValue() );
+        switch (mode.getMode()) {
+        case 1:
+            true_air_speed_corrected.setValue( Math.sqrt(ground_speed.getValue()*ground_speed.getValue()+wind_speed.getValue()*wind_speed.getValue()-2*ground_speed.getValue()*wind_speed.getValue()*Math.cos((Math.PI/180)*(ground_angle.getValue()-wind_angle.getValue()))) );
+            break;
+        case 2:
+            ground_speed_corrected.setValue( Math.sqrt(true_air_speed.getValue()*true_air_speed.getValue()+wind_speed.getValue()*wind_speed.getValue()+2*true_air_speed.getValue()*wind_speed.getValue()*Math.cos((Math.PI/180)*(wind_angle.getValue()-air_angle.getValue()))) );
+            break;
+        }
+    }
+
+    public void startOutput_true_air_speed_out() {
         try {
-            openSocket( OutputType.Output, 0, "air_angle_o" );
+            openSocket( OutputType.Output, 0, new String( "true_air_speed_out" ) );
         } catch ( Exception ex ) {
             ex.printStackTrace();
         }
         
-        final int frequency = 5000;
+        final int frequency = 1000;
         while (!isEndTime()) {
-            Value air_speed = new Value();
+            Value true_air_speed = new Value();
+            Value true_air_speed_corrected = new Value();
             Value ground_speed = new Value();
+            Value ground_speed_corrected = new Value();
             Value wind_speed = new Value();
+            Value wind_speed_corrected = new Value();
             Value air_angle = new Value();
+            Value air_angle_corrected = new Value();
             Value ground_angle = new Value();
+            Value ground_angle_corrected = new Value();
             Value wind_angle = new Value();
+            Value wind_angle_corrected = new Value();
+            Mode mode = new Mode();
 
-            air_speed.setValue( getData( "air_speed", new Method( Method.Closest, "t" ) ) );
-            ground_speed.setValue( getData( "ground_speed", new Method( Method.Closest, "t" ) ) );
-            wind_speed.setValue( getData( "wind_speed", new Method( Method.Closest, "t" ) ) );
-            air_angle.setValue( getData( "air_angle", new Method( Method.Closest, "t" ) ) );
-            ground_angle.setValue( getData( "ground_angle", new Method( Method.Closest, "t" ) ) );
-            wind_angle.setValue( getData( "wind_angle", new Method( Method.Closest, "t" ) ) );
-            double air_angle_o = air_angle.getValue();
+            getCorrectedData( win_true_air_speed_out_, true_air_speed, true_air_speed_corrected, ground_speed, ground_speed_corrected, wind_speed, wind_speed_corrected, air_angle, air_angle_corrected, ground_angle, ground_angle_corrected, wind_angle, wind_angle_corrected, mode, frequency );
+            double true_air_speed_out = true_air_speed_corrected.getValue();
 
-            dbgPrint( "air_angle_o=" + air_angle_o + " at " + getTime() );
+            String desc = errorAnalyzer_.getDesc( mode.getMode() );
+            dbgPrint( desc + ", true_air_speed_out=" + true_air_speed_out + " at " + getTime() );
+
             try {
-                sendData( OutputType.Output, 0, air_angle_o );
+                sendData( OutputType.Output, 0, true_air_speed_out );
             } catch ( Exception ex ) {
                 ex.printStackTrace();
             }
@@ -77,6 +136,6 @@ public class AirFrance extends PilotsRuntime {
             ex.printStackTrace();
         }
 
-        app.startOutput_air_angle_o();
+        app.startOutput_true_air_speed_out();
     }
 }
