@@ -17,34 +17,32 @@ python main.py [main configuration file]
          "cruise phase": [
              [CRUISE PHASE START LINE NUMBER, CRUISE PHASE END LINE NUMBER], ...
          ]
-     }, ...(A list of dictionary data)],
-     "Training Data Inital Configuration": "INITIAL UNIT AND NAME CONFIGURATION FOR THE FILE ( column names must consistant with the data file, choose the columns you want )",
-     "Training Data Unit Conversion Configuration": "CONVERTED UNIT AND NAME CONFIGURATION",
-     "Training Data Visualization": true or false(to enable visualization of test data),
-     "Training Data Result Visualization": true or false(to enable fitting result visualization of test data),
+     }, ...(A list of {name,deliminator,cruise phase})],
+     "Training Data Inital Configuration": "PATH TO DATA INITIAL CONFIGURATION FILE"
+     "Training Data Unit Conversion Configuration": "PATH TO DATA CONVERSION CONFIGURATION FILE",
+     "Training Data Visualization": true or false (to enable visualization of training data),
+     "Training Data Result Visualization": true or false (to enable fitting result visualization of training data),
      "Testing Data Files": [{
          "name": "PATH TO DATA FILE",
          "deliminator": "DELIMINATOR OF THE DATA FILE",
          "cruise phase": [
              [CRUISE PHASE START LINE NUMBER, CRUISE PHASE END LINE NUMBER], ...
          ]
-     }, ...(A list of dictionary data)],
-     "Testing Data Inital Configuration": "INITIAL UNIT AND NAME CONFIGURATION FOR THE FILE (
-     column names must consistant with the data file,
-     choose the columns you want)
+     }, ...(A list of {name,deliminator, cruise phase)],
+     "Testing Data Inital Configuration": "PATH TO DATA INITIAL CONFIGURATION FILE"
  ",
- "Testing Data Unit Conversion Configuration": "CONVERTED UNIT AND NAME CONFIGURATION",
- "Testing Data Visualization": true or false(to enable visualization of test data),
+ "Testing Data Unit Conversion Configuration": "PATH TO DATA CONVERSION CONFIGURATION FILE",
+ "Testing Data Visualization": true or false (to enable visualization of test data),
      "Testing Data Result Visualization": true or false(to enable fitting result visualization of test data),
      "X Fields": ["columns you want to use for training set (named by latest configuration file)", ...],
      "Y Fields": ["columns you want to use for target set (named by latest configuration file)", ...],
-     "Automatic Cruise Phase": true or false(to enable the automatic cruise phase finder),
+     "Automatic Cruise Phase": true or false (to enable the automatic cruise phase finder),
      "Cruise Phase Time Field": "column name of time",
      "Cruise Phase Speed Field": "column name of speed",
-     "Cruise Phase Maximum Acceleration": number(maximum acceleration to find cruise phase),
-     "Cruise Phase Minimum Length": number(minimum cruise phase time period to find cruise phase),
-     "Cruise Phase Minimum Speed": number(minimum cruise phase speed),
-     "Plane Empty Weight": number(the empty weight of the plane)
+     "Cruise Phase Maximum Acceleration": number (maximum acceleration to find cruise phase),
+     "Cruise Phase Minimum Length": number (minimum cruise phase time period to find cruise phase),
+     "Cruise Phase Minimum Speed": number (minimum cruise phase speed),
+     "Plane Empty Weight": number (the empty weight of the plane)
  }
 ```
 ## Example Main Configuration file:
