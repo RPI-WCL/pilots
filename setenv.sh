@@ -1,3 +1,5 @@
+#!/bin/bash
+
 alias plc='java pilots.compiler.PilotsCompiler'
 alias plcsim='java -Dsim pilots.compiler.PilotsCompiler'
 
