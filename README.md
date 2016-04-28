@@ -9,23 +9,23 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
 
 1. Software Requirements
 ----------------------------------------------------------------------------------------------
-* Java JDK 1.6 or newer
+* Java JDK 1.6 or newer.
 * (Optional) [JFreeChart](http://www.jfree.org/jfreechart/download.html) 1.0.14 or newer to visualize outputs from PILOTS applications.
 * (Optional) [JavaCC](http://javacc.java.net/) if you want to modify the PILOTS grammar.
   
 2. Downloading PILOTS library and JFreeChart
 ----------------------------------------------------------------------------------------------
 * Download a PILOTS release either from [the PILOTS web site](http:/wcl.cs.rpi.edu/pilots/) or [the PILOTS github page](https://github.com/RPI-WCL/pilots).
-  - Note that the directory containing this README is referred to as `$PILOTS_HOME`.
+
+* Note that the directory containing this README is referred to as `$PILOTS_HOME`.
 
 * The jar files required for JFreeChart (jfreechart-1.0.14.jar and jcommon-1.0.17.jar) are included in the `$PILOTS_HOME/lib` directory.
-  These libraries are under the GNU LGPL (see `$PILOTS_HOME/lib/lgpl.html`) for details.
-
+  These libraries are under the GNU LGPL (see `$PILOTS_HOME/lib/lgpl.html` for details).
 
 
 3. Getting Started with PILOTS
 ----------------------------------------------------------------------------------------------
-* Building a PILOTS jar file
+* **Building a PILOTS jar file**
 
   In `$PILOTS_HOME`, run
   ~~~
@@ -33,7 +33,7 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
   ~~~
   pilots.jar will be created under the `$PILOTS_HOME/lib` directory.
 
-* Configuring the CLASSPATH environment variable
+* **Configuring the CLASSPATH environment variable**
 
   When using the PILOTS libraries, be sure that your java CLASSPATH includes the three .jar files found in `$PILOTS_HOME/lib` (i.e., jfreechar-1.0.14.jar, jcommon-1.0.17.jar, and pilots.jar). 
   We have provided an example of setting the CLASSPATH along with some recommended aliases in the `$PILOTS_HOME/setenv` script. To use it, run
@@ -41,16 +41,16 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
   $ source setenv
   ~~~
 
-* Running example PILOTS programs: see [PILOTS tutorial](https://wcl.cs.rpi.edu/pilots/tutorial/index.html)
+* **Running example PILOTS programs**: See [PILOTS tutorial](https://wcl.cs.rpi.edu/pilots/tutorial/index.html).
 
 4. What's New in This Version
 ----------------------------------------------------------------------------------------------
-  - **Connectivity to the X-Plane flight simulator**: PILOTS can now directly ingest data streams from [X-Plane](http://www.x-plane.com). Go to [pilots/util/xplane/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/xplane) directory for detail.
+* **Connectivity to the X-Plane flight simulator**: PILOTS can now directly ingest data streams from [X-Plane](http://www.x-plane.com). Go to [pilots/util/xplane/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/xplane) directory for details.
 
-  - **Alternative wind data computation method for the Air France 447 example**: Instead of using potentially inaccurate wind forecast data, we estimate wind data from airspeed and ground speed for better accuracy. Go to [pilots/examples/airfrancesin_new](https://github.com/RPI-WCL/pilots/tree/master/examples/airfrancesim_new) directory for detail.
+* **Alternative wind data computation method for the Air France 447 example**: Instead of using potentially inaccurate wind forecast data, we estimate wind data from airspeed and ground speed for better accuracy. Go to [pilots/examples/airfrancesin_new](https://github.com/RPI-WCL/pilots/tree/master/examples/airfrancesim_new) directory for details.
 
- - **Proof-of-concept model learning utility**: For future integration of a model learning capability to PILOTS, we developed a utility program to learn model parameters from input data streams. 
-Go to [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) for detail.
+* **Proof-of-concept model learning utility**: For future integration of a model learning capability to PILOTS, we developed a utility program to learn model parameters from input data streams. 
+Go to [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) for details.
 
 
 
