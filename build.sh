@@ -2,7 +2,7 @@
 
 export CLASSPATH=./classes:$CLASSPATH 
 DIST=./classes
-VERSION=0.2.5
+VERSION=0.3
 
 echo "PILOTS Build Script (v$VERSION)"
 echo "Please make sure the current directory is in your CLASSPATH"
