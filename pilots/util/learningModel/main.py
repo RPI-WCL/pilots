@@ -1,90 +1,104 @@
 import UnitConverter as uc
 import DataBase as db
-import LearnModel as lm
-import matplotlib.pyplot as plt
-import numpy as np
-import math
+import LeastSquare as lm
+from LearnModel import getCruisePhase # cruise phase is just for demonstration
+import json
+import sys
 
-# we only need part of the data to train the model
-# currently a place holder for more general interface
-# only for test and fun ... 
-def getCruisePhase(database):
-	# we define cruise phase as acceleration = 0 +- 0.01 ( about 500 N) and speed >= 10m/s
-	speed = database.select("true air speed")
-	time = database.select("_zulu,_time")
-	# calculate acceleration
-	a = [0]*(len(speed) - 1)
-	result = []
-	start = -1
-	end = -1
-	for i in xrange(len(a)):
-		a[i] = (speed[i+1] - speed[i])/(time[i+1] - time[i])
-		if (abs(a[i]) < 100 and speed[i] > 10):
-			if start != -1:
-				end += 1
-			else:
-				start = i
-				end = i+1
-		else:
-			if start != -1:
-				result.append((start, end))
-				start = -1
-				end = -1
-	if start != -1:
-		result.append((start, end))
-	r = filter(lambda(t): t[1] - t[0] > 200, result)
-	return r
+def main():
+	if len(sys.argv) != 2:
+		print "Usage\npython [this file] [configuration file]"
+		return;
+	testdata = None
+	tdata = None
+	tviewer = None
+	testviewer = None
+	tphase = None
+	testphase = None
+	print "running file: " + sys.argv[0]
+	print "configuration file: " + sys.argv[1]
+	f = json.load(open(sys.argv[1],'r'))
+	trainFile = f["Training Data Files"]
+	trainConfig = f["Training Data Inital Configuration"]
+	trainAConfig = f["Training Data Unit Conversion Configuration"]
+	trainVisualization = f["Training Data Visualization"]
+	testFile = f["Testing Data Files"]
+	testConf = f["Testing Data Inital Configuration"]
+	testAConf = f["Testing Data Unit Conversion Configuration"]
+	testVisualization = f["Testing Data Visualization"]
+	XF = f["X Fields"]
+	YF = f["Y Fields"]
+	testresultVisualization = f["Testing Data Result Visualization"]
+	trainresultVisualization = f["Training Data Result Visualization"]
+	timeField = f["Cruise Phase Time Field"]
+	speedField = f["Cruise Phase Speed Field"]
+	minsize = f["Cruise Phase Minimum Length Of Time"]
+	minspeed = f["Cruise Phase Minimum Speed"]
+	acceleration = f["Cruise Phase Maximum Acceleration"]
+	emptyWeight = f["Plane Empty Weight"]
+	converter = uc.UnitConverter(f["Unit Converter File"])
+	autocruise = f["Automatic Cruise Phase"]
+	print "loading training database using initial Configuration <" + trainConfig + ">..."
+	tdata = db.DataBase(trainConfig, True)
+	tphase = []
+	base = 0
+	for item in trainFile:
+		tdata.addData(db.DataParser(item["name"], item["deliminator"]))
+		print item["name"] + ",current database size = " + str(tdata.minClusterSize())
+		tphase.extend(map(lambda(x): [x[0]+base,x[1]+base], item["cruise phase"]))
+		base = tdata.minClusterSize()
+	print "unit conversion using conversion Configuration <" + trainAConfig + ">..."
+	tdata.loadConfiguration(trainAConfig, converter)
+	print "finished loading " + str(len(trainFile)) + " files"
+	if trainVisualization:
+		tviewer = db.DataBaseViewer(tdata)
+		tviewer.visualize()
+	if len(testFile) > 0:
+		print "loading testing database using initial Configuration <" + testConf + ">..."
+		testdata = db.DataBase(testConf, True)
+		testphase = []
+		base = 0
+		for item in testFile:
+			testdata.addData(db.DataParser(item["name"], item["deliminator"]))
+			testphase.extend(map(lambda(x): [x[0]+base,x[1]+base], item["cruise phase"]))
+			base = testdata.minClusterSize()
+			print item["name"] + ",current database size = " + str(testdata.minClusterSize())
+		print "unit conversion using conversion Configuration <" + testAConf + ">..."
+		testdata.loadConfiguration(testAConf, converter)
+		print "finished loading " + str(len(testFile)) + " files"
+		if testVisualization:
+			testviewer = db.DataBaseViewer(testdata)
+			testviewer.visualize()
+	print "accessing cruise phase..."
+	trans = lm.SpecialLinearTransformation(XF,YF)
+	trans.setWeight(emptyWeight)
+	model = lm.LeastSquare(trans)
+	if autocruise:
+		print "trigger auto cruise finder"
+		tphase = getCruisePhase(tdata, timeField, speedField, acceleration, minspeed, minsize)
+	print str(len(tphase)) + " phases are loaded"
+	if len(tphase) == 0:
+		raise Exception("No Cruise phase available, aborted")
+	for p in tphase:
+		model.readData(tdata, p[0], p[1])
+	print "done\nTraining Data result:"
+	result = model.train()
+	print result
+	print "in sample error:"
+	print model.inSampleError(trainresultVisualization)
+	print "out sample error:"
+	model.resetData() # not a good implementation
+	if not testdata is None:
+		if autocruise:
+			print "trigger auto cruise finder"
+			testphase = getCruisePhase(testdata, timeField, speedField, acceleration, minspeed, minsize)
+		print str(len(testphase)) + " phases are loaded"
+		if len(testphase) == 0:
+			raise Exception("No Cruise phase available, aborted")
+		for p in testphase:
+			model.readData(testdata, p[0],p[1])
+		print model.inSampleError(testresultVisualization) # not a good implementation
+	print "done"
 
-class LeastSquare(lm.SupervisedLearningModel):
-	def _error(self,x,y,param):
-		r = y - np.dot(x,param)
-		se = np.dot(r.transpose(), r)
-		rmse = math.sqrt(se/x.shape[0])
-		return {'RMSE': rmse, 'SE': se}
-	def _train(self,x,y):
-		print np.linalg.cond(x)
-		q, r = np.linalg.qr(x)
-		b = np.dot(q.transpose(),y)
-		weight = np.linalg.lstsq(r[:3,:3],b[:3])[0]
-		#weight = np.linalg.lstsq(np.dot(x.transpose(), x), np.dot(x.transpose(),y))[0]
-		return weight
-	def _eval(self, x, param):
-		return np.dot(x, param)
-
-# special case of the linear transformation ( for this test... )
-class SpecialLinearTransformation(lm.DataTransformer):
-	def _YTrans(self, Y):
-		r = np.array([Y[:,:].sum(axis=1) + 8506*4.448221628254617]).transpose()
-		return r
-	def _XTrans(self, X):
-		# place holder
-		x1 = np.divide(np.multiply(np.power(X[:,0],2), X[:,1]),X[:,2]);
-		x2 = np.multiply(x1,X[:,3])
-		x3 = np.multiply(x2, X[:,3])
-		A = np.ones((X.shape[0],3))
-		A[:,1] = x1
-		A[:,2] = x2
-		return A
 if __name__ == '__main__':
-	converter = uc.UnitConverter('unit.json')
-	data = db.DataBase('initConfig.json', True)
-	data.addData(db.DataParser('data/High Power King Air.txt', '|'))
-	data.addData(db.DataParser('data/Medium Power King Air.txt', '|'))
-	data.loadConfiguration('afterConfig.json', converter)
-	XF = ['true air speed', 'ambient pressure', 'ambient temperature','angle of attack']
-	YF = [ 'fuel 1','fuel 2', 'fuel 3','fuel 4', 'fuel 5','fuel 6','fuel 7','fuel 8' ]
-	trans = SpecialLinearTransformation(XF, YF)
-	model = LeastSquare(trans)
-	resultRange = getCruisePhase(data)
-	print resultRange
-	for i in resultRange:
-		model.readData(data, i[0],i[1])
-	print model.train()
-	print model.inSampleError(False)
-	testData = db.DataBase('initConfig.json',True)
-	testData.addData(db.DataParser('data/Low Power King Air.txt', '|'))
-	testData.loadConfiguration('afterConfig.json', converter)
-	print model.outSampleError(testData, 0, 3000, True)
-	l = data.select('true air speed')
-	viewer = db.DataBaseViewer(testData)
-	viewer.visualize()
+	main()

@@ -1,2 +1,6 @@
 *.class
 *~
+# -*- mode: gitignore; -*-
+*~
+\#*\#
+*.pyc
