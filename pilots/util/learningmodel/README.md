@@ -1,5 +1,5 @@
 # Learning Model, database and unit converter
-These models uses learning model to estimate the target function. DataBase will load data from file to the memory, by the method defined in Data Configuration files. UnitConverter will take in any available unit and convert it to the unit with same type ( the unit database is defined in
+These modules use a learning model to estimate the target function. DataBase will load data from file to the memory, by the method defined in Data Configuration files. UnitConverter will take in any available unit and convert it to the unit with same type ( the unit database is defined in
 *unit.json*). You can implement SupervisedLearningModel and DataTransformer for new learning models. LeastSquare and SpecialLinearTransformation classes are made for illustration of how this works, which implements the parameter learning using lift function, with QR Factorization for regularization.
 
 # Usage:

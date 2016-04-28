@@ -2,7 +2,7 @@ UDP to TCP Converter for xPlane and PILOTS
 ==========================================
 Written by Alessandro Galli (agalli93@gmail.com) and Frederick Lee 
 
-This program is the UDP to TCP Converter for xPlane and PILOTS for use with xPlane 9.0 and other versions with modifications, and the PILOTS programming language developed by the Worldwide Computing Lab at Rensselaer Polytechnic Institute. It is designed to receive data from xPLane over UDP, convert that data into a PILOTS readable format, and then send it to PILOTS over TCP.
+This program is the UDP to TCP Converter for xPlane and PILOTS for use with xPlane 9.0 and other versions with modifications, and the PILOTS programming language developed by the Worldwide Computing Lab at Rensselaer Polytechnic Institute. It is designed to receive [data from xPlane over UDP](http://www.x-plane.com/manuals/desktop/#datainputandoutputfromx-plane), convert that data into a PILOTS readable format, and then send it to PILOTS over TCP.
 
 #Current steps to use the software:
 
@@ -17,7 +17,7 @@ Note: For testing of the TCP output/UDP Input, there are files in the sub direct
 
 #Files: 
 
-###UDP_TCPConvterter.java
+###UDP_TCPConverter.java
 
 Contains all of the functions of the parser as well as the main function. 
 
