@@ -47,7 +47,7 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
 ----------------------------------------------------------------------------------------------
 * **Connectivity to the X-Plane flight simulator**: PILOTS can now directly ingest data streams from [X-Plane](http://www.x-plane.com). Go to [pilots/util/xplane/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/xplane) directory for details.
 
-* **Alternative wind data computation method for the Air France 447 example**: Instead of using potentially inaccurate wind forecast data, we estimate wind data from airspeed and ground speed for better accuracy. Go to [pilots/examples/airfrancesim_new](https://github.com/RPI-WCL/pilots/tree/master/examples/airfrancesim_new) directory for details.
+* **Alternative wind data computation method for the Air France 447 example**: Instead of using potentially inaccurate wind forecast data, we estimate wind data from airspeed and ground speed for better accuracy and use it to correct data in case of errors. Go to [pilots/examples/airfrancesim_new](https://github.com/RPI-WCL/pilots/tree/master/examples/airfrancesim_new) directory for details.
 
 * **Proof-of-concept model learning utility**: Toward future integration of a model learning capability to PILOTS, we developed a utility program to learn model parameters from input data streams. 
 Go to [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) for details.
