@@ -1,0 +1,1 @@
+java -DXseriesColors=magenta -DchartTitle="Test" -DxAxisLegend="Time" -DyAxisLegend="Weight" -DtimeRange="1970-01-01 224640-0400~1970-01-01 225744-0400" -DvalueRange="100000~200000" pilots.util.ChartServer 9999

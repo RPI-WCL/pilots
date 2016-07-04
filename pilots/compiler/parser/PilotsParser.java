@@ -17,11 +17,11 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       jj_consume_token(PROGRAM_START);
       t = jj_consume_token(VAR);
                                 jjtn000.jjtSetValue( t.image );
-      jj_consume_token(48);
+      jj_consume_token(49);
       jj_consume_token(INPUTS);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 48:
-        jj_consume_token(48);
+      case 49:
+        jj_consume_token(49);
         break;
       default:
         jj_la1[1] = jj_gen;
@@ -40,8 +40,8 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       }
       jj_consume_token(OUTPUTS);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 48:
-        jj_consume_token(48);
+      case 49:
+        jj_consume_token(49);
         break;
       default:
         jj_la1[3] = jj_gen;
@@ -62,8 +62,8 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       case ERRORS:
         jj_consume_token(ERRORS);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 48:
-          jj_consume_token(48);
+        case 49:
+          jj_consume_token(49);
           break;
         default:
           jj_la1[5] = jj_gen;
@@ -89,8 +89,8 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       case SIGNATURES:
         jj_consume_token(SIGNATURES);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 48:
-          jj_consume_token(48);
+        case 49:
+          jj_consume_token(49);
           break;
         default:
           jj_la1[8] = jj_gen;
@@ -116,8 +116,8 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       case CORRECTS:
         jj_consume_token(CORRECTS);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 48:
-          jj_consume_token(48);
+        case 49:
+          jj_consume_token(49);
           break;
         default:
           jj_la1[11] = jj_gen;
@@ -141,8 +141,8 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       }
       jj_consume_token(PROGRAM_END);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 48:
-        jj_consume_token(48);
+      case 49:
+        jj_consume_token(49);
         break;
       default:
         jj_la1[13] = jj_gen;
@@ -184,7 +184,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       Dim();
       jj_consume_token(USING);
       Methods();
-      jj_consume_token(48);
+      jj_consume_token(49);
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -213,12 +213,12 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     jjtree.openNodeScope(jjtn000);String str, exps, time;
     try {
       str = Vars();
-      jj_consume_token(49);
+      jj_consume_token(50);
       exps = Exps();
       jj_consume_token(AT);
       jj_consume_token(EVERY);
       time = Time();
-      jj_consume_token(48);
+      jj_consume_token(49);
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
       jjtn000.jjtSetValue( str + ":" + exps + ":" + time );
@@ -250,9 +250,9 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     jjtree.openNodeScope(jjtn000);String str, exps;
     try {
       str = Vars();
-      jj_consume_token(49);
+      jj_consume_token(50);
       exps = Exps();
-      jj_consume_token(48);
+      jj_consume_token(49);
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
       jjtn000.jjtSetValue( str + ":" + exps );
@@ -293,9 +293,9 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
         jj_la1[14] = jj_gen;
         ;
       }
-      jj_consume_token(49);
-      t2 = jj_consume_token(VAR);
       jj_consume_token(50);
+      t2 = jj_consume_token(VAR);
+      jj_consume_token(51);
       exps = Exps();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case STRING:
@@ -305,7 +305,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
         jj_la1[15] = jj_gen;
         ;
       }
-      jj_consume_token(48);
+      jj_consume_token(49);
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
       if (t3 == null)
@@ -349,11 +349,11 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
         jj_la1[16] = jj_gen;
         ;
       }
-      jj_consume_token(49);
-      t2 = jj_consume_token(VAR);
       jj_consume_token(50);
+      t2 = jj_consume_token(VAR);
+      jj_consume_token(51);
       exp = Exp();
-      jj_consume_token(48);
+      jj_consume_token(49);
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
       jjtn000.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exp );
@@ -483,6 +483,10 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       case INTERPOLATE:
         t = jj_consume_token(INTERPOLATE);
                            id = t.image;
+        break;
+      case PREDICT:
+        t = jj_consume_token(PREDICT);
+                       id = t.image;
         break;
       default:
         jj_la1[18] = jj_gen;
@@ -696,7 +700,6 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       case ARCCOS:
       case ARCTAN:
       case ABS:
-      case 51:
       case 52:
       case 53:
       case 54:
@@ -706,6 +709,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       case 58:
       case 59:
       case 60:
+      case 61:
         func = Func();
         jj_consume_token(LPAR);
         exps = Exps();
@@ -775,7 +779,6 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       case ARCCOS:
       case ARCTAN:
       case ABS:
-      case 51:
       case 52:
       case 53:
       case 54:
@@ -785,6 +788,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       case 58:
       case 59:
       case 60:
+      case 61:
         func = Func();
         exp = Exp();
         exp2 = Exp2();
@@ -828,17 +832,11 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
     jjtree.openNodeScope(jjtn000);Token t;
     try {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 51:
-        t = jj_consume_token(51);
+      case 52:
+        t = jj_consume_token(52);
               jjtree.closeNodeScope(jjtn000, true);
               jjtc000 = false;
               {if (true) return t.image;}
-        break;
-      case 52:
-        t = jj_consume_token(52);
-                jjtree.closeNodeScope(jjtn000, true);
-                jjtc000 = false;
-                {if (true) return t.image;}
         break;
       case 53:
         t = jj_consume_token(53);
@@ -866,24 +864,30 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
         break;
       case 57:
         t = jj_consume_token(57);
-                 jjtree.closeNodeScope(jjtn000, true);
-                 jjtc000 = false;
-                 {if (true) return t.image;}
-        break;
-      case 58:
-        t = jj_consume_token(58);
                 jjtree.closeNodeScope(jjtn000, true);
                 jjtc000 = false;
                 {if (true) return t.image;}
         break;
-      case 59:
-        t = jj_consume_token(59);
+      case 58:
+        t = jj_consume_token(58);
                  jjtree.closeNodeScope(jjtn000, true);
                  jjtc000 = false;
                  {if (true) return t.image;}
         break;
+      case 59:
+        t = jj_consume_token(59);
+                jjtree.closeNodeScope(jjtn000, true);
+                jjtc000 = false;
+                {if (true) return t.image;}
+        break;
       case 60:
         t = jj_consume_token(60);
+                 jjtree.closeNodeScope(jjtn000, true);
+                 jjtc000 = false;
+                 {if (true) return t.image;}
+        break;
+      case 61:
+        t = jj_consume_token(61);
                  jjtree.closeNodeScope(jjtn000, true);
                  jjtc000 = false;
                  {if (true) return t.image;}
@@ -1047,10 +1051,10 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x2000,0x0,0x0,0x4000,0x0,0x0,0x8000,0x0,0x0,0x0,0x0,0x0,0x380000,0x0,0x1fc00000,0x0,0xe0000000,0xe0000000,0xe0000000,0x0,0x0,};
+      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x2000,0x0,0x0,0x4000,0x0,0x0,0x8000,0x0,0x0,0x0,0x0,0x0,0x780000,0x0,0x3f800000,0x0,0xc0000000,0xc0000000,0xc0000000,0x0,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x4000,0x10000,0x4000,0x10000,0x4000,0x10000,0x0,0x4000,0x10000,0x0,0x4000,0x10000,0x0,0x10000,0x80,0x8000,0x80,0x200,0x0,0x200,0x0,0x200,0x1ff8549f,0x1ff8001f,0x1ff8001f,0x1400,0x5400,};
+      jj_la1_1 = new int[] {0x8000,0x20000,0x8000,0x20000,0x8000,0x20000,0x0,0x8000,0x20000,0x0,0x8000,0x20000,0x0,0x20000,0x100,0x10000,0x100,0x400,0x0,0x400,0x0,0x400,0x3ff0a93f,0x3ff0003f,0x3ff0003f,0x2800,0xa800,};
    }
 
   /** Constructor with InputStream. */
@@ -1170,7 +1174,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[61];
+    boolean[] la1tokens = new boolean[62];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -1187,7 +1191,7 @@ public class PilotsParser/*@bgen(jjtree)*/implements PilotsParserTreeConstants, 
         }
       }
     }
-    for (int i = 0; i < 61; i++) {
+    for (int i = 0; i < 62; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

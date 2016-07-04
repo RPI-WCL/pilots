@@ -764,6 +764,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             id = Method.Euclidean;
         } else if (str[0].equalsIgnoreCase( "interpolate" )) {
             id = Method.Interpolate;
+        } else if (str[0].equalsIgnoreCase( "predict" )){
+            id = Method.Predict;
         } else {
             System.err.println( "Invalid method: " + str[0] );
             return null;

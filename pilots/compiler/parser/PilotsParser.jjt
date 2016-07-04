@@ -57,6 +57,7 @@ TOKEN : {
 | <CLOSEST: "closest">
 | <EUCLIDEAN: "euclidean">
 | <INTERPOLATE: "interpolate">
+| <PREDICT: "predict">
 | <NSEC: "nsec">
 | <USEC: "usec">
 | <MSEC: "msec">
@@ -199,7 +200,8 @@ void Method():
     
     (t = <CLOSEST> { id = t.image; } 
      | t = <EUCLIDEAN> { id = t.image; } 
-     | t = <INTERPOLATE> { id = t.image; })
+     | t = <INTERPOLATE> { id = t.image; }
+     | t = <PREDICT> { id = t.image; } )
     "(" args = Exps() ")"
     { jjtThis.jjtSetValue( id + ":" + args ); } 
 }
