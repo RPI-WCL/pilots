@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.*;
 
 public class Client {
 	// simple implementation of java client, currently support only one variable, more will be added...
@@ -44,7 +45,7 @@ public class Client {
 		return null;
 	}
 	public static double[] predict(int engine, Map<String, Double> values){
-		String result = send_data(engine, 2, values);
+		String result = send_data(engine, values);
 		String[] strings = result.split(",", -1);
 		double[] double_result = new double[strings.length];
 		for (int i = 0; i < strings.length; i++){
@@ -52,11 +53,24 @@ public class Client {
 		}
 		return double_result;
 	}
-	public static String send_data(int engine, int mode, Map<String, Double> values){
-		StringBuilder builder = new StringBuilder("http://127.0.0.1:5000/?MODE="+String.valueOf(mode)+"&ID="+String.valueOf(engine) + '&');
-		for( String key : values.keySet()){
-			builder.append(key + '=' + String.valueOf(values.get(key)) + '&');
-		}		
+	public static String send_data(int engine, Map<String, Double> values){
+		StringBuilder builder = new StringBuilder("http://127.0.0.1:5000/?model="+String.valueOf(engine)+'&');
+		List<String> keys = new ArrayList<>();
+		keys.addAll(values.keySet());
+		builder.append("name=");
+		for( int i = 0; i < keys.size(); i++){
+			builder.append(keys.get(i));
+			if (i != keys.size() - 1){
+				builder.append(",");
+			}
+		}
+		builder.append("&value=");
+		for (int i = 0; i < keys.size(); i++){
+			builder.append(String.valueOf(values.get(keys.get(i))));
+			if (i != keys.size() - 1){
+				builder.append(",");
+			}
+		}
 		return getHTML(builder.toString());
 	}
 }

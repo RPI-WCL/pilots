@@ -379,7 +379,7 @@ public class DataStore extends DebugPrint {
         Vector<SpatioTempoData> workData = new Vector<SpatioTempoData>();
         workData = data_;  // shallow copy
 
-        System.out.println ("DataStore.getData, varName=" + varName );
+//        System.out.println ("DataStore.getData, varName=" + varName );
 
         int varIndex = getVarIndex( varName );
         
