@@ -48,7 +48,7 @@ public class ATR72 extends PilotsRuntime {
         pressure.setValue( getData( "pressure", new Method( Method.Closest, "t" ) ) );
         temperature.setValue( getData( "temperature", new Method( Method.Closest, "t" ) ) );
         weight.setValue( getData( "weight", new Method( Method.Closest, "t" ) ) );
-        cl.setValue( getData( "cl", new Method( Method.Predict, "aoa" ) ) );
+        cl.setValue( getData( "cl", new Method( Method.Predict, "1", "aoa" ) ) );
         double e = Math.abs(weight.getValue()-pressure.getValue()*(speed.getValue()*speed.getValue())*61*cl.getValue()/(2*286.9*temperature.getValue()))/weight.getValue();
 
         win.push( e );

@@ -437,9 +437,10 @@ public class DataStore extends DebugPrint {
                     interpolated = true;
                 break;
             case Method.Predict:
-            	Map<String, Double> result = getDatas(args);
+                String model = args[0];
+            	Map<String, Double> result = getDatas(Arrays.copyOfRange(args,1,args.length));
                 predicted = true;
-            	d = pilots.util.learningmodel.Client.predict(0, result)[0];
+            	d = pilots.util.learningmodel.Client.predict(model, result)[0][0]; // currently support only one number prediction
             default:
                 break;
             }

@@ -1,7 +1,7 @@
 program ATR72;
 	inputs
 		speed, aoa, pressure, temperature, weight (t) using closest(t);
-		cl (t) using predict(aoa);
+		cl (t) using predict(1, aoa);
 	outputs
 		measured_weight: weight at every 1 sec;
 	errors
