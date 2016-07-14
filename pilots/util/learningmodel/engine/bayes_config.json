@@ -1,0 +1,17 @@
+{
+	"data":{
+		"file": "data/bayes_testing.txt",
+		"type": "pilot",
+		"header_type": "pilotheader",
+		"column_names": ["a","b","type"],
+		"transformer":{
+			"features": ["{b}/{a}"],
+			"labels": ["{type}"]
+		}
+	},
+	"trainer":{
+		"model": "bayesonline",
+		"saveto": "online.estimator",
+		"savetojson": true
+	}
+}
