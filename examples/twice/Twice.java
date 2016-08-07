@@ -39,9 +39,11 @@ public class Twice extends PilotsRuntime {
                 public void run() {
                     Value a = new Value();
                     Value b = new Value();
+                    Value c = new Value();
 
                     a.setValue( getData( "a", new Method( Method.Closest, "t" ) ) );
                     b.setValue( getData( "b", new Method( Method.Closest, "t" ) ) );
+                    c.setValue( getData( "c", new Method( Method.Predict, "0", "a", "b" ) ) );
                     double o = b.getValue()-2*a.getValue();
 
                     dbgPrint( "o=" + o + " at " + getTime() );

@@ -1,0 +1,21 @@
+{
+	"data":{
+		"file": ["data/training.csv"],
+		"type": "csv",
+		"header_type": "csvheader",
+		"schema": "data/schema.json",
+		"constants": {"s": 61.0}
+	},
+	"preprocessing":{
+		"unit_transformation": {"v":"m/s", "p":"pascal","t":"kelvin","w":"newton","a":"radian"}
+	},
+	"model":{
+		"features": ["{a}"],
+		"labels": ["2*{w}/({v}**2*({p}/286.9/{t})*{s})"],
+		"algorithm":{
+		"id": "linearregression",
+		"param": {},
+		"save_file": "regression.estimator"
+		}
+	}
+}

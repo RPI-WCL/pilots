@@ -65,10 +65,74 @@ e.g. [[1.0]] # subject to be revised
 ___
 * Java Client: call Client.predict(String model_name, Map<String, Double> field_value_pairs) to get a double[] return value.
 
+## Train Learning Model
+### Load Training Configuration file
+
+~~~
+python jsonconf.py <train configuration file>
+~~~
+
+### Add learning model
+in file learning_models.py, add line:
+
+~~~
+MODEL["model_name"] = LearningModel()
+~~~
+
+### Write Training Configuration file
+create a json file with requested fields:
+
+```javascript
+{
+	"data":{
+		"file": "<data file>",
+		"type": "<file parser ( defined in scparser.py ) >",
+		"header_type": "<header parser ( defined in scparser.py ) >",
+		"column_names": ["col_1 id", "col_2 id",...],
+		(optional) "column_units": ["col_1 unit","col_2 unit",...],
+		(optional) "constants": {"constant id": constant number value},
+		"transformer":{
+			(optional) "unit_transformation": ["col_1 unit","col_2 unit",...],
+			"features": ["feature_1", "feature_2",...], 
+			"labels": ["label_1", "label_2",...]
+			// feature/labels format: comply to python format, each column id should be surrounded by { }.
+		}
+	},
+	"trainer":{
+		"model": "model name", // defined in learning_models.py
+		"saveto": "file path to save the estimator",
+		"savetojson": false // set true if the model should be saved in json format ( this will call model.tojson() )
+	}
+}
+```
+
+#### example:
+
+```javascript
+{
+	"data":{
+		"file": "data/thetrain.csv",
+		"type": "csv",
+		"header_type": "csvheader",
+		"column_names": ["v","p","t","a","w"],
+		"column_units": ["knot","in_Hg","celsius","degree","force_pound"],
+		"constants": {"s": 61.0},
+		"transformer":{
+			"unit_transformation": ["m/s", "pascal","kelvin","radian","newton"],
+			"features": ["{a}"],
+			"labels": ["2*{w}/({v}**2*({p}/286.9/{t})*{s})"]
+		}
+	},
+	"trainer":{
+		"model": "linearregression",
+		"saveto": "regression.estimator",
+		"savetojson": false
+	}
+}
+```
 
 ## Programming Tutorial
-## Train Learning Model
-currently it supports running python defined file.
+
 ### steps:
 * create base environment, each environment corresponds to one learning model.
 

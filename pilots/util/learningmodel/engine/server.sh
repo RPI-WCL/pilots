@@ -1,2 +1,2 @@
-export FLASK_APP="baseserver.py"
+export FLASK_APP="server.py"
 flask run

@@ -1,0 +1,1 @@
+java -DXseriesColors=magenta -DchartTitle="XPlane ATR72 Weight Error Simulation" -DxAxisLegend="Time" -DyAxisLegend="Weight(N)" -DtimeRange="2016-07-22 004837-0400~2016-07-22 010710-0400" -DvalueRange="100000~200000" pilots.util.ChartServer 9999

@@ -16,10 +16,10 @@ public class DataStore extends DebugPrint {
     private static CurrentLocationTimeService currLocTime_ = null;
     private static Comparator<SpatioTempoData> distComparator_ = null;
     private static int MAX_DATA_NUM = 10;
-
+    private static Map<String, Method[]> methodDictionary = new HashMap<>();
     private String[] varNames_;
     private Vector<SpatioTempoData> data_;
-    private Map<String, Method[]> methodDictionary;
+
     
     public DataStore( String[] varNames ) {
         varNames_ = new String[varNames.length];
@@ -356,9 +356,7 @@ public class DataStore extends DebugPrint {
     	methodDictionary.put(varName, methods);
     }
     public synchronized Method[] getMethods(String varName){
-    	Method[] result = new Method[1];
-        result[0] = new Method(Method.Closest, "t");
-        return result;
+        return methodDictionary.get(varName);
     }
     private synchronized Map<String, Double> getDatas(String[] varNames){
     	Map<String, Double> result = new HashMap<>();
@@ -374,8 +372,7 @@ public class DataStore extends DebugPrint {
     }
     // editted: every time getData is called, register the current method 
     public synchronized Double getData( String varName, Method[] methods ) {
-    	// register the current method
-    	registerMethods(varName, methods);
+        registerMethods(varName, methods);
         Vector<SpatioTempoData> workData = new Vector<SpatioTempoData>();
         workData = data_;  // shallow copy
 

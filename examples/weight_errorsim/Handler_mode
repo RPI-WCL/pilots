@@ -1,0 +1,1 @@
+java -DXseriesColors=blue -DchartTitle="XPlane ATR72 Weight Error Mode" -DxAxisLegend="Time" -DyAxisLegend="Mode" -DtimeRange="2016-07-22 004837-0400~2016-07-22 010710-0400" -DvalueRange=-1~4 pilots.util.ChartServer 9998

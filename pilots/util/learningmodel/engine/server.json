@@ -1,0 +1,16 @@
+{  
+   "models":[
+      {  
+         "id":"1",
+         "model":"regression.estimator",
+         "translation": {"aoa": "a"},
+         "update": false
+      },
+      {
+         "id":"bayes",
+         "model":"bayes_online.estimator",
+         "translation": {"v_a": "v"},
+         "update": true
+      }
+   ]
+}
