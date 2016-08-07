@@ -1,0 +1,20 @@
+{
+	"data":{
+		"file": "data/thetrain.csv",
+		"type": "csv",
+		"header_type": "csvheader",
+		"column_names": ["v","p","t","a","w"],
+		"column_units": ["knot","in_Hg","celsius","degree","force_pound"],
+		"constants": {"s": 61.0},
+		"transformer":{
+			"unit_transformation": ["m/s", "pascal","kelvin","radian","newton"],
+			"features": ["{a}"],
+			"labels": ["2*{w}/({v}**2*({p}/286.9/{t})*{s})"]
+		}
+	},
+	"trainer":{
+		"model": "linearregression",
+		"saveto": "regression.estimator",
+		"savetojson": false
+	}
+}
