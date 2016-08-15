@@ -20,6 +20,7 @@ PARSER_END(PilotsParser)
 /***************************************/
 /********** TOKEN DEFINITIONS **********/
 /***************************************/
+/* Terminals */
 
 TOKEN_MGR_DECLS :
 {
@@ -48,7 +49,8 @@ SKIP : {
 
 
 /*** The keywords ***/
-TOKEN : {
+TOKEN : /* RESERVED TOKENS */
+{
 <PROGRAM_START : "program">
 | <INPUTS: "inputs">
 | <OUTPUTS: "outputs">
@@ -62,6 +64,7 @@ TOKEN : {
 | <EUCLIDEAN: "euclidean">
 | <INTERPOLATE: "interpolate">
 | <PREDICT: "predict">
+| <ESTIMATE: "estimate">
 | <NSEC: "nsec">
 | <USEC: "usec">
 | <MSEC: "msec">
@@ -80,7 +83,8 @@ TOKEN : {
 | <PROGRAM_END: "end">
 }
 
-TOKEN : {
+TOKEN : /* Normal Tokens */
+{
 <#DIGIT : ["0"-"9"]>
 | <LPAR: "(">
 | <RPAR: ")">
@@ -90,7 +94,6 @@ TOKEN : {
 | <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
 | <#LETTER : ["A"-"Z","a"-"z","_"]>
 | <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
-// | <STRING : "\"" (~["\""])* "\"" | "'" (~["'"])* "'" >
 | <STRING : "\"" (~["\""])* "\"" >
 }
 
@@ -98,7 +101,7 @@ TOKEN : {
 /**************************************/
 /********** START OF GRAMMAR **********/
 /**************************************/
-
+/* Non-terminals */
 ASTPilots Pilots(): 
 {/*@bgen(jjtree) Pilots */
     ASTPilots jjtn000 = new ASTPilots(JJTPILOTS);
@@ -267,22 +270,65 @@ void Signature():
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
 /*@egen*/
-    String constant = null, exps;
+    String constant = "", exps;
     Token t1, t2, t3 = null;
 }
 {/*@bgen(jjtree) Signature */
     try {
 /*@egen*/
-    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? ";"/*@bgen(jjtree)*/
+    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? (Estimate())? ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
 /*@egen*/
-    { if (t3 == null) 
-          jjtn000.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps );
-      else
-          jjtn000.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps + ":" + t3.image ); }/*@bgen(jjtree)*/
+    { 
+        if (t3 != null)
+            jjtn000.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps + ":" + t3.image); 
+        else
+            jjtn000.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps);         
+    }/*@bgen(jjtree)*/
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        throw (RuntimeException)jjte000;
+      }
+      if (jjte000 instanceof ParseException) {
+        throw (ParseException)jjte000;
+      }
+      throw (Error)jjte000;
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+      }
+    }
+/*@egen*/
+}
+
+void Estimate():
+{/*@bgen(jjtree) Estimate */
+    ASTEstimate jjtn000 = new ASTEstimate(JJTESTIMATE);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    String exp = "";
+    Token t1;
+}
+{/*@bgen(jjtree) Estimate */
+    try {
+/*@egen*/
+    <ESTIMATE> t1 = <VAR> "=" exp = Exp()/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    { jjtn000.jjtSetValue( t1.image + ":" + exp); }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);

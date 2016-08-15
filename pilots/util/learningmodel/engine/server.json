@@ -11,6 +11,12 @@
          "model":"bayes_online.estimator",
          "translation": {"v_a": "v"},
          "update": true
+      },
+      {
+         "id": "cruise",
+         "model":"cruise.estimator",
+         "translation": {},
+         "update": false
       }
    ]
 }

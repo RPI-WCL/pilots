@@ -16,6 +16,7 @@ PARSER_END(PilotsParser)
 /***************************************/
 /********** TOKEN DEFINITIONS **********/
 /***************************************/
+/* Terminals */
 
 TOKEN_MGR_DECLS :
 {
@@ -44,7 +45,8 @@ SKIP : {
 
 
 /*** The keywords ***/
-TOKEN : {
+TOKEN : /* RESERVED TOKENS */
+{
 <PROGRAM_START : "program">
 | <INPUTS: "inputs">
 | <OUTPUTS: "outputs">
@@ -58,6 +60,7 @@ TOKEN : {
 | <EUCLIDEAN: "euclidean">
 | <INTERPOLATE: "interpolate">
 | <PREDICT: "predict">
+| <ESTIMATE: "estimate">
 | <NSEC: "nsec">
 | <USEC: "usec">
 | <MSEC: "msec">
@@ -76,7 +79,8 @@ TOKEN : {
 | <PROGRAM_END: "end">
 }
 
-TOKEN : {
+TOKEN : /* Normal Tokens */
+{
 <#DIGIT : ["0"-"9"]>
 | <LPAR: "(">
 | <RPAR: ")">
@@ -86,7 +90,6 @@ TOKEN : {
 | <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
 | <#LETTER : ["A"-"Z","a"-"z","_"]>
 | <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
-// | <STRING : "\"" (~["\""])* "\"" | "'" (~["'"])* "'" >
 | <STRING : "\"" (~["\""])* "\"" >
 }
 
@@ -94,7 +97,7 @@ TOKEN : {
 /**************************************/
 /********** START OF GRAMMAR **********/
 /**************************************/
-
+/* Non-terminals */
 ASTPilots Pilots(): 
 {
     Token t;
@@ -140,15 +143,27 @@ void Error():
 
 void Signature():
 {
-    String constant = null, exps;
+    String constant = "", exps;
     Token t1, t2, t3 = null;
 }
 {
-    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? ";"
-    { if (t3 == null) 
-          jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps );
-      else
-          jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps + ":" + t3.image ); }
+    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? (Estimate())? ";"
+    { 
+        if (t3 != null)
+            jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps + ":" + t3.image); 
+        else
+            jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps);         
+    }
+}
+
+void Estimate():
+{
+    String exp = "";
+    Token t1;
+}
+{
+    <ESTIMATE> t1 = <VAR> "=" exp = Exp()
+    { jjtThis.jjtSetValue( t1.image + ":" + exp); }
 }
 
 void Correct():

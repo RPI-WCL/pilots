@@ -12,7 +12,10 @@ def make_json(npmatrix):
         @param: npmatrix ( a ndarray, column matrix )
         @return: a json_string representing the npmatrix, key is column index, value is corresponding column matrix
     '''    
-    return json.dumps({'value': npmatrix.tolist()})
+
+    s = json.dumps({'value': npmatrix.tolist()})
+    print s
+    return s
 interface = InterfaceIO.InterfaceIO(config)
 
 @app.route("/")

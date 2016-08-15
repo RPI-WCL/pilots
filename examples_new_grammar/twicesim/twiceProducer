@@ -1,0 +1,2 @@
+java pilots.util.FileInputProducer ../../data/Twice/a.txt
+java pilots.util.FileInputProducer ../../data/Twice/b.txt

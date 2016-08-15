@@ -146,6 +146,15 @@ class BaseEnv():
         return data
 
     @staticmethod
+    def differential(npmatrix, **parameters):
+        order = parameters['order']
+        for o in xrange(order):
+            a = np.zeros((npmatrix.shape[0]-1, npmatrix.shape[1]))
+            for i in xrange(npmatrix.shape[0]-1):
+                a[i,:] = npmatrix[i+1] - npmatrix[i]
+            npmatrix = a
+        return npmatrix
+    @staticmethod
     def generate_transformer(feature_list, schema, constant):
         '''
             @return lambda expression which will transform a matrix/ndarray/array-like to np.array. Every element is defined by feature_list

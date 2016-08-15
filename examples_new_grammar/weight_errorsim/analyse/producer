@@ -1,0 +1,2 @@
+java pilots.util.FileInputProducer ../../../data/weightErrorTesting/real.txt
+java pilots.util.FileInputProducer ../../../data/weightErrorTesting/error.txt

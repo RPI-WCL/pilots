@@ -1,0 +1,301 @@
+options{
+    MULTI=true;
+    VISITOR=true;
+    STATIC=false;
+}
+
+PARSER_BEGIN(PilotsParser)
+package pilots.compiler.parser;
+import java.io.*;
+
+public class PilotsParser {
+
+}
+PARSER_END(PilotsParser)
+
+/***************************************/
+/********** TOKEN DEFINITIONS **********/
+/***************************************/
+
+TOKEN_MGR_DECLS :
+{
+  static int commentNesting;  // Current level of nesting of comments
+}
+
+
+/*** Skip whitespace and comments ***/
+SKIP : {
+" "
+| "\t"
+| "\n"
+| "\r"
+| "\r\n"
+| "/*"  { commentNesting=1; } : IN_COMMENT
+}
+<IN_COMMENT> MORE:
+{
+  < ~[] >
+}
+<IN_COMMENT> SKIP:
+{
+  < "/*" > { commentNesting++; } 
+| < "*/" > { commentNesting--; if (commentNesting==0) SwitchTo(DEFAULT); }
+}
+
+
+/*** The keywords ***/
+TOKEN : {
+<PROGRAM_START : "program">
+| <INPUTS: "inputs">
+| <OUTPUTS: "outputs">
+| <ERRORS: "errors">
+| <SIGNATURES: "signatures">
+| <CORRECTS: "correct">
+| <USING: "using">
+| <AT: "at">
+| <EVERY: "every">
+| <CLOSEST: "closest">
+| <EUCLIDEAN: "euclidean">
+| <INTERPOLATE: "interpolate">
+| <PREDICT: "predict">
+| <NSEC: "nsec">
+| <USEC: "usec">
+| <MSEC: "msec">
+| <SEC: "sec">
+| <MIN: "min">
+| <HOUR: "hour">
+| <DAY: "day">
+| <SQRT: "sqrt">
+| <SIN: "sin">
+| <COS: "cos">
+| <TAN: "tan">
+| <ARCSIN: "asin">
+| <ARCCOS: "acos">
+| <ARCTAN: "atan">
+| <ABS: "abs">
+| <PROGRAM_END: "end">
+}
+
+TOKEN : {
+<#DIGIT : ["0"-"9"]>
+| <LPAR: "(">
+| <RPAR: ")">
+| <COMMA: ",">
+| <INTEGER : ("+" | "-")? (<DIGIT>)+>
+| <#SCALEFACTOR : ("E" | "e") ("+" | "-")? (<DIGIT>)+>
+| <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
+| <#LETTER : ["A"-"Z","a"-"z","_"]>
+| <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
+// | <STRING : "\"" (~["\""])* "\"" | "'" (~["'"])* "'" >
+| <STRING : "\"" (~["\""])* "\"" >
+}
+
+
+/**************************************/
+/********** START OF GRAMMAR **********/
+/**************************************/
+
+ASTPilots Pilots(): 
+{
+    Token t;
+}
+{
+    <PROGRAM_START> t = <VAR> { jjtThis.jjtSetValue( t.image ); } ";"
+        <INPUTS> (";" | (Input())*)
+        <OUTPUTS> (";" | (Output())*)
+        (<ERRORS> (";" | (Error())*))?
+        (<SIGNATURES> (";" | (Signature())*))?
+        (<CORRECTS> (";" | (Correct())*))?
+    <PROGRAM_END> (";")?
+    { return jjtThis; }
+}
+
+void Input(): 
+{
+    String str;
+}
+{
+    str = Vars() 
+    { jjtThis.jjtSetValue( str ); }
+    Dim() <USING> Methods() ";"
+}
+
+void Output(): 
+{
+    String str, exps, time;
+}
+{
+    str = Vars() ":" exps = Exps() <AT> <EVERY> time = Time() ";"
+    { jjtThis.jjtSetValue( str + ":" + exps + ":" + time ); }
+}
+
+void Error():
+{
+    String str, exps;
+}
+{
+    str = Vars() ":" exps = Exps() ";"
+    { jjtThis.jjtSetValue( str + ":" + exps ); }
+}
+
+void Signature():
+{
+    String constant = null, exps;
+    Token t1, t2, t3 = null;
+}
+{
+    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? ";"
+    { if (t3 == null) 
+          jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps );
+      else
+          jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps + ":" + t3.image ); }
+}
+
+void Correct():
+{
+    String constant = null, exp;
+    Token t1, t2;
+}
+{
+    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exp = Exp() ";"
+    { jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exp ); }
+}
+
+
+String Vars(): 
+{
+    Token t;
+    String str;
+}
+{
+    t = <VAR> { str = t.image; }
+    ("," t = <VAR> { str += "," + t.image; })* 
+    { return str; }
+}
+
+String Const():
+{
+    Token t;
+    String str;
+}
+{
+    "(" t = <VAR> { str = t.image; } ")"
+    { return str; }                                     
+}
+
+void Dim(): {}
+{
+    // "(t)" | "(x,t)" | "(x,y,t)" | "(x,y,z,t)"
+    // "(" ["x," ["y,"["z,"]]] "t" ")"
+    // "(" ["x," ["y,"["z,"]]] <VAR> ")"
+    "(" Exps() ")"      // workaround to avoid conflicts with the arguments for Method()
+}
+
+void Method(): 
+{
+    Token t;
+    String id, args;
+}
+{
+    
+    (t = <CLOSEST> { id = t.image; } 
+     | t = <EUCLIDEAN> { id = t.image; } 
+     | t = <INTERPOLATE> { id = t.image; }
+     | t = <PREDICT> { id = t.image; } )
+    "(" args = Exps() ")"
+    { jjtThis.jjtSetValue( id + ":" + args ); } 
+}
+
+void Methods(): {}
+{
+    Method() ("," Method())*
+}
+
+String Time(): 
+{
+    Token t;
+    String number;
+}
+{
+    number = Number() (
+    t = <NSEC> { return number + ":" + t.image; }
+    | t = <USEC> { return number + ":" + t.image; }
+    | t = <MSEC> { return number + ":" + t.image; }
+    | t = <SEC>  { return number + ":" + t.image; }
+    | t = <MIN>  { return number + ":" + t.image; }
+    | t = <HOUR>  { return number + ":" + t.image; }
+    | t = <DAY>  { return number + ":" + t.image; }
+    )
+}
+
+String Exps(): 
+{
+    String exp, temp;
+}
+{
+    exp = Exp() ("," temp = Exp() { exp += "," + temp; } )*
+    { return exp; }
+}
+
+String Exp(): 
+{
+    String func, exps, exp, exp2, value, temp;
+}
+{
+    func = Func() "(" exps = Exps() ")" exp2 = Exp2() { return func + "(" + exps + ")" + exp2; } 
+    | "(" temp = Exp() ")" exp2 = Exp2() { return "(" + temp + ")" + exp2; } 
+    | value = Value() exp2 = Exp2() { return value + exp2; }
+}
+
+String Exp2(): 
+{
+    String func, exp, exp2;
+}
+{
+    func = Func() exp = Exp() exp2 = Exp2() { return func + exp + exp2; } 
+    | {} { return ""; }
+}
+
+String Func(): 
+{
+    Token t;
+}
+{
+    t = "+" { return t.image; }
+    | t = "-" { return t.image; }
+    | t = "*" { return t.image; }
+    | t = "/" { return t.image; }
+    | t = "^" { return t.image; }
+    | t = ">" { return t.image; }
+    | t = ">=" { return t.image; }
+    | t = "<" { return t.image; }
+    | t = "<=" { return t.image; }
+    | t = "!=" { return t.image; }
+    | t = <SQRT> { return t.image; }
+    | t = <SIN> { return t.image; }
+    | t = <COS> { return t.image; }
+    | t = <TAN> { return t.image; }
+    | t = <ARCSIN> { return t.image; }
+    | t = <ARCCOS> { return t.image; }
+    | t = <ARCTAN> { return t.image; }
+    | t = <ABS> { return t.image; }
+}
+
+String Number(): 
+{
+    Token t;
+}
+{
+    t = <INTEGER> { return t.image; }
+    | t = <REAL> { return t.image; }
+}
+
+String Value(): 
+{
+    Token t;
+    String number;
+}
+{
+    number = Number() { return number; }
+    | t = <VAR> { jjtThis.jjtSetValue( t.image ); } { return t.image; }
+}

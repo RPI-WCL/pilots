@@ -1,6 +1,7 @@
 import json
 import sys
 import time
+import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
 
 import scbase.baseenv as baseenv
@@ -9,7 +10,7 @@ import scbase.parser as parser
 from interface.keys import TrainKey as K
 from scbase.model import Model
 def train_model(json_file_name):
-	_load(json_file_name)
+	return _load(json_file_name)
 
 def test_model(json_file_name):
 	env = baseenv.BaseEnv()
@@ -40,11 +41,12 @@ def read_data(env, json_dict):
 	if K.S_U in schema:
 		unit_dict = makedict(schema[K.S_N], map(lambda(name): {'unit': name}, schema[K.S_U]))
 		env.update_variable_info(**unit_dict)
-
 def read_preprocess(env, json_dict):
+	# this part could be modulized
 	if K.P_UT in json_dict: 
 		env.set_data(env.transform(baseenv.BaseEnv.unit_transformer, schema=env.get_schema_info(), units=json_dict[K.P_UT]))
-
+	if 'differential' in json_dict:
+		env.set_data(env.transform(baseenv.BaseEnv.differential, order=json_dict['differential']))
 def read_model(env, json_dict):
 	feature_symbol = None
 	label_symbol = None
@@ -91,12 +93,11 @@ def makedict(list1, list2):
 	return result
 
 if __name__ == '__main__':
-	predicted, real = test_model("definitions/bayes_config_test.json")
-	import matplotlib.pyplot as plt
-	import numpy as np
-	plt.scatter(np.linspace(0, predicted.shape[0], predicted.shape[0]), predicted.tolist())
-	plt.show()
-	# if len(sys.argv) != 2:
-	# 	print "usage: <training file_name>"
-	# else:
-	# 	load__(sys.argv[1])
+	json_file = sys.argv[1]
+	env = train_model("definitions/cruise.json")
+	# predicted, real = test_model("definitions/bayes_config_test.json")
+	# train_model("definitions/bayes_config.json")
+	# train_model("definitions/regression_config.json")
+
+	# load_model("regression.estimator")
+	# load_model("bayes_online.estimator")

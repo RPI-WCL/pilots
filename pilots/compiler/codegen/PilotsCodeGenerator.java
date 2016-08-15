@@ -684,14 +684,30 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         // System.out.println( "ASTSignature: value=" + node.jjtGetValue() + 
         //                     ",#children=" + node.jjtGetNumChildren() +
         //                     ",data=" + data );
-
+        // System.out.println("last children=" + node.jjtGetChild(node.jjtGetNumChildren() - 1));
         String[] str = ((String) node.jjtGetValue()).split( ":" );
-        // for (int i = 0; i < str.length; i++) 
-        //     System.out.println( "Signature, str[" + i + "]=" + str[i] );
-
         Signature sig = new Signature( str[0], str[1], str[3], str[4] );
         sigs_.add( sig );
+        node.jjtGetChild(node.jjtGetNumChildren() - 1).jjtAccept(this, null); // this should be exactly here, otherwise it will generate wrong result
+        goUp();
+        return null;
+    }
+    public Object visit(ASTEstimate node, Object data){
+        goDown("estimate");
+        // BECAREFUL!! THIS WHOLE THING IS HACKED ONLY, IT DOESN'T COMPLY TO ANY DESIGN PATTERN!
 
+        // System.out.println( "ASTEstimate: value=" + node.jjtGetValue() + 
+        //                     ",#children=" + node.jjtGetNumChildren() +
+        //                     ",data=" + data );
+
+        String[] str = ((String) node.jjtGetValue()).split( ":" );
+        String variable = str[0]; String expression = str[1];
+        int mode = -1;
+        mode = sigs_.size() - 1;
+        String sig_name = sigs_.get(mode).getName();
+        String argument = sigs_.get(mode).getArg();
+        Correct correct = new Correct( mode, sig_name, argument, variable, expression);
+        corrects_.add( correct ); 
         goUp();
         return null;
     }
@@ -734,8 +750,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public Object visit(ASTConst node, Object data) {
         goDown( "Const" );        
-        // System.out.println( "ASTConst: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
-
         goUp();
         return null;
     }
@@ -794,7 +808,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public Object visit(ASTExps node, Object data) {
         goDown( "Exps" );
-        // System.out.println( "ASTExps: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+//        System.out.println( "ASTExps: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
         acceptChildren( node, data );
         goUp();
         return null;

@@ -56,11 +56,7 @@ I-1
 I0
 tp23
 bI00
-<<<<<<< HEAD
 S'Q\xd6qk\x81l\xde?'
-=======
-S'\xe7o)\x1cW\x17\xb1?'
->>>>>>> 7bec7c0465fa8439d33a21e463785bb72039d739
 p24
 tp25
 bsS'coef_'
@@ -78,11 +74,7 @@ I1
 tp30
 g21
 I00
-<<<<<<< HEAD
 S'\xd2\\\x9e\xea*\x8e\x19@'
-=======
-S'\x1dA\xf2\xc0\xde1\x19@'
->>>>>>> 7bec7c0465fa8439d33a21e463785bb72039d739
 p31
 tp32
 bsS'copy_X'
@@ -102,11 +94,7 @@ Rp37
 tp38
 g21
 I00
-<<<<<<< HEAD
 S'\x93\x84\xb8\xbd\x85\xf7\xd6?'
-=======
-S'%\xfb8\xc1\n\xfa\xd6?'
->>>>>>> 7bec7c0465fa8439d33a21e463785bb72039d739
 p39
 tp40
 bsS'singular_'
@@ -123,17 +111,12 @@ Rp44
 tp45
 g21
 I00
-<<<<<<< HEAD
 S';\xa90\xac\xd4\x00\xf8?'
-=======
-S'\x07E0\xff\x19\n\xec?'
->>>>>>> 7bec7c0465fa8439d33a21e463785bb72039d739
 p46
 tp47
 bsb(lp48
 V{a}
 p49
-<<<<<<< HEAD
 a(lp50
 V2*{w}/({v}**2*({p}/286.9/{t})*{s})
 p51
@@ -147,11 +130,4 @@ g54
 Vlinearregression
 p55
 tp56
-=======
-a(dp50
-Vs
-p51
-F61.0
-stp52
->>>>>>> 7bec7c0465fa8439d33a21e463785bb72039d739
 .
