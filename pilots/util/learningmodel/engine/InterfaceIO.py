@@ -39,4 +39,5 @@ class InterfaceIO(object):
 if __name__ == '__main__':
 	interface = InterfaceIO("server.json")
 	print interface.models['bayes'].model.estimator.print_states()
+	
 	interface.close()
