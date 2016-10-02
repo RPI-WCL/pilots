@@ -1,4 +1,4 @@
-README for PILOTS ver 0.3
+README for PILOTS ver 0.31
 ===============================================
 
 PILOTS (**P**rogramm**I**ng **L**anguage for spati**O**-**T**emporal data **S**treaming applications) is a highly declarative programming language for spatio-temporal streaming applications.
