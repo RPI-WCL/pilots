@@ -41,18 +41,20 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
   $ source setenv
   ~~~
 
+* **(Optional) Predictive Function setup**
+
+	If you decide to use the predictive function in PILOTS, please see [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) for instruction.
+
 * **Running example PILOTS programs**: See [PILOTS tutorial](https://wcl.cs.rpi.edu/pilots/tutorial/index.html).
 
 4. What's New in This Version
 ----------------------------------------------------------------------------------------------
-* **Connectivity to the X-Plane flight simulator**: PILOTS can now directly ingest data streams from [X-Plane](http://www.x-plane.com). Go to [pilots/util/xplane/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/xplane) directory for details.
+* **Simulated Weight Error example**: We gave an example to show the ability to solve sensor failure problems using predictive models with error signatures and error functions. Go to [pilots/examples/weight_errorsim](https://github.com/RPI-WCL/pilots/tree/master/examples/weight_errorsim) directory for details.
 
-* **Alternative wind data computation method for the Air France 447 example**: Instead of using potentially inaccurate wind forecast data, we estimate wind data from airspeed and ground speed for better accuracy and use it to correct data in case of errors. Go to [pilots/examples/airfrancesim_new](https://github.com/RPI-WCL/pilots/tree/master/examples/airfrancesim_new) directory for details.
+* **Updated Syntax**: The syntax is updated, Go to [PILOTS tutorial](http://wcl.cs.rpi.edu/pilots/tutorial/index.html) for reference. The backward compability for old syntax will be removed in the next version. Go to [pilots/examples\_new\_grammar/](https://github.com/RPI-WCL/pilots/tree/master/examples_new_grammar/) directory for examples in new PILOTS syntax.
 
-* **Proof-of-concept model learning utility**: Toward future integration of a model learning capability to PILOTS, we developed a utility program to learn model parameters from input data streams. 
-Go to [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) for details.
-
-
+* **Predictive Function**: We implemented a machine learning unility module for training predictive models easily.
+Go to [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) for tutorial and reference.
 
 5. Limitations
 ----------------------------------------------------------------------------------------------
