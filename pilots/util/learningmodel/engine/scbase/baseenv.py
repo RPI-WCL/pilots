@@ -193,7 +193,7 @@ class BaseEnv():
         '''
         schema = parameters['schema']; constant = parameters['constant']; definition = parameters['definition']
         def_transformer = BaseEnv.generate_transformer(definition, schema, constant)
-        X = np.apply_along_axis(def_transformer, 1, npmatrix)
+        X = np.apply_along_axis(def_transformer, 1, np.asarray(npmatrix))
         return X
 
     def train_model(self,estimator):
