@@ -8,6 +8,10 @@ import pilots.compiler.codegen.Constraint;
 import pilots.runtime.Value;
 
 public class Signature {
+
+    //change to true if you want console printout statements
+    public static final boolean DEBUG = false;
+
     public static final int CONST = 0;
     public static final int LINEAR = 1;
     private static int global_id = 0;
@@ -62,8 +66,12 @@ public class Signature {
     public void parseExps( String exps ) throws ParseException {
 
         String[] splitExps = exps.split( "," );
-        // for (int i = 0; i < splitExps.length; i++) 
-        //     System.out.println( "parseExps, splitExps[" + i + "]=" + splitExps[i] );
+
+        //detailed console printout:
+        if(DEBUG){
+            for (int i = 0; i < splitExps.length; i++) 
+                System.out.println( "parseExps, splitExps[" + i + "]=" + splitExps[i] );
+        }
 
         if (splitExps.length == 0) {
             throw new ParseException( "no expression found in the signature", 0 );
@@ -129,7 +137,11 @@ public class Signature {
            i-- ;
         }
         tokens[0] = exp.substring( i+1, multIndex );
-        // System.out.println( "extractValue, tokens[0]=" + tokens[0] );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "extractValue, tokens[0]=" + tokens[0] );
+        }
 
         // scan forwards
         int expLen = exp.length();
@@ -138,7 +150,11 @@ public class Signature {
            i++ ;
         }
         tokens[1] = exp.substring( multIndex+1, i );
-        // System.out.println( "extractValue, tokens[1]=" + tokens[1] );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "extractValue, tokens[1]=" + tokens[1] );
+        }
 
         double value = -1.0;
         if (tokens[0].equalsIgnoreCase( "t" )) {
@@ -185,11 +201,19 @@ public class Signature {
         }
 
         tokens[0] = exp.substring( 0, i );
-        // System.out.println( "extractConstraints, tokens[0]=" + tokens[0] );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "extractConstraints, tokens[0]=" + tokens[0] );
+        }
 
         tokens[1] = exp.substring( j + 1 );
-        // System.out.println( "extractConstraints, tokens[1]=" + tokens[1] );
 
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "extractConstraints, tokens[1]=" + tokens[1] );
+        }
+        
         double value = -1.0;
         Vector<Constraint> constraints = null;
         Constraint constraint = null;

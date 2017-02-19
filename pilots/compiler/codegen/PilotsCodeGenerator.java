@@ -9,6 +9,10 @@ import pilots.compiler.parser.*;
 import pilots.runtime.*;
 
 public class PilotsCodeGenerator implements PilotsParserVisitor {
+
+    //change to true if you want console printout statements
+    public static final boolean DEBUG = false;
+
     private static final String TAB = "    ";
     private static int indent = 0;
 
@@ -55,9 +59,14 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     private void goDown( String node ) {
-        // for (int i = 0; i < depth; i++)
-        //     System.out.print( " " );
-        // System.out.println( node );
+
+        //detailed console printout:
+        if(DEBUG){
+            for (int i = 0; i < depth; i++)
+                System.out.print( " " );
+            System.out.println( node );
+        }
+        
         depth++;
     }
 
@@ -533,11 +542,16 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     protected void generateCode() {
         boolean correction = (0 < errors_.size() && 0 < sigs_.size());
-        // System.out.println( "####### correction=" + correction + 
-        //                     ",e=" + errors_.size() + 
-        //                     ",s=" + sigs_.size() + 
-        //                     ",c=" + corrects_.size() );
 
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "####### correction=" + correction + 
+                                ",e=" + errors_.size() + 
+                                ",s=" + sigs_.size() + 
+                                ",c=" + corrects_.size() );
+
+        }
+        
         generateImports();
         generateClassDeclaration();
         generateConstructor();
@@ -590,13 +604,24 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     public Object visit(ASTInput node, Object data) {
         goDown( "Input" );
 
-        // System.out.println( "ASTInput: value=" + node.jjtGetValue() + 
-        //                     ",#children=" + node.jjtGetNumChildren() +
-        //                     ",data=" + data );
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTInput: value=" + node.jjtGetValue() + 
+                                ",#children=" + node.jjtGetNumChildren() +
+                                ",data=" + data );
+        }
+        
         InputStream input = new InputStream();
         String[] varNames = ((String) node.jjtGetValue()).split( "," );
-        // for (int i = 0; i < varNames.length; i++) 
-        //     System.out.println( "Input, varNames=" + varNames[i] );
+
+
+        //detailed console printout:
+        if(DEBUG){
+            for (int i = 0; i < varNames.length; i++) 
+                System.out.println( "Input, varNames=" + varNames[i] );
+        }
+        
+
         input.setVarNames( varNames );
         inputs_.add( input );
 
@@ -609,15 +634,24 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     public Object visit(ASTOutput node, Object data) {
         goDown( "Output" );
 
-        // System.out.println( "ASTOutput: value=" + node.jjtGetValue() + 
-        //                     ",#children=" + node.jjtGetNumChildren() +
-        //                     ",data=" + data );
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTOutput: value=" + node.jjtGetValue() + 
+                                ",#children=" + node.jjtGetNumChildren() +
+                                ",data=" + data );
+        }
+        
         OutputStream output = new OutputStream();
         output.setOutputType( OutputType.Output );
 
         String[] str = ((String) node.jjtGetValue()).split( ":" );
-        // for (int i = 0; i < str.length; i++) 
-        //     System.out.println( "Output, str=" + str[i] );
+
+        //detailed console printout:
+        if(DEBUG){
+            for (int i = 0; i < str.length; i++) 
+                System.out.println( "Output, str=" + str[i] );
+        }
+        
 
         String[] varNames = str[0].split( "," );
         output.setVarNames( varNames );
@@ -655,15 +689,24 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     public Object visit(ASTError node, Object data) {
         goDown( "Error" );
 
-        // System.out.println( "ASTError: value=" + node.jjtGetValue() + 
-        //                     ",#children=" + node.jjtGetNumChildren() +
-        //                     ",data=" + data );
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTError: value=" + node.jjtGetValue() + 
+                                ",#children=" + node.jjtGetNumChildren() +
+                                ",data=" + data );
+        }
+        
         OutputStream output = new OutputStream();
         output.setOutputType( OutputType.Error );
 
         String[] str = ((String) node.jjtGetValue()).split( ":" );
-        // for (int i = 0; i < str.length; i++) 
-        //     System.out.println( "Output, str=" + str[i] );
+
+        //detailed console printout:
+        if(DEBUG){
+            for (int i = 0; i < str.length; i++) 
+                System.out.println( "Output, str=" + str[i] );
+        }
+        
 
         String[] varNames = str[0].split( "," );
         output.setVarNames( varNames );
@@ -681,10 +724,14 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     public Object visit(ASTSignature node, Object data) {
         goDown( "Signature" );
 
-        // System.out.println( "ASTSignature: value=" + node.jjtGetValue() + 
-        //                     ",#children=" + node.jjtGetNumChildren() +
-        //                     ",data=" + data );
-        // System.out.println("last children=" + node.jjtGetChild(node.jjtGetNumChildren() - 1));
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTSignature: value=" + node.jjtGetValue() + 
+                                ",#children=" + node.jjtGetNumChildren() +
+                                ",data=" + data );
+            System.out.println("last children=" + node.jjtGetChild(node.jjtGetNumChildren() - 1));
+        }
+
         String[] str = ((String) node.jjtGetValue()).split( ":" );
         Signature sig = new Signature( str[0], str[1], str[3], str[4] );
         sigs_.add( sig );
@@ -696,9 +743,14 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         goDown("estimate");
         // BECAREFUL!! THIS WHOLE THING IS HACKED ONLY, IT DOESN'T COMPLY TO ANY DESIGN PATTERN!
 
-        // System.out.println( "ASTEstimate: value=" + node.jjtGetValue() + 
-        //                     ",#children=" + node.jjtGetNumChildren() +
-        //                     ",data=" + data );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTEstimate: value=" + node.jjtGetValue() + 
+                                ",#children=" + node.jjtGetNumChildren() +
+                                ",data=" + data );
+        }
+        
 
         String[] str = ((String) node.jjtGetValue()).split( ":" );
         String variable = str[0]; String expression = str[1];
@@ -715,13 +767,22 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     public Object visit(ASTCorrect node, Object data) {
         goDown( "Correct" );
 
-        // System.out.println( "ASTCorrect: value=" + node.jjtGetValue() + 
-        //                     ",#children=" + node.jjtGetNumChildren() +
-        //                     ",data=" + data );
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTCorrect: value=" + node.jjtGetValue() + 
+                                ",#children=" + node.jjtGetNumChildren() +
+                                ",data=" + data );
+        }
+        
 
         String[] str = ((String) node.jjtGetValue()).split( ":" );
-        // for (int i = 0; i < str.length; i++) 
-        //     System.out.println( "Correct, str[" + i + "]=" + str[i] );
+
+        //detailed console printout:
+        if(DEBUG){
+            for (int i = 0; i < str.length; i++) 
+                System.out.println( "Correct, str[" + i + "]=" + str[i] );
+        }
+        
         
         int mode = -1;
         for (int i = 0; i < sigs_.size(); i++) {
@@ -741,8 +802,12 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     public Object visit(ASTVars node, Object data) {
-        goDown( "Vars" );        
-        // System.out.println( "ASTVars: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        goDown( "Vars" );  
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTVars: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        }      
 
         goUp();
         return null;
@@ -756,20 +821,35 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public Object visit(ASTDim node, Object data) {
         goDown( "Dim" );
-        // System.out.println( "ASTDim: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTDim: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        }
+
         goUp();
         return null;
     }
 
     public Object visit(ASTMethod node, Object data) {
         goDown( "Method" );
-        // System.out.println( "ASTMethod: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTMethod: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        }
+        
 
         InputStream input = (InputStream)data;
         String[] str = ((String) node.jjtGetValue()).split( ":" );
         String[] args = str[1].split( "," );
-        // System.out.println( "str[0]=" + str[0] );
-        // System.out.println( "str[1]=" + str[1] );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "str[0]=" + str[0] );
+            System.out.println( "str[1]=" + str[1] );
+        }
+        
 
         int id;
         if (str[0].equalsIgnoreCase( "closest" )) {
@@ -793,7 +873,13 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public Object visit(ASTMethods node, Object data) {
         goDown( "Methods" );
-        // System.out.println( "ASTMethods: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTMethods: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        }
+        
+        
         acceptChildren( node, data );
         goUp();
         return null;
@@ -801,14 +887,24 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public Object visit(ASTTime node, Object data) {
         goDown( "Time" );
-        // System.out.println( "ASTTime: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTTime: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        }
+
         goUp();
         return null;
     }
 
     public Object visit(ASTExps node, Object data) {
         goDown( "Exps" );
-//        System.out.println( "ASTExps: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTExps: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        }
+
         acceptChildren( node, data );
         goUp();
         return null;
@@ -816,7 +912,12 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public Object visit(ASTExp node, Object data) {
         goDown( "Exp" );
-        // System.out.println( "ASTExp: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTExp: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        }
+
         acceptChildren( node, data );
         goUp();
         return null;
@@ -824,7 +925,12 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public Object visit(ASTExp2 node, Object data) {
         goDown( "Exp2" );
-        // System.out.println( "ASTExp2: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTExp2: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        }
+
         acceptChildren( node, data );
         goUp();
         return null;
@@ -832,21 +938,36 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public Object visit(ASTFunc node, Object data) {
         goDown( "Func" );
-        // System.out.println( "ASTFunc: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTFunc: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        }
+
         goUp();
         return null;
     }
 
     public Object visit(ASTNumber node, Object data) {
         goDown( "Number" );
-        // System.out.println( "ASTNumber: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTNumber: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        }
+
         goUp();
         return null;
     }
 
     public Object visit(ASTValue node, Object data) {
         goDown( "Value" );
-        // System.out.println( "ASTValue: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+
+        //detailed console printout:
+        if(DEBUG){
+            System.out.println( "ASTValue: value=" + node.jjtGetValue() + ",#children="  + node.jjtGetNumChildren() );
+        }
+        
         if (data instanceof OutputStream && (node.jjtGetValue() != null)) {
             OutputStream output = (OutputStream)data;
             output.addDeclaredVarNames( (String)node.jjtGetValue() );
