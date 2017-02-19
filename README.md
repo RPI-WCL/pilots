@@ -9,7 +9,7 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
 
 1. Software Requirements
 ----------------------------------------------------------------------------------------------
-* Java JDK 1.6 or newer.
+* Java JDK 1.8 or newer.
 * (Optional) [JFreeChart](http://www.jfree.org/jfreechart/download.html) 1.0.14 or newer to visualize outputs from PILOTS applications.
 * (Optional) [JavaCC](http://javacc.java.net/) if you want to modify the PILOTS grammar.
   
