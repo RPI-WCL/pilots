@@ -225,6 +225,48 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         return newExp;
     }
 
+
+/*
+---------------------------------------------------------
+---------------------------------------------------------
+THE FOLLOWING IS IN PROGRESS (and not used yet):
+---------------------------------------------------------
+*/
+
+
+    //generate code for training learning model
+    protected void generate_LM_training(String filename) {
+
+        File given_file = new File(filename);
+
+        if(given_file.exists()){
+
+            String engineIO_path = "../../../pilots/util/learningmodel/engine/engineIO.py";
+
+            // "python ../../../pilots/util/learningmodel/engine/engineIO.py <definition_file>"
+            String training_command = "python" + " " + engineIO_path + " " + filename;
+
+
+            //the following is based on discussion from https://coderanch.com/t/419192/java/Runtime-getRuntime-exec-String-command:
+            try {
+                Process p = Runtime.getRuntime().exec(training_command);
+                BufferedReader in = new BufferedReader(
+                                    new InputStreamReader(p.getInputStream()));
+                String line = null;
+                while ((line = in.readLine()) != null) {
+                    System.out.println(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+/*
+---------------------------------------------------------
+---------------------------------------------------------
+*/
+
     protected void generateGetCorrectedData() {
         // get all input variables in vars
         Vector<String> vars = new Vector<String>();
