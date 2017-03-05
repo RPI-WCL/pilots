@@ -1,7 +1,7 @@
 program ATR72;
 	inputs
 		v_a, a, p, t, w (t) using closest(t);
-		cl (t) using predict(linear_regression, a);
+		cl (t) using predict(linear, a);
 	outputs
 		corrected_weight: w at every 1 sec;
 	errors
