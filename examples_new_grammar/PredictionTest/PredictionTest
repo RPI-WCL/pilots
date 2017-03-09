@@ -1,0 +1,1 @@
+java -DcurrLocTime=pilots.runtime.SimTimeService -DtimeSpan="2013-05-11 140001-0500~2013-05-11 140800-0500" PredictionTest -input=8888 -outputs=127.0.0.1:9999 -tau=0.6 -omega=10
