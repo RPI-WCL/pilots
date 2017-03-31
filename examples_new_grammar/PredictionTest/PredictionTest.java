@@ -7,7 +7,7 @@ import pilots.runtime.errsig.*;
 
 public class PredictionTest extends PilotsRuntime {
     private int time_; // msec
-    private SlidingWindow win_difference_;
+    private SlidingWindow win_B_;
     private Vector<ErrorSignature> errorSigs_;
     private ErrorAnalyzer errorAnalyzer_;
 
@@ -20,16 +20,16 @@ public class PredictionTest extends PilotsRuntime {
 
         time_ = 0;
 
-        win_difference_ = new SlidingWindow( getOmega() );
+        win_B_ = new SlidingWindow( getOmega() );
 
         errorSigs_ = new Vector<ErrorSignature>();
 
         errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );
     }
 
-    public void startOutput_difference() {
+    public void startOutput_B() {
         try {
-            openSocket( OutputType.Output, 0, "difference" );
+            openSocket( OutputType.Output, 0, "B" );
         } catch ( Exception ex ) {
             ex.printStackTrace();
         }
@@ -38,16 +38,14 @@ public class PredictionTest extends PilotsRuntime {
         while (!isEndTime()) {
             Value a = new Value();
             Value b = new Value();
-            Value c = new Value();
 
             a.setValue( getData( "a", new Method( Method.Closest, "t" ) ) );
-            b.setValue( getData( "b", new Method( Method.Closest, "t" ) ) );
-            c.setValue( getData( "c", new Method( Method.Predict, "linear", "a" ) ) );
-            double difference = b.getValue()-c.getValue();
+            b.setValue( getData( "b", new Method( Method.Predict, "linear_regression_twice", "a" ) ) );
+            double B = b.getValue();
 
-            dbgPrint( "difference=" + difference + " at " + getTime() );
+            dbgPrint( "B=" + B + " at " + getTime() );
             try {
-                sendData( OutputType.Output, 0, difference );
+                sendData( OutputType.Output, 0, B );
             } catch ( Exception ex ) {
                 ex.printStackTrace();
             }
@@ -71,6 +69,6 @@ public class PredictionTest extends PilotsRuntime {
             ex.printStackTrace();
         }
 
-        app.startOutput_difference();
+        app.startOutput_B();
     }
 }

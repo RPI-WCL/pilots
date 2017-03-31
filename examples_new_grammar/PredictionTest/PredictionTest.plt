@@ -1,7 +1,7 @@
 program PredictionTest;
 	inputs
-		a,b (t) using closest (t);
-		c (t) using predict(linear, a);
+		a (t) using closest (t);
+		b (t) using predict(linear_regression_twice, a);
 	outputs
-		difference: b - c at every 1 sec;
+		B: b at every 1 sec;
 end
