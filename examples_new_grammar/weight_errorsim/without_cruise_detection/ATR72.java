@@ -5,13 +5,13 @@ import java.net.Socket;
 import pilots.runtime.*;
 import pilots.runtime.errsig.*;
 
-public class ATR72_Demo extends PilotsRuntime {
+public class ATR72 extends PilotsRuntime {
     private int time_; // msec
     private SlidingWindow win_corrected_weight_;
     private Vector<ErrorSignature> errorSigs_;
     private ErrorAnalyzer errorAnalyzer_;
 
-    public ATR72_Demo( String args[] ) {
+    public ATR72( String args[] ) {
         try {
             parseArgs( args );
         } catch (Exception ex) {
@@ -53,7 +53,7 @@ public class ATR72_Demo extends PilotsRuntime {
         p.setValue( getData( "p", new Method( Method.Closest, "t" ) ) );
         t.setValue( getData( "t", new Method( Method.Closest, "t" ) ) );
         w.setValue( getData( "w", new Method( Method.Closest, "t" ) ) );
-        cl.setValue( getData( "cl", new Method( Method.Predict, "1", "a" ) ) );
+        cl.setValue( getData( "cl", new Method( Method.Predict, "linear_regression", "a" ) ) );
         double e = (w.getValue()-p.getValue()*(v_a.getValue()*v_a.getValue())*61*cl.getValue()/(2*286.9*t.getValue()))/w.getValue();
 
         win.push( e );
@@ -77,8 +77,7 @@ public class ATR72_Demo extends PilotsRuntime {
 
     public void startOutput_corrected_weight() {
         try {
-            openSocket( OutputType.Output, 0, new String( "corrected_weight" ), new String( "measured weight") );
-            openSocket( OutputType.Output, 1, new String( "error signature" ) );            
+            openSocket( OutputType.Output, 0, new String( "corrected_weight" ) );
         } catch ( Exception ex ) {
             ex.printStackTrace();
         }
@@ -106,8 +105,7 @@ public class ATR72_Demo extends PilotsRuntime {
             dbgPrint( desc + ", corrected_weight=" + corrected_weight + " at " + getTime() );
 
             try {
-                sendData( OutputType.Output, 0, corrected_weight, w.getValue() );
-                sendData( OutputType.Output, 1, mode.getMode());
+                sendData( OutputType.Output, 0, corrected_weight );
             } catch ( Exception ex ) {
                 ex.printStackTrace();
             }
@@ -120,7 +118,7 @@ public class ATR72_Demo extends PilotsRuntime {
     }
 
     public static void main( String[] args ) {
-        ATR72_Demo app = new ATR72_Demo( args );
+        ATR72 app = new ATR72( args );
         app.startServer();
 
         BufferedReader reader = new BufferedReader( new InputStreamReader( System.in ) );
