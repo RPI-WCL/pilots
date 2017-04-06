@@ -7,4 +7,5 @@ linear_regression = LinearRegression
 linear_regression_twice = LinearRegression
 svr = SVR
 bayesonline = Bayes
+bayes_prediction_test = Bayes
 cruise_algorithm = CruiseAlgorithm

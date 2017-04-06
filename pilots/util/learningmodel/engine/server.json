@@ -12,6 +12,12 @@
          "translation": {},
          "update": false
       },
+      {  
+         "id":"bayes_prediction_test",
+         "model":"bayes_prediction_test.estimator",
+         "translation": {},
+         "update": true
+      },
       {
         "id":"cruise",
         "model":"cruise.estimator",
