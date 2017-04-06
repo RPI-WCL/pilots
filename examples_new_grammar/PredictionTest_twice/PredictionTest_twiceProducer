@@ -1,0 +1,2 @@
+java pilots.util.FileInputProducer ../../data/PredictionTest/a.txt
+java pilots.util.FileInputProducer ../../data/PredictionTest/c.txt
