@@ -14,7 +14,7 @@
 		"labels": ["{mode}"],
 		"algorithm":{
 		"id": "bayes_prediction_test",
-		"param": {"sigma_scale": 2, "threshold": 10},
+		"param": {"sigma_scale": 2, "threshold": 100},
 		"save_file": "bayes_prediction_test.estimator",
 		"serialize_function": "to_json",
 		"deserialize_function": "load_json"
