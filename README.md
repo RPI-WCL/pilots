@@ -13,14 +13,16 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
 * (Optional) [JFreeChart](http://www.jfree.org/jfreechart/download.html) 1.0.14 or newer to visualize outputs from PILOTS applications.
 * (Optional) [JavaCC](http://javacc.java.net/) if you want to modify the PILOTS grammar.
   
-2. Downloading PILOTS library and JFreeChart
+2. Downloading PILOTS library and its dependencies
 ----------------------------------------------------------------------------------------------
 * Download a PILOTS release either from [the PILOTS web site](http:/wcl.cs.rpi.edu/pilots/) or [the PILOTS github page](https://github.com/RPI-WCL/pilots).
 
 * Note that the directory containing this README is referred to as `$PILOTS_HOME`.
 
-* The jar files required for JFreeChart (jfreechart-1.0.14.jar and jcommon-1.0.17.jar) are included in the `$PILOTS_HOME/lib` directory.
-  These libraries are under the GNU LGPL (see `$PILOTS_HOME/lib/lgpl.html` for details).
+* Dependencies of the PILOTS library are included in `$PILOTS_HOME/lib`:
+
+ 1. JFreeChart requires `jfreechart-1.0.14.jar` and `jcommon-1.0.17.jar` ( GNU LGPL, see `$PILOTS_HOME/lib/lgpl.html` )
+ 2. Json operations require `Json-java.jar` ( The Json License, see `$PILOTS_HOME/lib/The JSON License.html` )
 
 
 3. Getting Started with PILOTS
@@ -43,18 +45,18 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
 
 * **(Optional) Predictive Function setup**
 
-	If you decide to use the predictive function in PILOTS, please see [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) for instruction.
+	If you decide to use the predictive function in PILOTS, please see [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/learn_dev/pilots/util/learningmodel) for instruction.
 
 * **Running example PILOTS programs**: See [PILOTS tutorial](https://wcl.cs.rpi.edu/pilots/tutorial/index.html).
 
 4. What's New in This Version
 ----------------------------------------------------------------------------------------------
-* **Simulated Weight Error example**: We gave an example to show the ability to solve sensor failure problems using predictive models with error signatures and error functions. Go to [pilots/examples/weight_errorsim](https://github.com/RPI-WCL/pilots/tree/master/examples/weight_errorsim) directory for details.
+* **Simulated Weight Error example**: We gave an example to show the ability to solve sensor failure problems using predictive models with error signatures and error functions. Go to [pilots/examples/weight_errorsim](https://github.com/RPI-WCL/pilots/tree/learn_dev/examples/weight_errorsim) directory for details.
 
-* **Updated Syntax**: The syntax is updated, Go to [PILOTS tutorial](http://wcl.cs.rpi.edu/pilots/tutorial/index.html) for reference. The backward compability for old syntax will be removed in the next version. Go to [pilots/examples\_new\_grammar/](https://github.com/RPI-WCL/pilots/tree/master/examples_new_grammar/) directory for examples in new PILOTS syntax.
+* **Updated Syntax**: The syntax is updated, Go to [PILOTS tutorial](http://wcl.cs.rpi.edu/pilots/tutorial/index.html) for reference. The backward compability for old syntax will be removed in the next version. Go to [pilots/examples\_new\_grammar/](https://github.com/RPI-WCL/pilots/tree/learn_dev/examples_new_grammar) directory for examples in new PILOTS syntax.
 
 * **Predictive Function**: We implemented a machine learning unility module for training predictive models easily.
-Go to [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) for tutorial and reference.
+Go to [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/learn_dev/pilots/util/learningmodel) for tutorial and reference.
 
 5. Limitations
 ----------------------------------------------------------------------------------------------
