@@ -1,7 +1,7 @@
 {  
    "models":[
       {  
-         "id":"linear",
+         "id":"linear_regression",
          "model":"linearRegression.estimator",
          "translation": {"aoa": "a"},
          "update": false
