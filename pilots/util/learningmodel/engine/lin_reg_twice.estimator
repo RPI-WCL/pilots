@@ -56,7 +56,7 @@ I-1
 I0
 tp23
 bI00
-S'\x00\x00\x00\x00D:\x8b:'
+S'\xde\x8ao\xa6\xb6b\xfa?'
 p24
 tp25
 bsS'singular_'
@@ -91,7 +91,7 @@ I1
 tp37
 g21
 I00
-S'\xfe\xff\xff\xff\xff\xff\xff?'
+S'\xa2\xe7\x89P\x00\x00\x00@'
 p38
 tp39
 bsS'_sklearn_version'
@@ -115,7 +115,7 @@ Rp46
 tp47
 g21
 I00
-S'\x00\x00\x00\x00\x00\x00 ='
+S'\x00\x00\xa5\xeb\xe7Sh?'
 p48
 tp49
 bsb(lp50

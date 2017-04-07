@@ -1,2 +1,2 @@
-java pilots.util.FileInputProducer ../../data/Twice/a.txt
-java pilots.util.FileInputProducer ../../data/Twice/b.txt
+java pilots.util.FileInputProducer ../../data/PredictionTest/a.txt
+java pilots.util.FileInputProducer ../../data/PredictionTest/c.txt

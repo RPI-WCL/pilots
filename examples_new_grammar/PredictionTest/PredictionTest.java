@@ -7,7 +7,7 @@ import pilots.runtime.errsig.*;
 
 public class PredictionTest extends PilotsRuntime {
     private int time_; // msec
-    private SlidingWindow win_B_;
+    private SlidingWindow win_o_;
     private Vector<ErrorSignature> errorSigs_;
     private ErrorAnalyzer errorAnalyzer_;
 
@@ -20,16 +20,16 @@ public class PredictionTest extends PilotsRuntime {
 
         time_ = 0;
 
-        win_B_ = new SlidingWindow( getOmega() );
+        win_o_ = new SlidingWindow( getOmega() );
 
         errorSigs_ = new Vector<ErrorSignature>();
 
         errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );
     }
 
-    public void startOutput_B() {
+    public void startOutput_o() {
         try {
-            openSocket( OutputType.Output, 0, "B" );
+            openSocket( OutputType.Output, 0, "o" );
         } catch ( Exception ex ) {
             ex.printStackTrace();
         }
@@ -37,15 +37,17 @@ public class PredictionTest extends PilotsRuntime {
         final int frequency = 1000;
         while (!isEndTime()) {
             Value a = new Value();
+            Value c = new Value();
             Value b = new Value();
 
             a.setValue( getData( "a", new Method( Method.Closest, "t" ) ) );
+            c.setValue( getData( "c", new Method( Method.Closest, "t" ) ) );
             b.setValue( getData( "b", new Method( Method.Predict, "linear_regression_twice", "a" ) ) );
-            double B = b.getValue();
+            double o = c.getValue()-b.getValue();
 
-            dbgPrint( "B=" + B + " at " + getTime() );
+            dbgPrint( "o=" + o + " at " + getTime() );
             try {
-                sendData( OutputType.Output, 0, B );
+                sendData( OutputType.Output, 0, o );
             } catch ( Exception ex ) {
                 ex.printStackTrace();
             }
@@ -69,6 +71,6 @@ public class PredictionTest extends PilotsRuntime {
             ex.printStackTrace();
         }
 
-        app.startOutput_B();
+        app.startOutput_o();
     }
 }
