@@ -21,8 +21,8 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
 
 * Dependencies of the PILOTS library are included in `$PILOTS_HOME/lib`:
 
- 1. JFreeChart requires `jfreechart-1.0.14.jar` and `jcommon-1.0.17.jar` ( GNU LGPL, see `$PILOTS_HOME/lib/lgpl.html` )
- 2. Json operations require `Json-java.jar` ( The Json License, see `$PILOTS_HOME/lib/The JSON License.html` )
+ - JFreeChart requires `jfreechart-1.0.14.jar` and `jcommon-1.0.17.jar` ( GNU LGPL, see `$PILOTS_HOME/lib/lgpl.html` )
+ - Json operations require `Json-java.jar` ( The Json License, see `$PILOTS_HOME/lib/The JSON License.html` )
 
 
 3. Getting Started with PILOTS
