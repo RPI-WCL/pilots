@@ -1,0 +1,17 @@
+(S'{"states": [{"std": 0.010138399025796446, "sum": 200.09933971080974, "n": 100, "prior": 0.5, "sqsum": 400.4077362405009, "id": 0.0, "mean": 2.0009933971080973}, {"std": 0.010235531282445675, "sum": 300.0850620867776, "n": 100, "prior": 0.5, "sqsum": 900.5209214863152, "id": 1.0, "mean": 3.000850620867776}], "config": {"threshold": 100, "sigma_scale": 2}}'
+p0
+(lp1
+V{b}/{a}
+p2
+a(lp3
+V{mode}
+p4
+a(dp5
+Vto_json
+p6
+Vload_json
+p7
+Vbayes_prediction_test
+p8
+tp9
+.
