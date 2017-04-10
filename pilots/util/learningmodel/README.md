@@ -9,7 +9,10 @@ Service:
 3. Specified for PILOTS project: produce Java Client for streaming data communication between PILOTS main program (Data Selection) and Predictive Server.
 
 ## Installation (Linux/MacOS)
-###prerequisite
+### prerequisite
+
+Make sure to install the following before working with the learning model component of PILOTS:
+
 1. [python-pip](https://pypi.python.org/pypi/pip)
 2. [python-matplotlib](http://matplotlib.org/)
 3. [virtualenv](https://virtualenv.pypa.io/en/stable/)
