@@ -110,7 +110,7 @@ class BaseEnv():
                 items = {}
                 for i in columns:
                     if i == 'name':
-                        item[i] = key
+                        items[i] = key
                     else:
                         items[i] = self.variable_dict[key][i]
                 result[self.variable_dict[key]['index']] = items

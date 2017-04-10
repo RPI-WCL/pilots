@@ -1,8 +1,7 @@
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
-import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import RobustScaler
+
 # implement fit(X), predict(X,Y), to_json(), load_json(string) function
 class CruiseAlgorithm(object):
 	# cruise algorithm is used to classify the cruise phase vs noncruise phase, it uses the differential change in data stream as the input matrix

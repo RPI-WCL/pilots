@@ -21,7 +21,8 @@ class Model(object):
 		if self.serialize_function:
 			estimator = getattr(self.estimator, self.serialize_function)()
 		pickle.dump((estimator, self.features, self.labels, self.constants, self.serialize_function, self.deserialize_function, self.init_function), open(filename, 'w+b'))
-
+		print ("generated " + filename)
+	
 	def load(self, filename, algorithms):
 		pending_estimator, features, labels, constants, serialize_function, deserialize_function, estimator_init_id = pickle.load(open(filename, 'rb'))
 		estimator = pending_estimator
