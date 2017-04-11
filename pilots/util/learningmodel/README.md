@@ -18,18 +18,19 @@ Make sure to install the following before working with the learning model compon
 3. [virtualenv](https://virtualenv.pypa.io/en/stable/)
 
 
-Then simply run at the root directory of the project:
+Then simply run at the [root directory](https://github.com/RPI-WCL/pilots/tree/learn_dev) of the project:
 
 ~~~
 virtualenv .
 source bin/activate
 ~~~
 
-Finally run the following in the pilots/util/learningmodel/ directory:
+Finally run the following in the [*pilots/util/learningmodel/*](https://github.com/RPI-WCL/pilots/tree/learn_dev/pilots/util/learningmodel) directory:
 
 ~~~
 pip install -r requirements.txt
 ~~~
+
 
 ## Quick Start
 ### train a model
