@@ -49,6 +49,9 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
 
 * **Running example PILOTS programs**: See [PILOTS tutorial](https://wcl.cs.rpi.edu/pilots/tutorial/index.html).
 
+* **Running examples with learning model**: Refer to the [Detailed Overview of Implementing Learning Model](https://github.com/RPI-WCL/pilots/wiki/Detailed-Overview-of-Implementing-Learning-Model)
+
+
 4. What's New in This Version
 ----------------------------------------------------------------------------------------------
 * **Simulated Weight Error example**: We gave an example to show the ability to solve sensor failure problems using predictive models with error signatures and error functions. Go to [pilots/examples/weight_errorsim](https://github.com/RPI-WCL/pilots/tree/learn_dev/examples/weight_errorsim) directory for details.
