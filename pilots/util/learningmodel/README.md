@@ -23,6 +23,11 @@ Then simply run at the root directory of the project:
 ~~~
 virtualenv .
 source bin/activate
+~~~
+
+Finally run the following in the pilots/util/learningmodel/ directory:
+
+~~~
 pip install -r requirements.txt
 ~~~
 
