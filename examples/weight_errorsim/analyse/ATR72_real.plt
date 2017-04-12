@@ -7,9 +7,8 @@ program ATR72_real;
 		e: (w - w_real)/w;
   	signatures
   		s0(K): e = K, -0.035 < K, K < 0.035 		   "Normal";
-		s1(K): e = K, K > 0.035 		   "over weight";
-		s2(K): e = K, K < -0.035 		"under weight";
-    correct
-	    s1: w = w_real;
-	    s2: w = w_real;
+		s1(K): e = K, K > 0.035 		   "over weight"
+			estimate w = w_real;
+		s2(K): e = K, K < -0.035 		"under weight"
+			estimate w = w_real;
 end

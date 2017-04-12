@@ -12,13 +12,11 @@ program SpeedCheck;
 	signatures
         /* v_a=162 */
         S0(k): e = k,  -16.2 <= k, k <=   16.2  "No error";
-        S1(k): e = k,   91.8 <= k, k <=  145.8  "Pitot tube failure";
-        S2(k): e = k, -178.2 <= k, k <= -145.8  "GPS failure";
-        S3(k): e = k,  -70.2 <= k, k <=  -16.2  "Pitot tube + GPS failure";
-	correct
-		S1: air_speed = sqrt( ground_speed*ground_speed + wind_speed*wind_speed -
+        S1(k): e = k,   91.8 <= k, k <=  145.8  "Pitot tube failure"
+		estimate air_speed = sqrt( ground_speed*ground_speed + wind_speed*wind_speed -
                                 2*ground_speed*wind_speed*cos((PI/180)*(ground_angle-wind_angle)));
-								
-		S2: ground_speed = sqrt( air_speed*air_speed + wind_speed*wind_speed +
+        S2(k): e = k, -178.2 <= k, k <= -145.8  "GPS failure"
+		estimate ground_speed = sqrt( air_speed*air_speed + wind_speed*wind_speed +
 		   				  		2*air_speed*wind_speed*cos((PI/180)*(wind_angle-air_angle)));
+        S3(k): e = k,  -70.2 <= k, k <=  -16.2  "Pitot tube + GPS failure";
 end;

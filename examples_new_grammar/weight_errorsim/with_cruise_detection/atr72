@@ -1,1 +1,0 @@
-java -DcurrLocTime=pilots.runtime.SimTimeService -DtimeSpan="2016-07-22 004837-0400~2016-07-22 010710-0400" -DtimeSpeed=x1000 ATR72_cruise -input=8888 -outputs=127.0.0.1:9999,127.0.0.1:9998 -omega=1 -tauh=1

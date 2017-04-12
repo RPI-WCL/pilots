@@ -1,1 +1,0 @@
-java -DcurrLocTime=pilots.runtime.SimTimeService -DtimeSpan="2014-03-28 010430-0400~2014-03-28 010545-0400" Tuninter -input=8888 -outputs=127.0.0.1:9999 -omega=5 -tau=0.8

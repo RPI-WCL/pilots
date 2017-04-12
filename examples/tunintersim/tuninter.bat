@@ -1,1 +1,1 @@
-java -DcurrLocTime=pilots.runtime.SimTimeService -DtimeSpan="2014-03-28 010430-0400~2014-03-28 010545-0400" Tuninter -input=8888 -outputs=127.0.0.1:9999 -omega=5 -tau=0.8
+java -classpath .:../../lib/pilots.jar:../../lib/jcommon-1.0.17.jar:../../lib/jfreechart-1.0.14.jar:../../lib/json-java.jar -DcurrLocTime=pilots.runtime.SimTimeService -DcurrLocTime=pilots.runtime.SimTimeService -DtimeSpan="2014-03-28 010430-0400~2014-03-28 010545-0400" Tuninter -input=8888 -outputs=127.0.0.1:9999 -omega=5 -tau=0.8

@@ -1,1 +1,1 @@
-java Squared -input=8888 -outputs=127.0.0.1:9999
+java -classpath .:../../lib/pilots.jar:../../lib/jcommon-1.0.17.jar:../../lib/jfreechart-1.0.14.jar:../../lib/json-java.jar -DcurrLocTime=pilots.runtime.SimTimeService Squared -input=8888 -outputs=127.0.0.1:9999

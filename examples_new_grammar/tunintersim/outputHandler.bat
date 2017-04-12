@@ -1,1 +1,0 @@
-java -DchartTitle="Tuninter Fuel Measurement" -DxAxisLegend="Time" -DyAxisLegend="Aircraft Weight [kg]" -DtimeRange="2014-03-28 010438-0400~2014-03-28 010545-0400" -DvalueRange=16700~16900 pilots.util.ChartServer 9999
