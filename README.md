@@ -22,7 +22,7 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
 * Dependencies of the PILOTS library are included in `$PILOTS_HOME/lib`:
 
  - JFreeChart requires `jfreechart-1.0.14.jar` and `jcommon-1.0.17.jar` ( GNU LGPL, see `$PILOTS_HOME/lib/lgpl.html` )
- - Json operations require `Json-java.jar` ( The Json License, see `$PILOTS_HOME/lib/The JSON License.html` )
+ - Json operations require `json-java.jar` ( The Json License, see `$PILOTS_HOME/lib/The JSON License.html` )
 
 
 3. Getting Started with PILOTS
@@ -45,7 +45,7 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
 
 * **(Optional) Predictive Function setup**
 
-	If you decide to use the predictive function in PILOTS, please see [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/learn_dev/pilots/util/learningmodel) for instruction.
+	In PILOTS, the predictive function is a function which uses a learning model to generate predicted output based on given input. If you decide to use the predictive function in PILOTS, please see [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/learn_dev/pilots/util/learningmodel) for instruction.
 
 * **Running example PILOTS programs**: See [PILOTS tutorial](https://wcl.cs.rpi.edu/pilots/tutorial/index.html).
 

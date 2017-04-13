@@ -1,6 +1,6 @@
 # Predictive Server
 Goal of this project: 
-Stringify machine learning algorithms, training/testing processes and build a server to deal communication about data streaming and machine learning.
+Define machine learning algorithms, training/testing processes and build a server to handle communication about data streaming and machine learning.
 
 Service:
 
