@@ -1,3 +1,5 @@
-alias plc='java -cp ./lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar pilots.compiler.PilotsCompiler'
+export PILOTS_HOME=$PWD
 
-alias plcsim='java -cp ./lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar -Dsim pilots.compiler.PilotsCompiler'
+alias plc='java -cp $PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar pilots.compiler.PilotsCompiler'
+
+alias plcsim='java -cp $PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar -Dsim pilots.compiler.PilotsCompiler'
