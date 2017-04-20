@@ -1,1 +1,1 @@
-java pilots.util.FileInputProducer ../../data/06-Aug-2005-TUI1153/airspeed,true-weight.txt
+java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar pilots.util.FileInputProducer ../../data/06-Aug-2005-TUI1153/airspeed,true-weight.txt

@@ -1,6 +1,6 @@
-java pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/true_air_speed.txt
-java pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/air_angle.txt
-java pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/ground_speed.txt
-java pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/ground_angle.txt
-java pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/wind_speed.txt
-java pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/wind_angle.txt
+java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/true_air_speed.txt
+java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/air_angle.txt
+java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/ground_speed.txt
+java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/ground_angle.txt
+java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/wind_speed.txt
+java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar pilots.util.FileInputProducer ../../data/01-Jun-2009-AF447/wind_angle.txt
