@@ -6,6 +6,10 @@ It is capable of detecting and correcting data errors through user-defined *erro
 
 PILOTS has been successfully applied to avionics applications. Most notably, we have shown that PILOTS can fix data errors due to pitot tube sensor failures which occurred in [Air France Flight 447 accident](http://wcl.cs.rpi.edu/papers/bdse2013.pdf). For more information, visit [the PILOTS web site](http://wcl.cs.rpi.edu/pilots/) and look at [related papers](https://wcl.cs.rpi.edu/bib/Keyword/DATA-STREAMING.html).
 
+In version 0.4, PILOTS has introduced the ability to use machine learning models to predict output based on input streams/producers of data. These learning models utilize [sci-kit learn library](http://scikit-learn.org/stable/), and this PILOTS project already includes an offline linear regression model and an online dynamic Bayes classifier model. Further information on utilizing the learning model functionality of PILOTS can be found [here](https://wcl.cs.rpi.edu/pilots/tutorial/learning_model_overview.html).
+
+*Note: The following commands shown for the command line are assumed to be implemented in the bash shell* 
+
 
 1. Software Requirements
 ----------------------------------------------------------------------------------------------
@@ -35,12 +39,12 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
   ~~~
   pilots.jar will be created under the `$PILOTS_HOME/lib` directory.
 
-* **Configuring the CLASSPATH environment variable**
+* **Configure aliases**
 
-  When using the PILOTS libraries, be sure that your java CLASSPATH includes the three .jar files found in `$PILOTS_HOME/lib` (i.e., jfreechar-1.0.14.jar, jcommon-1.0.17.jar, and pilots.jar). 
-  We have provided an example of setting the CLASSPATH along with some recommended aliases in the `$PILOTS_HOME/setenv` script. To use it, run
+  In order to make sure that aliases for the PLC and PLCSIM compiler commands are correctly figured as well as the definition of $PILOTS_HOME, make sure that you are in the [*root directory*](https://github.com/RPI-WCL/pilots) of the project and then use the following command:
+
   ~~~
-  $ source setenv
+  source setenv
   ~~~
 
 * **(Optional) Predictive Function setup**

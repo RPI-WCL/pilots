@@ -14,8 +14,7 @@ Service:
 Make sure to install the following before working with the learning model component of PILOTS:
 
 1. [python-pip](https://pypi.python.org/pypi/pip)
-2. [python-matplotlib](http://matplotlib.org/)
-3. [virtualenv](https://virtualenv.pypa.io/en/stable/)
+2. [virtualenv](https://virtualenv.pypa.io/en/stable/)
 
 
 Then simply run at the [root directory](https://github.com/RPI-WCL/pilots/tree/learn_dev) of the project:
