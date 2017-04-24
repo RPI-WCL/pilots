@@ -1,0 +1,35 @@
+{  
+   "models":[
+      {  
+         "id":"linear_regression",
+         "model":"linearRegression.estimator",
+         "translation": {"aoa": "a"},
+         "update": false
+      },
+      {  
+         "id":"linear_regression_twice",
+         "model":"lin_reg_twice.estimator",
+         "translation": {},
+         "update": false
+      },
+      {  
+         "id":"bayes_prediction_test",
+         "model":"bayes_prediction_test.estimator",
+         "translation": {},
+         "update": true
+      },
+      {
+        "id":"cruise",
+        "model":"cruise.estimator",
+        "translation": {},
+        "update": false
+      },
+      {
+        "id":"bayes",
+        "model":"bayes_online.estimator",
+        "translation":{"v_a": "v"},
+        "update":true
+      }
+
+   ]
+}

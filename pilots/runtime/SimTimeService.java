@@ -57,7 +57,7 @@ public class SimTimeService extends DebugPrint implements CurrentLocationTimeSer
                 locations[i] = store.getData( varNames[i], methods );
             }
             else {
-                dbgPrint( "no matching variable stored for \"" + varNames[i] + "\"");
+                dbgPrint( "SimTimeService: no matching variable stored for \"" + varNames[i] + "\"");
             }
         }
 

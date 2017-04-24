@@ -4,12 +4,13 @@ public class Method {
     public static final int Closest = 0;
     public static final int Euclidean = 1;
     public static final int Interpolate = 2;
+    public static final int Predict = 3;
 
     private int id_;
     private String args_[];
 
     public Method( int id ) {
-        if ((id < Closest) || (Interpolate < id)) {
+        if ((id < Closest) || (Predict < id)) {
             System.err.println( "Invalid id: " + id );
             return;
         }
@@ -66,6 +67,9 @@ public class Method {
             break;
         case Interpolate:
             str += "Method.Interpolate";
+            break;
+        case Predict:
+            str += "Method.Predict";
             break;
         default:
             break;

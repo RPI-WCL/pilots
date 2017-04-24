@@ -1,4 +1,4 @@
-README for PILOTS ver 0.3
+README for PILOTS ver 0.4
 ===============================================
 
 PILOTS (**P**rogramm**I**ng **L**anguage for spati**O**-**T**emporal data **S**treaming applications) is a highly declarative programming language for spatio-temporal streaming applications.
@@ -6,21 +6,27 @@ It is capable of detecting and correcting data errors through user-defined *erro
 
 PILOTS has been successfully applied to avionics applications. Most notably, we have shown that PILOTS can fix data errors due to pitot tube sensor failures which occurred in [Air France Flight 447 accident](http://wcl.cs.rpi.edu/papers/bdse2013.pdf). For more information, visit [the PILOTS web site](http://wcl.cs.rpi.edu/pilots/) and look at [related papers](https://wcl.cs.rpi.edu/bib/Keyword/DATA-STREAMING.html).
 
+In version 0.4, PILOTS has introduced the ability to use machine learning models to predict output based on input streams/producers of data. These learning models utilize [sci-kit learn library](http://scikit-learn.org/stable/), and this PILOTS project already includes an offline linear regression model and an online dynamic Bayes classifier model. Further information on utilizing the learning model functionality of PILOTS can be found [here](https://wcl.cs.rpi.edu/pilots/tutorial/learning_model_overview.html).
+
+*Note: The following commands shown for the command line are assumed to be implemented in the bash shell* 
+
 
 1. Software Requirements
 ----------------------------------------------------------------------------------------------
-* Java JDK 1.6 or newer.
+* Java JDK 1.8 or newer.
 * (Optional) [JFreeChart](http://www.jfree.org/jfreechart/download.html) 1.0.14 or newer to visualize outputs from PILOTS applications.
 * (Optional) [JavaCC](http://javacc.java.net/) if you want to modify the PILOTS grammar.
   
-2. Downloading PILOTS library and JFreeChart
+2. Downloading PILOTS library and its dependencies
 ----------------------------------------------------------------------------------------------
 * Download a PILOTS release either from [the PILOTS web site](http:/wcl.cs.rpi.edu/pilots/) or [the PILOTS github page](https://github.com/RPI-WCL/pilots).
 
 * Note that the directory containing this README is referred to as `$PILOTS_HOME`.
 
-* The jar files required for JFreeChart (jfreechart-1.0.14.jar and jcommon-1.0.17.jar) are included in the `$PILOTS_HOME/lib` directory.
-  These libraries are under the GNU LGPL (see `$PILOTS_HOME/lib/lgpl.html` for details).
+* Dependencies of the PILOTS library are included in `$PILOTS_HOME/lib`:
+
+ - JFreeChart requires `jfreechart-1.0.14.jar` and `jcommon-1.0.17.jar` ( GNU LGPL, see `$PILOTS_HOME/lib/lgpl.html` )
+ - Json operations require `json-java.jar` ( The Json License, see `$PILOTS_HOME/lib/The JSON License.html` )
 
 
 3. Getting Started with PILOTS
@@ -33,26 +39,31 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
   ~~~
   pilots.jar will be created under the `$PILOTS_HOME/lib` directory.
 
-* **Configuring the CLASSPATH environment variable**
+* **Configure aliases**
 
-  When using the PILOTS libraries, be sure that your java CLASSPATH includes the three .jar files found in `$PILOTS_HOME/lib` (i.e., jfreechar-1.0.14.jar, jcommon-1.0.17.jar, and pilots.jar). 
-  We have provided an example of setting the CLASSPATH along with some recommended aliases in the `$PILOTS_HOME/setenv` script. To use it, run
+  In order to make sure that aliases for the PLC and PLCSIM compiler commands are correctly figured as well as the definition of $PILOTS_HOME, make sure that you are in the [*root directory*](https://github.com/RPI-WCL/pilots) of the project and then use the following command:
+
   ~~~
-  $ source setenv
+  source setenv
   ~~~
+
+* **(Optional) Predictive Function setup**
+
+	In PILOTS, the predictive function is a function which uses a learning model to generate predicted output based on given input. If you decide to use the predictive function in PILOTS, please see [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/learn_dev/pilots/util/learningmodel) for instruction.
 
 * **Running example PILOTS programs**: See [PILOTS tutorial](https://wcl.cs.rpi.edu/pilots/tutorial/index.html).
 
+* **Running examples with learning model**: Refer to the [Detailed Overview of Implementing Learning Model](https://github.com/RPI-WCL/pilots/wiki/Detailed-Overview-of-Implementing-Learning-Model)
+
+
 4. What's New in This Version
 ----------------------------------------------------------------------------------------------
-* **Connectivity to the X-Plane flight simulator**: PILOTS can now directly ingest data streams from [X-Plane](http://www.x-plane.com). Go to [pilots/util/xplane/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/xplane) directory for details.
+* **Simulated Weight Error example**: We gave an example to show the ability to solve sensor failure problems using predictive models with error signatures and error functions. Go to [pilots/examples/weight_errorsim](https://github.com/RPI-WCL/pilots/tree/learn_dev/examples/weight_errorsim) directory for details.
 
-* **Alternative wind data computation method for the Air France 447 example**: Instead of using potentially inaccurate wind forecast data, we estimate wind data from airspeed and ground speed for better accuracy and use it to correct data in case of errors. Go to [pilots/examples/airfrancesim_new](https://github.com/RPI-WCL/pilots/tree/master/examples/airfrancesim_new) directory for details.
+* **Updated Syntax**: The syntax is updated, Go to [PILOTS tutorial](http://wcl.cs.rpi.edu/pilots/tutorial/index.html) for reference. The backward compability for old syntax will be removed in the next version. Go to [pilots/examples\_new\_grammar/](https://github.com/RPI-WCL/pilots/tree/learn_dev/examples_new_grammar) directory for examples in new PILOTS syntax.
 
-* **Proof-of-concept model learning utility**: Toward future integration of a model learning capability to PILOTS, we developed a utility program to learn model parameters from input data streams. 
-Go to [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) for details.
-
-
+* **Predictive Function**: We implemented a machine learning unility module for training predictive models easily.
+Go to [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/learn_dev/pilots/util/learningmodel) for tutorial and reference.
 
 5. Limitations
 ----------------------------------------------------------------------------------------------

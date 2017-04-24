@@ -1,203 +1,161 @@
-# Learning Model, database and unit converter
-These modules use a learning model to estimate the target function. DataBase will load data from file to the memory, by the method defined in Data Configuration files. UnitConverter will take in any available unit and convert it to the unit with same type ( the unit database is defined in
-*unit.json*). You can implement SupervisedLearningModel and DataTransformer for new learning models. LeastSquare and SpecialLinearTransformation classes are made for illustration of how this works, which implements the parameter learning using lift function, with QR Factorization for regularization.
+# Predictive Server
+Goal of this project: 
+Define machine learning algorithms, training/testing processes and build a server to handle communication about data streaming and machine learning.
 
-# Usage:
-You need to first define Data Configuration files for databases (what columns will be used in the learning model and what is the units of them), [optional the data conversion files for databases ( what new name you want to assign to each columns, and what is the new units of them)],  the main configuration file for running the learning model.
-```
-python main.py [main configuration file]
-```
-## main configuration file:
-```
- {
-     "Unit Converter File": "Path to the Unit Converter File",
-     "Training Data Files": [{
-         "name": "PATH TO DATA FILE",
-         "deliminator": "DELIMINATOR OF THE DATA FILE",
-         "cruise phase": [
-             [CRUISE PHASE START LINE NUMBER, CRUISE PHASE END LINE NUMBER], ...
-         ]
-     }, ...(A list of {name,deliminator,cruise phase})],
-     "Training Data Inital Configuration": "PATH TO DATA INITIAL CONFIGURATION FILE"
-     "Training Data Unit Conversion Configuration": "PATH TO DATA CONVERSION CONFIGURATION FILE",
-     "Training Data Visualization": true or false (to enable visualization of training data),
-     "Training Data Result Visualization": true or false (to enable fitting result visualization of training data),
-     "Testing Data Files": [{
-         "name": "PATH TO DATA FILE",
-         "deliminator": "DELIMINATOR OF THE DATA FILE",
-         "cruise phase": [
-             [CRUISE PHASE START LINE NUMBER, CRUISE PHASE END LINE NUMBER], ...
-         ]
-     }, ...(A list of {name,deliminator, cruise phase)],
-     "Testing Data Inital Configuration": "PATH TO DATA INITIAL CONFIGURATION FILE"
- ",
- "Testing Data Unit Conversion Configuration": "PATH TO DATA CONVERSION CONFIGURATION FILE",
- "Testing Data Visualization": true or false (to enable visualization of test data),
-     "Testing Data Result Visualization": true or false(to enable fitting result visualization of test data),
-     "X Fields": ["columns you want to use for training set (named by latest configuration file)", ...],
-     "Y Fields": ["columns you want to use for target set (named by latest configuration file)", ...],
-     "Automatic Cruise Phase": true or false (to enable the automatic cruise phase finder),
-     "Cruise Phase Time Field": "column name of time",
-     "Cruise Phase Speed Field": "column name of speed",
-     "Cruise Phase Maximum Acceleration": number (maximum acceleration to find cruise phase),
-     "Cruise Phase Minimum Length": number (minimum cruise phase time period to find cruise phase),
-     "Cruise Phase Minimum Speed": number (minimum cruise phase speed),
-     "Plane Empty Weight": number (the empty weight of the plane)
- }
-```
-## Example Main Configuration file:
-```
-{
-    "Unit Converter File": "unit.json",
-    "Training Data Files": [{
-        "name": "../data/Hight Power King Air_2.txt",
-        "deliminator": "|",
-        "cruise phase": [
-            [766, 1256],
-            [1788, 2300],
-            [2884, 3736]
-        ]
-    }, {
-        "name": "../data/Medium Power King Air.txt",
-        "deliminator": "|",
-        "cruise phase": [
-            [945, 1725],
-            [2225, 2782],
-            [3450, 4284]
-        ]
-    }],
-    "Training Data Inital Configuration": "initConfig.json",
-    "Training Data Unit Conversion Configuration": "afterConfig.json",
-    "Training Data Visualization": false,
-    "Training Data Result Visualization": false,
-    "Testing Data Files": [{
-        "name": "../data/Low Power King Air.txt",
-        "deliminator": "|",
-        "cruise phase": [
-            [630, 1335],
-            [1706, 2337],
-            [2670, 3487]
-        ]
-    }],
-    "Testing Data Inital Configuration": "initConfig.json",
-    "Testing Data Unit Conversion Configuration": "afterConfig.json",
-    "Testing Data Visualization": false,
-    "Testing Data Result Visualization": false,
-    "X Fields": ["true air speed", "ambient pressure", "ambient temperature", "angle of attack"],
-    "Y Fields": ["fuel 1", "fuel 2", "fuel 3", "fuel 4", "fuel 5", "fuel 6", "fuel 7", "fuel 8"],
-    "Automatic Cruise Phase": false,
-    "Cruise Phase Time Field": "time",
-    "Cruise Phase Speed Field": "true air speed",
-    "Cruise Phase Maximum Acceleration": 10,
-    "Cruise Phase Minimum Length": 10,
-    "Cruise Phase Minimum Speed": 10,
-    "Plane Empty Weight": 37836.5732
-}
-```
-## Data Configuration File:
-For Data Initial Configuration File, **identify the column names in data file and maintain the consistence between the "name" values in this file and column names. Each column should have different "key" values.**
-For Data Conversion Configuration File, **The changed column information is applied by the key values**, so track back to what the 'key' value is referring to and write down the new value for that column. The columns not covered in the Data Conversion Configuration File will remain unchanged.
-```
-{
-    "columns": [{
-        "key": number,
-        "type": "type of the unit/column semantic meaning",
-        "name": "name of the column",
-        "unit": "unit of the column"
-    }, ...(each one should have different key value)]
-}
-```
-## Example Data Initial Configuration File:
-```
-{
-    "columns": [{
-        "key": 0,
-        "type": "speed",
-        "name": "Vtrue,_ktas",
-        "unit": "knot"
-    }, {
-        "key": 1,
-        "type": "pressure",
-        "name": "AMprs,_inHG",
-        "unit": "inches of mercury"
-    }, {
-        "key": 2,
-        "type": "temperature",
-        "name": "AMtmp,_degC",
-        "unit": "celsius"
-    }, {
-        "key": 3,
-        "type": "angle",
-        "name": "alpha,__deg",
-        "unit": "degree"
-    }, {
-        "key": 4,
-        "type": "force",
-        "name": "_fuel,_1_lb",
-        "unit": "pound"
-    }]
-}
-```
-## Example Data Conversion Configuration File:
-```
-{
-  "columns": [
-    {
-      "key": 0,
-      "type": "speed",
-      "name": "true air speed",
-      "unit": "meter per second"
-    },
-    {
-      "key": 1,
-      "type": "pressure",
-      "name": "ambient pressure",
-      "unit": "pascal"
-    },
-    {
-      "key": 2,
-      "type": "temperature",
-      "name": "ambient temperature",
-      "unit": "kelvin"
-    },
-    {
-      "key": 3,
-      "type": "angle",
-      "name": "angle of attack",
-      "unit": "radian"
-    },
-    {
-      "key": 4,
-      "type": "force",
-      "name": "fuel 1",
-      "unit": "newton"
-    }
-  ]
-}
-```
-## Format of the data file ( limitation of the DataParser ):
-1. it should have delimiter
-2. it should start with a row defining the names for each columns, I call it name row
-3. each row contains exactly same number of columns
-4. every cell except the name row should contains exactly one number
+Service:
 
-# Extend the model:
-## Define Supervised learning mode:
-```python
-# Implement SupervisedLearningModel (function _error, _train, _eval)
-class YourModel(SupervisedLearningModel):
-	def _error(self,x,y,param): # how to find error  
-        ... # return error
-	def _train(self,x,y): # how to train and get parameters
-        ... # return learned parameters
-	def _eval(self, x, param): # how to get result from x and parameters
-        ... # return result
-  *other functions*
-# Implement Datatransformer (function _YTrans, _XTrans)
-class YourTransformation(DataTransformer):
-  def _YTrans(self, Y):
-        ... # return transformed Y
-	def _XTrans(self, X):
-        ... # return transformed X
-  *other functions*
-```
+1. Prediction service: Input: some homogeneous datastreams; Output: some predicted values using requested model
+2. Training service: Input: training definition file; output: trained estimator
+3. Specified for PILOTS project: produce Java Client for streaming data communication between PILOTS main program (Data Selection) and Predictive Server.
+
+## Installation (Linux/MacOS)
+### prerequisite
+
+Make sure to install the following before working with the learning model component of PILOTS:
+
+1. [python-pip](https://pypi.python.org/pypi/pip)
+2. [virtualenv](https://virtualenv.pypa.io/en/stable/)
+
+
+Then simply run at the [root directory](https://github.com/RPI-WCL/pilots/tree/learn_dev) of the project:
+
+~~~
+virtualenv .
+source bin/activate
+~~~
+
+Finally run the following in the [*pilots/util/learningmodel/*](https://github.com/RPI-WCL/pilots/tree/learn_dev/pilots/util/learningmodel) directory:
+
+~~~
+pip install -r requirements.txt
+~~~
+
+
+## Quick Start
+### train a model
+~~~
+python engineIO.py <training definition file>
+~~~
+### run the server
+At `engine` directory, run
+
+~~~
+./server.sh
+~~~
+## Definition Files
+
+### Schema File (JSON)
+Schema files contain schematic meaning of each column (attribute).
+The following describes mandatory or optional fields in JSON file. Every field's value is *list of string* and every string contained in list corresponding to the column in the file with the same index in the list.
+
+1. `name` (**mandatory**) variable names, which will be used in learning model.
+2. `unit` (**optional**) the units, required if `unit_transformation` appears in the `preprocessing` field.
+
+### Training Definition File (JSON)
+Training definition files contain learning model training parameters including the following:
+
+1. `data` (**mandatory**,*dictionary*) The definition for what data and schema file will be loaded as the training set, and what constants are involved in evaluation ( if necessary ).
+	* `file` (**mandatory**, *list of string*) A list of string containing training set ( notice: they should be in the same schema and type )
+	* `type` (**mandatory**, *string*) The type of files described in `file`.
+	* `header_type` (**mandatory**, *string*) The header type of files described in `file`.
+	* `schema` (**mandatory**, *string*) The path to schema of the files, see Section Schema File (JSON). 
+	* `constants` (**mandatory**, *dictionary*) The constants used in modeling. Each element in the dictionary contains a string as key and a number as value. 
+2. `preprocessing`(**mandatory**,*dictionary*) The definition for preprocessing phase of model training. [In development]
+	* `unit_transformation` (**optional**,*dictionary*) a built in method for unit transformation as an example of preprocessing.
+3. `model`(**mandatory**,*dictionary*) The definition for learning algorithm and feature/labels transformation. [In development]
+	* `features` (**mandatory**, *list of string*) The features' values of the model. The variables including constants defined in `constants` should be embraced with '{' and '}'.
+	* `labels` (**mandatory**, *list of string*) The target value (label) of the model. The variables including constants defined in `constants` should be embraced with '{' and '}'.
+	* `algorithm` (**mandatory**, *list of string*) The definition of learning algorithm and its parameters.
+		* `id` (**mandatory**, *string*) The ID of algorithm defined in algorithm registration file.
+		* `param` (**mandatory**, *dictionary*) The parameters used in learning algorithm.
+		* `save_file` (**mandatory**, *string*) The file path for trained model to be saved.
+		* `serialize_function` (**optional**, *string*) The function called to save the trained model, the default function is pickle.dump
+		* `deserialize_function` (**optional**, *string*) The function called to load the trained model, the default function is pickle.load
+
+### Server Definition (JSON)
+
+1. `models`(**mandatory**, *list of dictionary*) The definition of models that could be accessed through socket. Each element in the list is a model with the following attributes:
+	* `id`(**mandatory**, *string*) Distinct ID for client to discriminate between different models.
+	* `model`(**mandatory**, *string*) The path to an estimator file generated by offline training component (EngineIO).
+	* `translation` (**mandatory**, *dictionary*) The translation between client defined variable names and model variable names. [In Development]
+	* `update` (**mandatory**, *boolean*) A switch of whether server stores the change of estimator to file when server shuts down.
+
+## Server
+### Request
+The server is designed to accept URL request with parameters
+
+	http://hostname:port/?model=x&name=y&value=z
+	
+where x is a string id of model id defined in server definition; y is a list of strings ( variable names ) seperated by comma (,). z is a list of numbers ( variable value ) seperated by comma (,). Each z's schematic meaning corresponds to the string in y with the same index.
+
+
+### Response
+The response is composed in a json response with the root key `value`, and the value nxd matrix, where each row represents a single data point.
+
+
+## Example
+### URL Request
+
+	http://127.0.0.1:5000/?model=linear&name=aoa&value=1.0
+### JSON Response
+
+	{"value": [[6.7476931583308]]}
+### Schema File
+~~~
+{
+	"names": ["v","p","t","w","a","cruise"],
+	"units": ["knot","in_Hg","celsius","force_pound","degree",""]
+}
+~~~
+### Training Definition File
+
+~~~
+{
+	"data":{
+		"file": ["data/training.csv"],
+		"type": "csv",
+		"header_type": "csvheader",
+		"schema": "data/schema.json",
+		"constants": {"s": 61.0, "R": 286.9}
+	},
+	"preprocessing":{
+		"unit_transformation": {"v":"m/s", "p":"pascal","t":"kelvin","w":"newton","a":"radian"}
+	},
+	"model":{
+		"features": ["{a}"],
+		"labels": ["2*{w}/({v}**2*({p}/{R}/{t})*{s})"],
+		"algorithm":{
+		"id": "linear_regression",
+		"param": {},
+		"save_file": "regression.estimator"
+		}
+	}
+}
+~~~
+### Server File
+~~~
+{  
+   "models":[
+     {  
+         "id":"linear",
+         "model":"regression.estimator",
+         "translation": {"aoa": "a"},
+         "update": false
+      },
+      {
+         "id":"bayes",
+         "model":"bayes_online.estimator",
+         "translation": {"v_a": "v"},
+         "update": true
+      }
+   ]
+}
+~~~
+
+## Future work
+* Use Sci-Kit as basic hierarchy to replace my interface of learning algorithms ( stringify Sci-Kit, add server interface )
+* Use Panda to replace BaseEnv
+* Add support for preprocessing interface
+* Finish implementation of testing trained estimators
+* Change networking protocol
+* Change to virtualenv

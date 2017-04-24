@@ -1,0 +1,20 @@
+{
+	"data":{
+		"file": ["data/all_train_with_altitude_cruise.csv"],
+		"type": "csv",
+		"header_type": "csvheader",
+		"schema":"data/schema_all_altitude.json"
+	},
+	"preprocessing":{
+		"unit_transformation": {"v":"m/s", "p":"pascal","t":"kelvin","w":"newton","a":"radian","h":"meter"}
+	},
+	"model":{
+		"features": ["{h}"],
+		"labels": ["{cruise}"],
+		"algorithm": {
+			"id": "cruise_algorithm",
+			"param": {},
+			"save_file": "cruise.estimator"
+		}
+	}
+}

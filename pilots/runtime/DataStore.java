@@ -1,11 +1,14 @@
 package pilots.runtime;
 
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
-import java.text.ParseException;
-import pilots.runtime.*;
+
+import pilots.util.learningmodel.Client;
 
 
 public class DataStore extends DebugPrint {
@@ -13,13 +16,14 @@ public class DataStore extends DebugPrint {
     private static CurrentLocationTimeService currLocTime_ = null;
     private static Comparator<SpatioTempoData> distComparator_ = null;
     private static int MAX_DATA_NUM = 10;
-
+    private static Map<String, Method[]> methodDictionary = new HashMap<>();
     private String[] varNames_;
     private Vector<SpatioTempoData> data_;
 
+    
     public DataStore( String[] varNames ) {
         varNames_ = new String[varNames.length];
-
+        methodDictionary = new HashMap<>();
         for (int i = 0; i < varNames.length; i++)
             varNames_[i] = varNames[i];        // shallow copy
 
@@ -38,7 +42,6 @@ public class DataStore extends DebugPrint {
             };
         }
     }
-
 
     public static DataStore getInstance( String str ) {
         if (stores_ == null) {
@@ -72,10 +75,8 @@ public class DataStore extends DebugPrint {
             store = foundStore;
             store.dbgPrint( "found exsiting DataStore for " + str );
         }
-            
         return store;
     }
-
 
     public static DataStore findStore( String varName ) {
         //System.out.println( "findStore, varName=" + varName );
@@ -351,12 +352,31 @@ public class DataStore extends DebugPrint {
         // should not happen; this will cause an exception eventually
         return -1;
     }
-
+    public synchronized void registerMethods(String varName, Method[] methods){
+    	methodDictionary.put(varName, methods);
+    }
+    public synchronized Method[] getMethods(String varName){
+        return methodDictionary.get(varName);
+    }
+    private synchronized Map<String, Double> getDatas(String[] varNames){
+    	Map<String, Double> result = new HashMap<>();
+    	for (String var : varNames){
+    		result.put(var, findStore(var).getData(var, getMethods(var)));
+    	}
+    	return result;
+    }
+    private synchronized void printData(){
+        for (String s : methodDictionary.keySet()){
+            System.out.println(methodDictionary.get(s).toString());
+        }
+    }
+    // editted: every time getData is called, register the current method 
     public synchronized Double getData( String varName, Method[] methods ) {
+        registerMethods(varName, methods);
         Vector<SpatioTempoData> workData = new Vector<SpatioTempoData>();
         workData = data_;  // shallow copy
 
-// System.out.println ("DataStore.getData, varName=" + varName );
+//        System.out.println ("DataStore.getData, varName=" + varName );
 
         int varIndex = getVarIndex( varName );
         
@@ -370,6 +390,7 @@ public class DataStore extends DebugPrint {
 
         boolean errorCondition = false;
         boolean interpolated = false;
+        boolean predicted = false;
         for (int i = 0; i < methods.length; i++) {
             String[] args = methods[i].getArgs();
             if (args.length == 0) {
@@ -412,12 +433,16 @@ public class DataStore extends DebugPrint {
                 if (d != null)
                     interpolated = true;
                 break;
-
+            case Method.Predict:
+                String model = args[0];
+            	Map<String, Double> result = getDatas(Arrays.copyOfRange(args,1,args.length));
+                predicted = true;
+            	d = pilots.util.learningmodel.Client.predict(model, result)[0][0]; // currently support only one number prediction
             default:
                 break;
             }
 
-            if (errorCondition || (workData == null) || interpolated) {
+            if (errorCondition || (workData == null) || interpolated || predicted) {
                 break;
             }
 
@@ -431,7 +456,7 @@ public class DataStore extends DebugPrint {
             // System.out.println( "workData.size()=" + workData.size() );
         }
 
-        if (!interpolated && 1 < workData.size()) {
+        if (!interpolated && 1 < workData.size() && !predicted) {
             // tie case, give priority to the first one
             stData = workData.get( 0 );
             d = stData.getData( varIndex - 1 );  // -1: workaround due to an issue on parseVarNames 

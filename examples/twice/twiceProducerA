@@ -1,1 +1,1 @@
-java pilots.util.LinearInputProducer -1 a 0 1 0
+java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar pilots.util.LinearInputProducer -1 a 0 1 0
