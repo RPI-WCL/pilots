@@ -313,7 +313,17 @@ public class PilotsRuntime extends DebugPrint {
         prevDate_.setTime( date );
     }
 
-
+    // addData adds a spatioTempoData into datastore
+    protected void addData(String var, String value){
+        DataStore store = DataStore.findStore(var);
+        if (store != null){
+            if (!store.addData(value)){
+                dbgPrint("Unable to parse the input");
+            }
+        }else{
+            dbgPrint( "no matching variable stored for \"" + var + "\"");
+        }
+    }
 
     protected double getData( String var, Method... methods ) {
 

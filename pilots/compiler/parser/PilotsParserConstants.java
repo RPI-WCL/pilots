@@ -39,57 +39,61 @@ public interface PilotsParserConstants {
   /** RegularExpression Id. */
   int ESTIMATE = 23;
   /** RegularExpression Id. */
-  int NSEC = 24;
+  int WHEN = 24;
   /** RegularExpression Id. */
-  int USEC = 25;
+  int TIMES = 25;
   /** RegularExpression Id. */
-  int MSEC = 26;
+  int NSEC = 26;
   /** RegularExpression Id. */
-  int SEC = 27;
+  int USEC = 27;
   /** RegularExpression Id. */
-  int MIN = 28;
+  int MSEC = 28;
   /** RegularExpression Id. */
-  int HOUR = 29;
+  int SEC = 29;
   /** RegularExpression Id. */
-  int DAY = 30;
+  int MIN = 30;
   /** RegularExpression Id. */
-  int SQRT = 31;
+  int HOUR = 31;
   /** RegularExpression Id. */
-  int SIN = 32;
+  int DAY = 32;
   /** RegularExpression Id. */
-  int COS = 33;
+  int SQRT = 33;
   /** RegularExpression Id. */
-  int TAN = 34;
+  int SIN = 34;
   /** RegularExpression Id. */
-  int ARCSIN = 35;
+  int COS = 35;
   /** RegularExpression Id. */
-  int ARCCOS = 36;
+  int TAN = 36;
   /** RegularExpression Id. */
-  int ARCTAN = 37;
+  int ARCSIN = 37;
   /** RegularExpression Id. */
-  int ABS = 38;
+  int ARCCOS = 38;
   /** RegularExpression Id. */
-  int PROGRAM_END = 39;
+  int ARCTAN = 39;
   /** RegularExpression Id. */
-  int DIGIT = 40;
+  int ABS = 40;
   /** RegularExpression Id. */
-  int LPAR = 41;
+  int PROGRAM_END = 41;
   /** RegularExpression Id. */
-  int RPAR = 42;
+  int DIGIT = 42;
   /** RegularExpression Id. */
-  int COMMA = 43;
+  int LPAR = 43;
   /** RegularExpression Id. */
-  int INTEGER = 44;
+  int RPAR = 44;
   /** RegularExpression Id. */
-  int SCALEFACTOR = 45;
+  int COMMA = 45;
   /** RegularExpression Id. */
-  int REAL = 46;
+  int INTEGER = 46;
   /** RegularExpression Id. */
-  int LETTER = 47;
+  int SCALEFACTOR = 47;
   /** RegularExpression Id. */
-  int VAR = 48;
+  int REAL = 48;
   /** RegularExpression Id. */
-  int STRING = 49;
+  int LETTER = 49;
+  /** RegularExpression Id. */
+  int VAR = 50;
+  /** RegularExpression Id. */
+  int STRING = 51;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -122,6 +126,8 @@ public interface PilotsParserConstants {
     "\"interpolate\"",
     "\"predict\"",
     "\"estimate\"",
+    "\"when\"",
+    "\"times\"",
     "\"nsec\"",
     "\"usec\"",
     "\"msec\"",
