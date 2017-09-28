@@ -120,6 +120,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code_ += "import java.util.Timer;\n";
             code_ += "import java.util.TimerTask;\n";
         }
+        code_ += "import java.text.SimpleDateFormat;import java.util.Date;\n";
         code_ += "import java.util.Vector;\n";
         code_ += "import java.net.Socket;\n";
         code_ += "import pilots.runtime.*;\n";
@@ -129,6 +130,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     protected void generateClassDeclaration() {
         code_ += "public class " + appName_ + " extends PilotsRuntime {\n";
+        code_ += "private int currentMode;\nprivate int currentModeCount;\n";
         if (sim_)
             code_ += incInsIndent() + "private int time_; // msec\n";
         else
@@ -297,11 +299,22 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code_ += incInsIndent() + correct.getVar() + "_corrected.setValue( ";
             code_ += replaceVar( replaceMathFuncs( correct.getExp() ), map );
             code_ += " );\n";
+            // reset other counters
+            code_ += "setModeCount(" + correct.getMode() + ");\n";
+            // trigger save state if this is the one we're recording.
+            if (correct.saveState_){
+                code_ += String.format("triggerSaveState(%d, %d, \"%s\", %s_corrected.getValue());\n", 
+                    correct.getMode(), 
+                    correct.saveStateTriggerModeCount_,
+                    correct.getVar(),
+                    correct.getVar());
+            }
+            
             code_ += insIndent() + "break;\n";
             decIndent();
         }
         if (0 < corrects_.size())
-            code_ += insIndent() + "}\n";
+            code_ += insIndent() + "default: setModeCount(-1);\n}\n";
 
         code_ += decInsIndent() + "}\n";
         code_ += "\n";
@@ -513,6 +526,21 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
     }
 
+    protected void generateFunctions(){
+        code_ += insIndent() + "private void setModeCount(int mode){\n";
+        code_ += incInsIndent() + "if (currentMode != mode){\n";
+        code_ += incInsIndent() +  "currentMode = mode; currentModeCount = 0;\n";
+        code_ += decInsIndent() + "}else{\n";
+        code_ += incInsIndent() + "currentModeCount++;\n";
+        code_ += decInsIndent() + "}\n";
+        code_ += decInsIndent() + "}\n";
+        code_ += insIndent() + "private void triggerSaveState(int mode, int count, String var, double value){\n";
+        code_ += incInsIndent() + "if (currentMode == mode && currentModeCount > count){\n";
+        code_ += incInsIndent() + "addData(var, String.format(\":%s:%s\", (new SimpleDateFormat(\"yyyy-MM-dd HHmmssSSSZ\")).format(getTime()), Double.toString(value)));\n";
+        code_ += decInsIndent() + "}\n";
+        code_ += decInsIndent() + "}\n";
+    }
+
     protected void generateMain() {
         code_ += insIndent() + "public static void main( String[] args ) {\n";
         code_ += incInsIndent() + appName_ + " app = new " + appName_ + "( args );\n";
@@ -554,6 +582,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         
         generateImports();
         generateClassDeclaration();
+
         generateConstructor();
         if (correction) {
             generateGetCorrectedData();
@@ -562,6 +591,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         else {
             generateStartOutputsNoCorrection();
         }
+        generateFunctions();
         generateMain();
     }
 
@@ -753,12 +783,22 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         
 
         String[] str = ((String) node.jjtGetValue()).split( ":" );
-        String variable = str[0]; String expression = str[1];
+        String variable = str[0]; String expression = str[3];
+        String when = str[1]; String times = str[2];
+
         int mode = -1;
         mode = sigs_.size() - 1;
         String sig_name = sigs_.get(mode).getName();
         String argument = sigs_.get(mode).getArg();
         Correct correct = new Correct( mode, sig_name, argument, variable, expression);
+        if (!when.equals("null")){
+            correct.saveState_ = true;
+            correct.saveStateTriggerModeCount_ = 1;
+            if (!times.equals("null")){
+                correct.saveStateTriggerModeCount_ = Integer.parseInt(times);
+            }
+        }
+
         corrects_.add( correct ); 
         goUp();
         return null;

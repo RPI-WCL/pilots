@@ -61,6 +61,8 @@ TOKEN : /* RESERVED TOKENS */
 | <INTERPOLATE: "interpolate">
 | <PREDICT: "predict">
 | <ESTIMATE: "estimate">
+| <WHEN: "when">
+| <TIMES: "times">
 | <NSEC: "nsec">
 | <USEC: "usec">
 | <MSEC: "msec">
@@ -160,10 +162,12 @@ void Estimate():
 {
     String exp = "";
     Token t1;
+    Token t2 = new Token();
+    Token t3 = new Token();
 }
 {
-    <ESTIMATE> t1 = <VAR> "=" exp = Exp()
-    { jjtThis.jjtSetValue( t1.image + ":" + exp); }
+    <ESTIMATE> t1 = <VAR> "=" exp = Exp() (<WHEN> t2 = <VAR> (t3 = <INTEGER> <TIMES>)?)?
+    { jjtThis.jjtSetValue( t1.image + ":" + t2.image + ":" + t3.image + ":" + exp); }
 }
 
 void Correct():

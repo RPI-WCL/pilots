@@ -6,6 +6,8 @@ public class Correct {
     private String constant_; 
     private String var_;
     private String exp_;
+    public boolean saveState_;
+    public int saveStateTriggerModeCount_;
 
     public Correct() {
         mode_ = -1;
