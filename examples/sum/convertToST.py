@@ -7,4 +7,4 @@ def f(filename):
     start = 1502434788
     for i in xrange(1,len(l)):
         x_out.write(datetime.datetime.fromtimestamp(start + i).strftime(':%Y-%m-%d %H%M%S000-0400:') + l[i])
-f("error.csv")
+f("../data/sum/error.csv")
