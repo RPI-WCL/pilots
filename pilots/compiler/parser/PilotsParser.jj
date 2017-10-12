@@ -65,6 +65,8 @@ TOKEN : /* RESERVED TOKENS */
 | <INTERPOLATE: "interpolate">
 | <PREDICT: "predict">
 | <ESTIMATE: "estimate">
+| <WHEN: "when">
+| <TIMES: "times">
 | <NSEC: "nsec">
 | <USEC: "usec">
 | <MSEC: "msec">
@@ -318,17 +320,19 @@ void Estimate():
 /*@egen*/
     String exp = "";
     Token t1;
+    Token t2 = new Token();
+    Token t3 = new Token();
 }
 {/*@bgen(jjtree) Estimate */
     try {
 /*@egen*/
-    <ESTIMATE> t1 = <VAR> "=" exp = Exp()/*@bgen(jjtree)*/
+    <ESTIMATE> t1 = <VAR> "=" exp = Exp() (<WHEN> t2 = <VAR> (t3 = <INTEGER> <TIMES>)?)?/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
 /*@egen*/
-    { jjtn000.jjtSetValue( t1.image + ":" + exp); }/*@bgen(jjtree)*/
+    { jjtn000.jjtSetValue( t1.image + ":" + t2.image + ":" + t3.image + ":" + exp); }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);

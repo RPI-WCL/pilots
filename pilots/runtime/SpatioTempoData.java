@@ -105,6 +105,9 @@ public class SpatioTempoData {
     }
 
 
+    // format
+    // "(<Double>(,<Double>)?(,<Double>)?)?:<Date>(~<Date>)?:(<Double>(,<Double>)*)?"
+    // e.g. <Date> -> yyyy-MM-dd HHmmssSSSZ
     public boolean parse( String str ) {
 
         String[] data = str.split( ":" );
@@ -191,48 +194,7 @@ public class SpatioTempoData {
 
 
     public void print() {
-        if (locations_ != null) {
-            switch( dimension_.getDim() ) {
-            case Dimension.ONE_DIMENSION:
-                System.out.print( locations_[0][0] );
-                break;
-            case Dimension.TWO_DIMENSION:
-                System.out.print( locations_[0][0] + "," + locations_[0][1] );
-                break;
-            case Dimension.THREE_DIMENSION:
-                System.out.print( locations_[0][0] + "," + locations_[0][1] + "," + locations_[0][2] );
-                break;
-            }
-            if (isLocationInterval_) {
-                System.out.print( "~" );
-                switch( dimension_.getDim() ) {
-                case Dimension.ONE_DIMENSION:
-                    System.out.print( locations_[0][0] );
-                    break;
-                case Dimension.TWO_DIMENSION:
-                    System.out.print( locations_[0][0] + "," + locations_[0][1] );
-                    break;
-                case Dimension.THREE_DIMENSION:
-                    System.out.print( locations_[0][0] + "," + locations_[0][1] + "," + locations_[0][2] );
-                    break;
-                }
-            }
-        }
-        
-        if (times_ != null) {
-            System.out.print( ":" + dateFormat_.format( times_[0] ) );
-            if (isTimeInterval_)
-                System.out.print( "~" + dateFormat_.format( times_[1] ) );
-        }
-
-        System.out.print( ":" );
-        for (int i = 0; i < values_.size(); i++) {
-            Double d = values_.get( i );
-            System.out.print( d );
-            if ((1 < values_.size()) && (i < (values_.size() - 1))) 
-                System.out.print( "," );
-        }
-
+        System.out.println(marshal());
         System.out.println( " (dist=" + dist_ + ")" );
         //System.out.println();
     }
@@ -251,6 +213,56 @@ public class SpatioTempoData {
 
     public boolean hasTimes() {
         return hasTimes_;
+    }
+
+
+    // marshal generates a string, which can be parsed back to the same spatio 
+    // tempo data.
+    public String marshal(){
+        StringBuilder builder = new StringBuilder();
+        if (locations_ != null) {
+            switch( dimension_.getDim() ) {
+            case Dimension.ONE_DIMENSION:
+                builder.append(locations_[0][0]);
+                break;
+            case Dimension.TWO_DIMENSION:
+                builder.append(locations_[0][0] + "," + locations_[0][1]);
+                break;
+            case Dimension.THREE_DIMENSION:
+                builder.append(locations_[0][0] + "," + locations_[0][1] + "," + locations_[0][2] );
+                break;
+            }
+            if (isLocationInterval_) {
+                builder.append("~");
+                switch( dimension_.getDim() ) {
+                case Dimension.ONE_DIMENSION:
+                    builder.append(locations_[0][0]);
+                    break;
+                case Dimension.TWO_DIMENSION:
+                    builder.append(locations_[0][0] + "," + locations_[0][1]);
+                    break;
+                case Dimension.THREE_DIMENSION:
+                    builder.append(locations_[0][0] + "," + locations_[0][1] + "," + locations_[0][2]);
+                    break;
+                }
+            }
+        }
+        
+        if (times_ != null) {
+            builder.append(":" + dateFormat_.format( times_[0] ));
+            if (isTimeInterval_)
+                builder.append("~" + dateFormat_.format( times_[1] ));
+        }
+
+        builder.append(":");
+        for (int i = 0; i < values_.size(); i++) {
+            Double d = values_.get( i );
+            builder.append(d);
+            if ((1 < values_.size()) && (i < (values_.size() - 1))) 
+                builder.append(",");
+        }
+
+        return builder.toString();
     }
 
     public String toString() {
