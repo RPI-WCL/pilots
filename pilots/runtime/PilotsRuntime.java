@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.*;
 
 import pilots.Version;
 import pilots.runtime.model.*;
@@ -16,7 +17,7 @@ import pilots.runtime.service.*;
 /*
 PilotsRuntime controls the life cycle of PILOTS.
 */
-public class PilotsRuntime extends DebugPrint {
+public class PilotsRuntime{
     private static final int DEFAULT_OMEGA = 10;
     private static final double DEFAULT_TAU = 0.8;
 
@@ -36,6 +37,7 @@ public class PilotsRuntime extends DebugPrint {
     protected DateFormat dateFormat_;
 
     CurrentLocationTimeService currLocTime_;
+    private static final Logger LOGGER = Logger.getLogger(PilotsRuntime.class.getSimpleName());
 
     // newly added for animation effect for the simulation mode
     private boolean animation_;
@@ -79,6 +81,9 @@ public class PilotsRuntime extends DebugPrint {
         System.out.println( "PILOTS Runtime v" + Version.ver + " has started." );
     }
 
+    public void dbgPrint(String message){
+        LOGGER.log(Level.INFO, message);
+    }
 
     protected void parseArgs( String[] args ) throws ParseException {
         Value omega = new Value( Value.NULL );

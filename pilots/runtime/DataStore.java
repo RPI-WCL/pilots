@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.logging.*;
 
 import pilots.runtime.service.*;
 import pilots.runtime.model.*;
@@ -15,7 +16,7 @@ import pilots.runtime.model.*;
  * DataStore holds all received spatio temporal data and provides CRU operations
  * and query methods.
  */
-public class DataStore extends DebugPrint {
+public class DataStore {
     private static Vector<DataStore> stores_ = null;
     private static CurrentLocationTimeService currLocTime_ = null;
     private static Comparator<SpatioTempoData> distComparator_ = null;
@@ -24,7 +25,12 @@ public class DataStore extends DebugPrint {
     private String[] varNames_;
     private Vector<SpatioTempoData> data_;
 
+    private static final Logger LOGGER = Logger.getLogger(DataReceiver.class.getSimpleName());
     
+    public static void dbgPrint(String message){
+        LOGGER.log(Level.INFO, message);
+    }
+
     public DataStore( String[] varNames ) {
         varNames_ = new String[varNames.length];
         methodDictionary = new HashMap<>();
@@ -73,11 +79,11 @@ public class DataStore extends DebugPrint {
         if (foundStore == null) {
             store = new DataStore( varNames );
             stores_.add( store );
-            store.dbgPrint( "created DataStore for " + str );
+            dbgPrint( "created DataStore for " + str );
         }
         else {
             store = foundStore;
-            store.dbgPrint( "found exsiting DataStore for " + str );
+            dbgPrint( "found exsiting DataStore for " + str );
         }
         return store;
     }

@@ -2,29 +2,32 @@ package pilots.runtime;
 
 import java.net.*;
 import java.io.*;
+import java.util.logging.*;
 
 /*
 * DataReceiver receives data streams and stores the incoming data into
 * corresponding data store.
 */
-public class DataReceiver extends DebugPrint implements Runnable  {
+public class DataReceiver implements Runnable  {
     private static int DEFAULT_PORT = 8888;
     private static boolean loop_ = true;
     private static int globalID_ = 0;
     private Socket sock_;
     private int id_;
     
+    private static final Logger LOGGER = Logger.getLogger(DataReceiver.class.getSimpleName());
+
     public DataReceiver( Socket sock ) {
         sock_ = sock;
         id_ = globalID_++;
     }
 
-    private void dbgPrint2( String str ) {
-        dbgPrint( "(Thread " + id_ + ") " + str);
+    private void dbgPrint(String message) {
+        LOGGER.log(Level.INFO, "(Thread " + id_ + ") " + message);
     }
 
     public void run() {
-        dbgPrint2( "started" );
+        dbgPrint( "started" );
 
         try {
 
@@ -34,11 +37,11 @@ public class DataReceiver extends DebugPrint implements Runnable  {
 
             while ( (str = in.readLine() ) != null ) {
                 if ( str.length() == 0 ) {
-                    dbgPrint2( "EOS marker received" );
+                    dbgPrint( "EOS marker received" );
                     break;
                 }
                 else if ( str.charAt(0) == '#' ) {
-                    dbgPrint2( "first line received: " + str );
+                    dbgPrint( "first line received: " + str );
                     varNames = str;
                     synchronized (this) {
                         dataStore = DataStore.getInstance( str );
@@ -46,11 +49,11 @@ public class DataReceiver extends DebugPrint implements Runnable  {
                 }
                 else {
                     if ( dataStore == null ) {
-                        dbgPrint2( "no data store" );
+                        dbgPrint( "no data store" );
                         break;
                     }
 
-                    dbgPrint2( "data received for \"" + varNames + "\": " + str );
+                    dbgPrint( "data received for \"" + varNames + "\": " + str );
                     dataStore.addData( str );
                 }
 
@@ -63,7 +66,7 @@ public class DataReceiver extends DebugPrint implements Runnable  {
             System.err.println( ex );
         }
 
-        dbgPrint2( "finished" );
+        dbgPrint( "finished" );
     }
 
 

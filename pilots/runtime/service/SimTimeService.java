@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.logging.*;
 
 import pilots.runtime.*;
 import pilots.runtime.model.*;
@@ -11,8 +12,9 @@ import pilots.runtime.model.*;
 /*
 * SimTimeService simulates time and location changes.
 */
-public class SimTimeService extends DebugPrint implements CurrentLocationTimeService {
+public class SimTimeService implements CurrentLocationTimeService {
     private Date now_, end_;
+    private static final Logger LOGGER = Logger.getLogger(SimTimeService.class.getSimpleName());
 
     public SimTimeService() {
         String timeSpan = System.getProperty( "timeSpan" );
@@ -59,7 +61,7 @@ public class SimTimeService extends DebugPrint implements CurrentLocationTimeSer
                 locations[i] = store.getData( varNames[i], methods );
             }
             else {
-                dbgPrint( "SimTimeService: no matching variable stored for \"" + varNames[i] + "\"");
+                LOGGER.log(Level.INFO, "SimTimeService: no matching variable stored for \"" + varNames[i] + "\"");
             }
         }
 
