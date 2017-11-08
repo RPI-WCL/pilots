@@ -1,8 +1,12 @@
-package pilots.runtime;
+package pilots.runtime.service;
 
 import java.util.Date;
 import java.util.Calendar;
 
+/*
+SimpleTimeService provides local machine time but it doesn't provide location
+information.
+*/
 public class SimpleTimeService implements CurrentLocationTimeService {
     private Date then_;
     private long baseTime_;

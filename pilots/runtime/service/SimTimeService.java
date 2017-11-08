@@ -1,14 +1,16 @@
-package pilots.runtime;
+package pilots.runtime.service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.Calendar;
 
 import pilots.runtime.*;
+import pilots.runtime.model.*;
 
-
+/*
+* SimTimeService simulates time and location changes.
+*/
 public class SimTimeService extends DebugPrint implements CurrentLocationTimeService {
     private Date now_, end_;
 

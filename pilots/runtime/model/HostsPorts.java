@@ -1,8 +1,11 @@
-package pilots.runtime;
+package pilots.runtime.model;
 
 import java.util.Vector;
 import java.net.*;
 
+/*
+* HostsPorts stores a set of hosts and their corresponding ports.
+*/
 public class HostsPorts {
     private Vector<String> hosts_;
     private Vector<Integer> ports_;

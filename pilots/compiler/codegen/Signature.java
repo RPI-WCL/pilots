@@ -4,8 +4,8 @@ import java.util.Vector;
 import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import pilots.compiler.codegen.Constraint;
-import pilots.runtime.Value;
 
 public class Signature {
 

@@ -1,5 +1,8 @@
-package pilots.runtime;
+package pilots.runtime.estimator;
 
+/*
+Mode defines the current pattern in the data stream.
+*/
 public class Mode {
     int mode_;
 

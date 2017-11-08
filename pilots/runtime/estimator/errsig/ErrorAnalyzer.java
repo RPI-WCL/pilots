@@ -1,9 +1,9 @@
-package pilots.runtime.errsig;
+package pilots.runtime.estimator.errsig;
 
 import java.util.Vector;
 import java.util.Arrays;
-import pilots.runtime.errsig.ErrorSignature;
-import pilots.runtime.errsig.SlidingWindow;
+import pilots.runtime.estimator.errsig.ErrorSignature;
+import pilots.runtime.estimator.errsig.SlidingWindow;
 import pilots.runtime.DebugPrint;
 
 public class ErrorAnalyzer extends DebugPrint {

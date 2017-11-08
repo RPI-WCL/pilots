@@ -1,12 +1,12 @@
 package pilots.compiler.codegen;
 
 import java.io.*;
-import java.util.HashSet;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
 import pilots.compiler.parser.*;
-import pilots.runtime.*;
+import pilots.runtime.model.*;
 
 public class PilotsCodeGenerator implements PilotsParserVisitor {
 
@@ -124,7 +124,9 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code_ += "import java.util.Vector;\n";
         code_ += "import java.net.Socket;\n";
         code_ += "import pilots.runtime.*;\n";
-        code_ += "import pilots.runtime.errsig.*;\n";
+        code_ += "import pilots.runtime.model.*;\n";
+        code_ += "import pilots.runtime.estimator.*;\n";
+        code_ += "import pilots.runtime.estimator.errsig.*;\n";
         code_ += "\n";
     }
 

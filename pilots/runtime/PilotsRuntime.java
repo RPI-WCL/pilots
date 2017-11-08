@@ -10,9 +10,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 import pilots.Version;
-import pilots.runtime.*;
+import pilots.runtime.model.*;
+import pilots.runtime.service.*;
 
-
+/*
+PilotsRuntime controls the life cycle of PILOTS.
+*/
 public class PilotsRuntime extends DebugPrint {
     private static final int DEFAULT_OMEGA = 10;
     private static final double DEFAULT_TAU = 0.8;

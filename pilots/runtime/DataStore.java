@@ -8,9 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import pilots.util.learningmodel.Client;
+import pilots.runtime.service.*;
+import pilots.runtime.model.*;
 
-
+/*
+ * DataStore holds all received spatio temporal data and provides CRU operations
+ * and query methods.
+ */
 public class DataStore extends DebugPrint {
     private static Vector<DataStore> stores_ = null;
     private static CurrentLocationTimeService currLocTime_ = null;

@@ -2,9 +2,11 @@ package pilots.runtime;
 
 import java.net.*;
 import java.io.*;
-import pilots.runtime.*;
 
-
+/*
+* DataReceiver receives data streams and stores the incoming data into
+* corresponding data store.
+*/
 public class DataReceiver extends DebugPrint implements Runnable  {
     private static int DEFAULT_PORT = 8888;
     private static boolean loop_ = true;

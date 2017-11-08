@@ -1,5 +1,8 @@
-package pilots.runtime;
+package pilots.runtime.model;
 
+/*
+* Method defines the function to query the DataStore.
+*/
 public class Method {
     public static final int Closest = 0;
     public static final int Euclidean = 1;

@@ -7,7 +7,6 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.*;
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import org.jfree.chart.*;
 import org.jfree.chart.plot.*;
@@ -15,11 +14,14 @@ import org.jfree.chart.axis.*;
 import org.jfree.chart.renderer.xy.*;
 import org.jfree.data.time.*;
 import org.jfree.ui.*;
-import org.jfree.data.*;
 import org.jfree.data.general.*;
 
-import pilots.runtime.*;
+import pilots.runtime.model.*;
 
+/*
+* CharServer starts a server to receive pilots data streams and show them in a
+* dynamic chart.
+*/
 public class ChartServer {
     private int port_;
     private TimeSeries[] timeSeries_;
@@ -252,5 +254,5 @@ public class ChartServer {
 
         server.startServer();
     }
-
+    
 }

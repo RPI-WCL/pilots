@@ -1,4 +1,4 @@
-package pilots.runtime;
+package pilots.runtime.service;
 
 
 public class ServiceFactory {
@@ -6,7 +6,7 @@ public class ServiceFactory {
     private static CurrentLocationTimeService currLocTime_ = null;
     
     // Default service classes
-    private static String currLocTimeClass_ = "pilots.runtime.SimpleTimeService";
+    private static String currLocTimeClass_ = "pilots.runtime.service.SimpleTimeService";
 
     // Modify settings for ServiceFactory
     public synchronized static void setCurrClass( String currLocTimeClass ) {
@@ -30,8 +30,3 @@ public class ServiceFactory {
         return currLocTime_;
     }
 }
-    
-
-
-
-

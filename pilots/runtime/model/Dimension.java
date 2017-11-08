@@ -1,5 +1,8 @@
-package pilots.runtime;
+package pilots.runtime.model;
 
+/*
+Dimension defines a set of types of spacial-temporal data.
+*/
 public class Dimension {
     public static final int MAX_SPATIAL_DIMENSION = 3;
     public static final int ONE_DIMENSION = 1;

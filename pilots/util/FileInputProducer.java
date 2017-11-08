@@ -3,6 +3,9 @@ package pilots.util;
 import java.io.*;
 import java.net.*;
 
+/*
+FileInputProducer produces one data stream from data from a pilots data file. 
+*/
 public class FileInputProducer
 {
     private static final String TARGET_HOST = "localhost";

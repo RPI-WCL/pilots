@@ -1,7 +1,7 @@
-package pilots.runtime.errsig;
+package pilots.runtime.estimator.errsig;
 
 import java.util.Vector;
-import pilots.runtime.errsig.Constraint;
+import pilots.runtime.estimator.errsig.Constraint;
 
 public class ErrorSignature {
     public static final int CONST     = 0;

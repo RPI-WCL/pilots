@@ -1,4 +1,4 @@
-package pilots.runtime;
+package pilots.runtime.model;
 
 public class Value {
     public static final double NULL = Double.MAX_VALUE;

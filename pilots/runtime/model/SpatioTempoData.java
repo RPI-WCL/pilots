@@ -1,4 +1,4 @@
-package pilots.runtime;
+package pilots.runtime.model;
 
 import java.util.Date;
 import java.util.Vector;
@@ -7,7 +7,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
-import pilots.runtime.Dimension;
+import pilots.runtime.model.Dimension;
 
 
 public class SpatioTempoData {

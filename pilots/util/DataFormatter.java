@@ -3,8 +3,11 @@ package pilots.util;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-import pilots.runtime.*;
 
+import pilots.runtime.model.*;
+/*
+DataFormatter formats a csv file into pilots data file.
+*/
 public class DataFormatter {
     // assuming '[time]\SP[data]' input
 

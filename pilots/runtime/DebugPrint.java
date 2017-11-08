@@ -1,5 +1,6 @@
 package pilots.runtime;
 
+// TODO: Remove DebugPrint, use Logger to track the logging events.
 public class DebugPrint {
     private static boolean debugPrintEnabled_ = true;
 

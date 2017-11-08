@@ -1,5 +1,4 @@
-package pilots.runtime.errsig;
-
+package pilots.runtime.estimator.errsig;
 
 public class Constraint {
     public static final int NULL = -1;
