@@ -1,0 +1,14 @@
+program Twice_Signatures;
+    inputs 
+        a (t) using closest(t);
+        b (t) using closest(t);
+    outputs;
+    errors 
+        e: (b - 2 * a) at every 1 sec;
+    signatures:
+        s0: e = 0 "Normal";
+        s1: e = 2 * t + k "A failure" 
+            estimate a = b / 2;
+        s2: e =-2 * t + k "B failure" 
+            estimate b = 2 * a;
+end;

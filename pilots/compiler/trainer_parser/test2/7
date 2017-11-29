@@ -1,0 +1,12 @@
+program Twice_Bayes; 
+    inputs
+        a, b (t) using closest (t); 
+        mode (t) using model(twice_mode_bayes, a, b); 
+    outputs 
+        mode_out: mode at every 1 sec; 
+    modes m0: mode = 0 "Normal"; 
+        m1: mode = 1 "A failure" 
+            estimate a = b / 2; 
+        m2: mode = 2 "B failure" 
+            estimate b = 2 * a; 
+end
