@@ -4,7 +4,9 @@ import java.text.SimpleDateFormat;import java.util.Date;
 import java.util.Vector;
 import java.net.Socket;
 import pilots.runtime.*;
-import pilots.runtime.errsig.*;
+import pilots.runtime.model.*; 
+import pilots.runtime.estimator.*; 
+import pilots.runtime.estimator.errsig.*;;
 
 public class SumDemo extends PilotsRuntime {
 private int currentMode;

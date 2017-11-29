@@ -3,7 +3,10 @@ import java.io.InputStreamReader;
 import java.util.Vector;
 import java.net.Socket;
 import pilots.runtime.*;
-import pilots.runtime.errsig.*;
+import pilots.runtime.*; 
+import pilots.runtime.model.*; 
+import pilots.runtime.estimator.*; 
+import pilots.runtime.estimator.errsig.*;;
 
 public class PredictionTest_mode extends PilotsRuntime {
     private int time_; // msec
