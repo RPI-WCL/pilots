@@ -1,0 +1,380 @@
+/*
+This parser generates an AST for the pilots trainer. The AST then is walked by
+Code Generator to generate the trainer code.
+*/
+options{
+    MULTI=true;
+    VISITOR=true;
+    STATIC=false;
+}
+
+PARSER_BEGIN(PilotsParser)
+package pilots.compiler.trainer_parser;
+import java.io.*;
+
+public class PilotsParser {
+    public static void main(String[] args) throws Exception{
+      SimpleNode p = PilotsParser.parseFile(args[0]);
+      p.dump("  ");
+    }
+
+    public static SimpleNode parseFile(String filePath) throws Exception{
+      FileReader reader = new java.io.FileReader(new File(filePath));
+      BufferedReader buffer = new BufferedReader(reader);
+      PilotsParser parser = new PilotsParser(buffer);
+      SimpleNode node = parser.Program();
+      buffer.close();
+      reader.close();
+      return node;
+    }
+}
+
+PARSER_END(PilotsParser)
+
+/**
+Lexer rules
+**/
+
+/* special comments */
+TOKEN_MGR_DECLS :
+{
+  static int commentNesting;  // Current level of nesting of comments
+}
+
+/*** Skip whitespace and comments ***/
+SKIP : {
+" "
+| "\t"
+| "\n"
+| "\r"
+| "\r\n"
+| "/*"  { commentNesting=1; } : IN_COMMENT
+}
+<IN_COMMENT> MORE:
+{
+  < ~[] >
+}
+<IN_COMMENT> SKIP:
+{
+  < "/*" > { commentNesting++; } 
+| < "*/" > { commentNesting--; if (commentNesting==0) SwitchTo(DEFAULT); }
+}
+
+/* Delimiters */
+TOKEN:
+{
+  <SEMICOL: ";" >
+| <COMMA  : "," >
+| <LPAR   : "(" >
+| <RPAR   : ")" >
+| <COL    : ":" >
+}
+
+/* Reserved tokens for pilots trainer grammar*/
+TOKEN:
+{
+/* common*/
+< USING     : "using" >
+
+/* top level */
+|   < TRAINER   : "trainer" >
+|   < END       : "end" >
+
+/* fields */
+|   < CONSTANTS : "constants" >
+|   < DATA      : "data" >
+|   < MODEL     : "model" >
+
+/* under data */
+|   < FILE      : "file" >
+
+/* under model */
+|   < SCHEMA    : "schema" >
+|   < UNIT      : "unit" >
+|   < PREPROCESS: "preprocess">
+|   < CHANGEUNIT: "changeunit">
+|   < FEATURES  : "features" >
+|   < LABELS    : "labels" >
+|   < ALGORITHM : "algorithm" >
+|   < TRAINING  : "training" >
+|   < OFFLINE   : "offline" >
+|   < ONLINE    : "online" >
+|   < BOTH      : "both" >
+}
+
+/* Reserved tokens for math expressions */
+TOKEN:
+{
+    < EQUAL : "=" >
+|   < SQRT  : "sqrt" >
+|   < SIN   : "sin" >
+|   < COS   : "cos" >
+|   < TAN   : "tan" >
+|   < ARCSIN: "asin" >
+|   < ARCCOS: "acos" >
+|   < ARCTAN: "atan" >
+|   < ABS   : "abs" >
+}
+
+/* Tokens used only in lexer */
+TOKEN:
+{
+    < #DIGIT      : ["0"-"9"] >
+|   < #LETTER     : ["A"-"Z","a"-"z"] >
+|   < #ALPHANUM   : <LETTER> | <DIGIT> >
+|   < #SCALEFACTOR: ("E" | "e") ("+" | "-")? (<DIGIT>)+ >
+}
+
+/* basic data tokens */
+TOKEN:
+{
+    < INTEGER: ("+" | "-")? (<DIGIT>)+ >
+|   < REAL   : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)? >
+|   < ID     : (<LETTER> | "_") (<ALPHANUM> | "_")* >
+|   < STRING : "\"" (~["\""])* "\"" >
+}
+
+/**
+Parser rules
+**/
+
+/* Non-terminals for pilots trainer */
+SimpleNode Program() #PROGRAM:
+{}
+{
+  <TRAINER> Var() <SEMICOL>
+  (Constants())?
+  Data()
+  Model()
+  <END> (<SEMICOL>)?
+  {return jjtThis;}
+}
+
+void Constants() #CONSTANTS:
+{}
+{
+  <CONSTANTS> (Equation() <SEMICOL>)+
+}
+
+void Data():
+{}
+{
+  <DATA>
+  (DataItem() <SEMICOL>)+
+  (Schema())?
+}
+
+void DataItem():
+{}
+{
+  Vars() <USING> (File() | ModelUser())
+}
+
+void File():
+{}
+{
+  <FILE> <LPAR> String() <RPAR> 
+}
+
+void ModelUser():
+{}
+{
+  <MODEL> <LPAR> Vars() <RPAR>
+}
+
+void String():
+{
+  Token t;
+}
+{
+  t=<STRING> {jjtThis.jjtSetValue(t.image);}
+}
+
+void Model():
+{}
+{
+  <MODEL>
+  (Preprocess())?
+  Features()
+  Labels()
+  Algorithm()
+  Training()
+}
+
+void Schema():
+{}
+{
+  <SCHEMA> <UNIT> <LPAR> Map() <RPAR> <SEMICOL>
+}
+
+void Preprocess():
+{}
+{
+  <PREPROCESS> 
+  (<CHANGEUNIT> <USING> <UNIT> <LPAR> Map() <RPAR>)? 
+  <SEMICOL>
+}
+
+void Features():
+{}
+{
+  <FEATURES><COL> Exps() <SEMICOL>
+}
+
+void Labels():
+{}
+{
+  <LABELS><COL> Exps() <SEMICOL>
+}
+
+void Algorithm():
+{}
+{
+  <ALGORITHM><COL> Predicate() <SEMICOL>
+}
+
+void Training():
+{
+  Token t;
+}
+{
+  <TRAINING> <COL> (
+  t=<OFFLINE> {jjtThis.jjtSetValue(t.image);}
+| t=<ONLINE> {jjtThis.jjtSetValue(t.image);}
+| t=<BOTH> {jjtThis.jjtSetValue(t.image);}
+  )
+  <SEMICOL>
+}
+
+void Map():
+{}
+{
+  MapItem() (<COMMA> MapItem())*
+}
+
+void MapItem():
+{}
+{
+  Var() <COL> Var()
+}
+
+void Predicate():
+{}
+{
+  Var() (<USING> FuncExp())?
+}
+
+void FuncExp():
+{}
+{
+  Var() (<LPAR> (NumMap())? <RPAR>)?
+}
+
+void NumMap():
+{}
+{
+  NumMapItem() (<COMMA> NumMapItem())*
+}
+
+void NumMapItem():
+{}
+{
+  Var() <COL> Number()
+}
+
+/* Non-terminals for normal mathematical expression */
+void Equation() #EQUATION:
+{
+  String exps; /* TODO: using string here is a hack */
+}
+{
+  Var() <EQUAL> exps = Exp()
+  { jjtThis.jjtSetValue(exps); }
+}
+
+void Vars() #VARS:
+{}
+{
+  Var() (<COMMA> Var())*
+}
+
+void Var() #VAR:
+{
+  Token t;
+}
+{
+  t=<ID> {jjtThis.value = t.image;}
+}
+
+String Exps(): 
+{
+    String exp, temp;
+}
+{
+    exp = Exp() ("," temp = Exp() { exp += "," + temp; } )*
+    { return exp; }
+}
+
+String Exp(): 
+{
+    String func, exps, exp, exp2, value, temp;
+}
+{
+    func = Func() "(" exps = Exps() ")" exp2 = Exp2() { return func + "(" + exps + ")" + exp2; } 
+    | "(" temp = Exp() ")" exp2 = Exp2() { return "(" + temp + ")" + exp2; } 
+    | value = Value() exp2 = Exp2() { return value + exp2; }
+}
+
+String Exp2(): 
+{
+    String func, exp, exp2;
+}
+{
+    func = Func() exp = Exp() exp2 = Exp2() { return func + exp + exp2; } 
+    | {} { return ""; }
+}
+
+String Func(): 
+{
+    Token t;
+}
+{
+    t = "+" { return t.image; }
+    | t = "-" { return t.image; }
+    | t = "*" { return t.image; }
+    | t = "/" { return t.image; }
+    | t = "^" { return t.image; }
+    | t = ">" { return t.image; }
+    | t = ">=" { return t.image; }
+    | t = "<" { return t.image; }
+    | t = "<=" { return t.image; }
+    | t = "!=" { return t.image; }
+    | t = <SQRT> { return t.image; }
+    | t = <SIN> { return t.image; }
+    | t = <COS> { return t.image; }
+    | t = <TAN> { return t.image; }
+    | t = <ARCSIN> { return t.image; }
+    | t = <ARCCOS> { return t.image; }
+    | t = <ARCTAN> { return t.image; }
+    | t = <ABS> { return t.image; }
+}
+
+String Number(): 
+{
+    Token t;
+}
+{
+    t = <INTEGER> { return t.image; }
+    | t = <REAL> { return t.image; }
+}
+
+String Value(): 
+{
+    Token t;
+    String number;
+}
+{
+    number = Number() { return number; }
+    | t = <ID> { jjtThis.jjtSetValue( t.image ); } { return t.image; }
+}
+
