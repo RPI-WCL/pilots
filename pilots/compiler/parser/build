@@ -1,2 +1,1 @@
-jjtree PilotsParser.jjt
-javacc PilotsParser.jj
+jjtree PilotsParser.jjt && javacc PilotsParser.jj
