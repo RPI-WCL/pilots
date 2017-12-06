@@ -8,8 +8,12 @@ import java.util.Random;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import pilots.runtime.SpatioTempoData;
+import pilots.runtime.model.SpatioTempoData;
 
+/*
+LinearInputProducer produces a data stream composing of data generated from a
+linear function e.g. y = ax+b.
+*/
 public class LinearInputProducer extends Thread {
     private static final int DATA_SEND_FREQUENCY = 1000; // [ms]
     private static final String TARGET_HOST = "localhost";

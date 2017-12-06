@@ -1,13 +1,14 @@
 package pilots.runtime;
 
-import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import pilots.runtime.HostsPorts;
+import pilots.runtime.model.*;
 
-
+/*
+* ArgParser parses arguments passed in by command lines.
+*/
 public class ArgParser {
     // Supported arguments format:
     // $ java pilots.test.CorrectApp -input=8888 -outputs=127.0.0.1:9998,127.0.0.1:9999 -omega=10 -tau=0.8

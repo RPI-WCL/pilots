@@ -1,8 +1,8 @@
 package pilots.compiler.codegen;
 
 import java.util.Vector;
-import pilots.compiler.parser.*;
-import pilots.runtime.*;
+
+import pilots.runtime.model.*;
 
 public class InputStream {
     private String[] varNames_ = null;

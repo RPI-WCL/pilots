@@ -3,7 +3,9 @@ import java.io.InputStreamReader;
 import java.util.Vector;
 import java.net.Socket;
 import pilots.runtime.*;
-import pilots.runtime.errsig.*;
+import pilots.runtime.model.*;
+import pilots.runtime.estimator.Mode;
+import pilots.runtime.estimator.errsig.*;
 
 public class ATR72 extends PilotsRuntime {
     private int time_; // msec
