@@ -86,7 +86,7 @@ if (jjtc000) {
       jj_consume_token(CONSTANTS);
       label_1:
       while (true) {
-        Equation();
+        NumberAssignment();
         jj_consume_token(SEMICOL);
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case ID:{
@@ -112,6 +112,51 @@ if (jjtc000) {
       {if (true) throw (ParseException)jjte000;}
     }
     {if (true) throw (Error)jjte000;}
+    } finally {
+if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+    }
+  }
+
+  final public void NumberAssignment() throws ParseException {/*@bgen(jjtree) NUMBERASSIGNMENT */
+  ASTNUMBERASSIGNMENT jjtn000 = new ASTNUMBERASSIGNMENT(JJTNUMBERASSIGNMENT);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+    try {
+      Var();
+      jj_consume_token(EQUAL);
+      Real();
+    } catch (Throwable jjte000) {
+if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      {if (true) throw (RuntimeException)jjte000;}
+    }
+    if (jjte000 instanceof ParseException) {
+      {if (true) throw (ParseException)jjte000;}
+    }
+    {if (true) throw (Error)jjte000;}
+    } finally {
+if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+    }
+  }
+
+  final public void Real() throws ParseException {/*@bgen(jjtree) Real */
+  ASTReal jjtn000 = new ASTReal(JJTREAL);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);Token t;
+    try {
+      t = jj_consume_token(REAL);
+jjtree.closeNodeScope(jjtn000, true);
+               jjtc000 = false;
+jjtn000.jjtSetValue(Double.valueOf(t.image));
     } finally {
 if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
@@ -404,11 +449,12 @@ if (jjtc000) {
   final public void Features() throws ParseException {/*@bgen(jjtree) Features */
   ASTFeatures jjtn000 = new ASTFeatures(JJTFEATURES);
   boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
+  jjtree.openNodeScope(jjtn000);String t;
     try {
       jj_consume_token(FEATURES);
       jj_consume_token(COL);
-      Exps();
+      t = Exps();
+jjtn000.jjtSetValue(t);
       jj_consume_token(SEMICOL);
     } catch (Throwable jjte000) {
 if (jjtc000) {
@@ -434,11 +480,12 @@ if (jjtc000) {
   final public void Labels() throws ParseException {/*@bgen(jjtree) Labels */
   ASTLabels jjtn000 = new ASTLabels(JJTLABELS);
   boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
+  jjtree.openNodeScope(jjtn000);String t;
     try {
       jj_consume_token(LABELS);
       jj_consume_token(COL);
-      Exps();
+      t = Exps();
+jjtn000.jjtSetValue(t);
       jj_consume_token(SEMICOL);
     } catch (Throwable jjte000) {
 if (jjtc000) {
@@ -751,39 +798,6 @@ if (jjtc000) {
   }
 
 /* Non-terminals for normal mathematical expression */
-  final public void Equation() throws ParseException {/*@bgen(jjtree) EQUATION */
-  ASTEQUATION jjtn000 = new ASTEQUATION(JJTEQUATION);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);String exps; /* TODO: using string here is a hack */
-
-    try {
-      Var();
-      jj_consume_token(EQUAL);
-      exps = Exp();
-jjtree.closeNodeScope(jjtn000, true);
-    jjtc000 = false;
-jjtn000.jjtSetValue(exps);
-    } catch (Throwable jjte000) {
-if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      {if (true) throw (RuntimeException)jjte000;}
-    }
-    if (jjte000 instanceof ParseException) {
-      {if (true) throw (ParseException)jjte000;}
-    }
-    {if (true) throw (Error)jjte000;}
-    } finally {
-if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-    }
-  }
-
   final public void Vars() throws ParseException {/*@bgen(jjtree) VARS */
   ASTVARS jjtn000 = new ASTVARS(JJTVARS);
   boolean jjtc000 = true;
@@ -1227,7 +1241,7 @@ jjtree.closeNodeScope(jjtn000, true);
 jjtn000.jjtSetValue( t.image );
 jjtree.closeNodeScope(jjtn000, true);
                                                      jjtc000 = false;
-{if ("" != null) return t.image;}
+{if ("" != null) return "{" + t.image + "}";}
         break;
         }
       default:

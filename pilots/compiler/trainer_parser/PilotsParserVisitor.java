@@ -6,6 +6,8 @@ public interface PilotsParserVisitor
   public Object visit(SimpleNode node, Object data);
   public Object visit(ASTPROGRAM node, Object data);
   public Object visit(ASTCONSTANTS node, Object data);
+  public Object visit(ASTNUMBERASSIGNMENT node, Object data);
+  public Object visit(ASTReal node, Object data);
   public Object visit(ASTData node, Object data);
   public Object visit(ASTDataItem node, Object data);
   public Object visit(ASTFile node, Object data);
@@ -24,7 +26,6 @@ public interface PilotsParserVisitor
   public Object visit(ASTFuncExp node, Object data);
   public Object visit(ASTNumMap node, Object data);
   public Object visit(ASTNumMapItem node, Object data);
-  public Object visit(ASTEQUATION node, Object data);
   public Object visit(ASTVARS node, Object data);
   public Object visit(ASTVAR node, Object data);
   public Object visit(ASTExps node, Object data);
@@ -34,4 +35,4 @@ public interface PilotsParserVisitor
   public Object visit(ASTNumber node, Object data);
   public Object visit(ASTValue node, Object data);
 }
-/* JavaCC - OriginalChecksum=9532b0801215a67f813068c901225bd0 (do not edit this line) */
+/* JavaCC - OriginalChecksum=ad841ce37e4e8347b6aaf4d8fe93763d (do not edit this line) */

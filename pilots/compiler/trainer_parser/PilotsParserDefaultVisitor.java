@@ -15,6 +15,12 @@ public class PilotsParserDefaultVisitor implements PilotsParserVisitor{
   public Object visit(ASTCONSTANTS node, Object data){
     return defaultVisit(node, data);
   }
+  public Object visit(ASTNUMBERASSIGNMENT node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTReal node, Object data){
+    return defaultVisit(node, data);
+  }
   public Object visit(ASTData node, Object data){
     return defaultVisit(node, data);
   }
@@ -69,9 +75,6 @@ public class PilotsParserDefaultVisitor implements PilotsParserVisitor{
   public Object visit(ASTNumMapItem node, Object data){
     return defaultVisit(node, data);
   }
-  public Object visit(ASTEQUATION node, Object data){
-    return defaultVisit(node, data);
-  }
   public Object visit(ASTVARS node, Object data){
     return defaultVisit(node, data);
   }
@@ -97,4 +100,4 @@ public class PilotsParserDefaultVisitor implements PilotsParserVisitor{
     return defaultVisit(node, data);
   }
 }
-/* JavaCC - OriginalChecksum=750601838a4ae7245776f86567a454ed (do not edit this line) */
+/* JavaCC - OriginalChecksum=22d575aa18a481f2ea1122379e1c5a54 (do not edit this line) */

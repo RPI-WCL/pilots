@@ -5,38 +5,41 @@ public interface PilotsParserTreeConstants
 {
   public int JJTPROGRAM = 0;
   public int JJTCONSTANTS = 1;
-  public int JJTDATA = 2;
-  public int JJTDATAITEM = 3;
-  public int JJTFILE = 4;
-  public int JJTMODELUSER = 5;
-  public int JJTSTRING = 6;
-  public int JJTMODEL = 7;
-  public int JJTSCHEMA = 8;
-  public int JJTPREPROCESS = 9;
-  public int JJTFEATURES = 10;
-  public int JJTLABELS = 11;
-  public int JJTALGORITHM = 12;
-  public int JJTTRAINING = 13;
-  public int JJTMAP = 14;
-  public int JJTMAPITEM = 15;
-  public int JJTPREDICATE = 16;
-  public int JJTFUNCEXP = 17;
-  public int JJTNUMMAP = 18;
-  public int JJTNUMMAPITEM = 19;
-  public int JJTEQUATION = 20;
-  public int JJTVARS = 21;
-  public int JJTVAR = 22;
-  public int JJTEXPS = 23;
-  public int JJTEXP = 24;
-  public int JJTEXP2 = 25;
-  public int JJTFUNC = 26;
-  public int JJTNUMBER = 27;
-  public int JJTVALUE = 28;
+  public int JJTNUMBERASSIGNMENT = 2;
+  public int JJTREAL = 3;
+  public int JJTDATA = 4;
+  public int JJTDATAITEM = 5;
+  public int JJTFILE = 6;
+  public int JJTMODELUSER = 7;
+  public int JJTSTRING = 8;
+  public int JJTMODEL = 9;
+  public int JJTSCHEMA = 10;
+  public int JJTPREPROCESS = 11;
+  public int JJTFEATURES = 12;
+  public int JJTLABELS = 13;
+  public int JJTALGORITHM = 14;
+  public int JJTTRAINING = 15;
+  public int JJTMAP = 16;
+  public int JJTMAPITEM = 17;
+  public int JJTPREDICATE = 18;
+  public int JJTFUNCEXP = 19;
+  public int JJTNUMMAP = 20;
+  public int JJTNUMMAPITEM = 21;
+  public int JJTVARS = 22;
+  public int JJTVAR = 23;
+  public int JJTEXPS = 24;
+  public int JJTEXP = 25;
+  public int JJTEXP2 = 26;
+  public int JJTFUNC = 27;
+  public int JJTNUMBER = 28;
+  public int JJTVALUE = 29;
 
 
   public String[] jjtNodeName = {
     "PROGRAM",
     "CONSTANTS",
+    "NUMBERASSIGNMENT",
+    "Real",
     "Data",
     "DataItem",
     "File",
@@ -55,7 +58,6 @@ public interface PilotsParserTreeConstants
     "FuncExp",
     "NumMap",
     "NumMapItem",
-    "EQUATION",
     "VARS",
     "VAR",
     "Exps",
@@ -66,4 +68,4 @@ public interface PilotsParserTreeConstants
     "Value",
   };
 }
-/* JavaCC - OriginalChecksum=b57b3bd8e45a6a9e0819d5150b037c4e (do not edit this line) */
+/* JavaCC - OriginalChecksum=8872fb76c2ee20ac1a8bc2a09acf8e47 (do not edit this line) */

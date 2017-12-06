@@ -153,7 +153,21 @@ SimpleNode Program() #PROGRAM:
 void Constants() #CONSTANTS:
 {}
 {
-  <CONSTANTS> (Equation() <SEMICOL>)+
+  <CONSTANTS> (NumberAssignment() <SEMICOL>)+
+}
+
+void NumberAssignment() #NUMBERASSIGNMENT:
+{}
+{
+  Var() <EQUAL> Real()
+}
+
+void Real():
+{
+  Token t;
+}
+{
+  t = <REAL> {jjtThis.jjtSetValue(Double.valueOf(t.image));}
 }
 
 void Data():
@@ -216,15 +230,19 @@ void Preprocess():
 }
 
 void Features():
-{}
 {
-  <FEATURES><COL> Exps() <SEMICOL>
+  String t;
+}
+{
+  <FEATURES><COL> t = Exps() { jjtThis.jjtSetValue(t); } <SEMICOL>
 }
 
 void Labels():
-{}
 {
-  <LABELS><COL> Exps() <SEMICOL>
+  String t;
+}
+{
+  <LABELS><COL> t = Exps() { jjtThis.jjtSetValue(t); } <SEMICOL>
 }
 
 void Algorithm():
@@ -283,15 +301,6 @@ void NumMapItem():
 }
 
 /* Non-terminals for normal mathematical expression */
-void Equation() #EQUATION:
-{
-  String exps; /* TODO: using string here is a hack */
-}
-{
-  Var() <EQUAL> exps = Exp()
-  { jjtThis.jjtSetValue(exps); }
-}
-
 void Vars() #VARS:
 {}
 {
@@ -375,6 +384,6 @@ String Value():
 }
 {
     number = Number() { return number; }
-    | t = <ID> { jjtThis.jjtSetValue( t.image ); } { return t.image; }
+    | t = <ID> { jjtThis.jjtSetValue( t.image ); } { return "{" + t.image + "}"; }
 }
 
