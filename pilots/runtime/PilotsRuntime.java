@@ -334,8 +334,9 @@ public class PilotsRuntime extends DebugPrint {
             // for (int i = 0; i < methods.length; i++)
             //     System.out.println( "methods[" + i + "]=" + methods[i] );
             // System.out.println( "store=" + store + ",var=" + var + ",methods=" + methods );
-
-            d = store.getData( var, methods );
+            synchronized (this) {
+                d = store.getData( var, methods );
+            }
         }
         else {
             dbgPrint( "no matching variable stored for \"" + var + "\"");

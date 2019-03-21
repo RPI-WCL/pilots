@@ -1,0 +1,1 @@
+java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar -DseriesColors=blue -DchartTitle="Angle of Attack Check (Mode)" -DxAxisLegend="Time" -DyAxisLegend="Mode" -DvalueRange=-1~4 pilots.util.ChartServer 9997
