@@ -30,8 +30,8 @@ public class AoaCheckDemo extends PilotsRuntime {
         errorSigs_ = new Vector<ErrorSignature>();
 
         Vector<Constraint> constraints1 = new Vector<Constraint>();        
-        constraints1.add( new Constraint( Constraint.GREATER_THAN, -1.0 ) );
-        constraints1.add( new Constraint( Constraint.LESS_THAN, 1.0 ) );
+        constraints1.add( new Constraint( Constraint.GREATER_THAN, -4.0 ) );
+        constraints1.add( new Constraint( Constraint.LESS_THAN, 4.0 ) );
         errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "No error", constraints1 ) );        
 
         Vector<Constraint> constraints2 = new Vector<Constraint>();

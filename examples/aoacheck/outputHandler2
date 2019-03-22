@@ -1,1 +1,1 @@
-java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar -DseriesColors=red -DchartTitle="Angle of Attack Check (Error)" pilots.util.ChartServer 9998
+java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar -DseriesColors=red -DchartTitle="Airspeed Crosscheck Error" -DxAxisLegend="Time" -DyAxisLegend="Error [knot]" -DvalueRange=-25~75 pilots.util.ChartServer 9998
