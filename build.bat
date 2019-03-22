@@ -2,7 +2,7 @@
 set DIST=.\classes
 set ROOT=%CD%
 set CLASSPATH=.;%DIST%;.\lib\jcommon-1.0.17.jar;.\lib\jfreechart-1.0.14.jar;.\lib\json-java.jar;
-set VERSION=0.4
+set VERSION=0.5
 
 echo PILOTS Build Script (v%VERSION%)
 echo Please make sure the current directory is in your CLASSPATH

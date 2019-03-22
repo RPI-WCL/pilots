@@ -3,7 +3,7 @@
 export CLASSPATH=./classes:./lib/jcommon-1.0.17.jar:./lib/jfreechart-1.0.14.jar:./lib/json-java.jar:$CLASSPATH 
 DIST=./classes
 ROOT=$(pwd)
-VERSION=0.4
+VERSION=0.5
 
 echo "PILOTS Build Script (v$VERSION)"
 echo "Please make sure the current directory is in your CLASSPATH"
