@@ -1,4 +1,4 @@
-README for PILOTS ver 0.5
+README for PILOTS ver 0.4.1
 ===============================================
 
 PILOTS (**P**rogramm**I**ng **L**anguage for spati**O**-**T**emporal data **S**treaming applications) is a highly declarative programming language for spatio-temporal streaming applications.
@@ -6,7 +6,7 @@ It is capable of detecting and correcting data errors through user-defined *erro
 
 PILOTS has been successfully applied to avionics applications. Most notably, we have shown that PILOTS can fix data errors due to pitot tube sensor failures which occurred in [Air France Flight 447 accident](http://wcl.cs.rpi.edu/papers/bdse2013.pdf). For more information, visit [the PILOTS web site](http://wcl.cs.rpi.edu/pilots/) and look at [related papers](https://wcl.cs.rpi.edu/bib/Keyword/DATA-STREAMING.html).
 
-In version 0.5, we add [the AoaCheck example](https://github.com/RPI-WCL/pilots/tree/master/examples/aoacheck) which demonstrates how PILOTS works with erroneous Angle-of-Attack sensor data such as allegedly observed in accidents involving the Boeing 737 Max 8 ([Lion Air Flight 610](https://en.wikipedia.org/wiki/Lion_Air_Flight_610), [Ethiopian Airlines Flight 302](https://en.wikipedia.org/wiki/Ethiopian_Airlines_Flight_302)).
+In version 0.4.1, we add [the AoaCheck example](https://github.com/RPI-WCL/pilots/tree/master/examples/aoacheck) which demonstrates how PILOTS works with erroneous Angle-of-Attack sensor data such as allegedly observed in accidents involving the Boeing 737 Max 8 ([Lion Air Flight 610](https://en.wikipedia.org/wiki/Lion_Air_Flight_610), [Ethiopian Airlines Flight 302](https://en.wikipedia.org/wiki/Ethiopian_Airlines_Flight_302)).
 
 
 Please refer to [Readme](https://github.com/RPI-WCL/pilots/blob/master/examples/aoacheck/Readme.txt) for how to run the AoACheck example.
