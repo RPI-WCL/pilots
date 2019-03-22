@@ -1,4 +1,4 @@
-README for PILOTS ver 0.4
+README for PILOTS ver 0.5
 ===============================================
 
 PILOTS (**P**rogramm**I**ng **L**anguage for spati**O**-**T**emporal data **S**treaming applications) is a highly declarative programming language for spatio-temporal streaming applications.
@@ -6,7 +6,12 @@ It is capable of detecting and correcting data errors through user-defined *erro
 
 PILOTS has been successfully applied to avionics applications. Most notably, we have shown that PILOTS can fix data errors due to pitot tube sensor failures which occurred in [Air France Flight 447 accident](http://wcl.cs.rpi.edu/papers/bdse2013.pdf). For more information, visit [the PILOTS web site](http://wcl.cs.rpi.edu/pilots/) and look at [related papers](https://wcl.cs.rpi.edu/bib/Keyword/DATA-STREAMING.html).
 
-In version 0.4, PILOTS has introduced the ability to use machine learning models to predict output based on input streams/producers of data. These learning models utilize [sci-kit learn library](http://scikit-learn.org/stable/), and this PILOTS project already includes an offline linear regression model and an online dynamic Bayes classifier model. Further information on utilizing the learning model functionality of PILOTS can be found [here](https://wcl.cs.rpi.edu/pilots/tutorial/learning_model_overview.html).
+In version 0.5, we add [the AoaCheck example](https://github.com/RPI-WCL/pilots/tree/master/examples/aoacheck) which demonstrates how PILOTS works with erroneous Angle-of-Attack sensor data such as allegedly observed in accidents involving the Boeing 737 Max 8 ([Lion Air Flight 610](https://en.wikipedia.org/wiki/Lion_Air_Flight_610), [Ethiopian Airlines Flight 302](https://en.wikipedia.org/wiki/Ethiopian_Airlines_Flight_302)).
+
+
+Please refer to [Readme](https://github.com/RPI-WCL/pilots/blob/master/examples/aoacheck/Readme.txt) for how to run the AoACheck example.
+
+Demo video is available at: http://wcl.cs.rpi.edu/pilots/
 
 *Note: The following commands shown for the command line are assumed to be implemented in the bash shell* 
 
@@ -56,18 +61,9 @@ In version 0.4, PILOTS has introduced the ability to use machine learning models
 * **Running examples with learning model**: Refer to the [Detailed Overview of Implementing Learning Model](https://github.com/RPI-WCL/pilots/wiki/Detailed-Overview-of-Implementing-Learning-Model)
 
 
-4. What's New in This Version
+4. Limitations
 ----------------------------------------------------------------------------------------------
-* **Simulated Weight Error example**: We gave an example to show the ability to solve sensor failure problems using predictive models with error signatures and error functions. Go to [pilots/examples/weight_errorsim](https://github.com/RPI-WCL/pilots/tree/learn_dev/examples/weight_errorsim) directory for details.
-
-* **Updated Syntax**: The syntax is updated, Go to [PILOTS tutorial](http://wcl.cs.rpi.edu/pilots/tutorial/index.html) for reference. The backward compability for old syntax will be removed in the next version. Go to [pilots/examples\_new\_grammar/](https://github.com/RPI-WCL/pilots/tree/learn_dev/examples_new_grammar) directory for examples in new PILOTS syntax.
-
-* **Predictive Function**: We implemented a machine learning unility module for training predictive models easily.
-Go to [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/learn_dev/pilots/util/learningmodel) for tutorial and reference.
-
-5. Limitations
-----------------------------------------------------------------------------------------------
-* The error clause only allows a single error function.  
+* The error clause only allows a single error function.
 
 * Language only supports error signatures that are a constant, or a linear function. Examples are:
   - S: e = 100;
@@ -75,7 +71,7 @@ Go to [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/learn_
   - S(K): e = 2*t + K, K < 0, k > -100;
 
 
-6. Future Work
+5. Future Work
 ----------------------------------------------------------------------------------------------
 * types of error signatures we would like to support eventually:
     -   S(K): e = K
