@@ -113,15 +113,22 @@ public class AoaProducer
         return pilotsData;
     }
 
+
+    public void sendData(String str) {
+        // System.out.println(str);
+        
+        if (!debug) {
+            pilotsWriter.println(str);
+            pilotsWriter.flush();            
+        }
+    }
+    
     
     public void startSend() {
         Socket cmdSock = null;
         boolean loop = true, error = false;
 
-        if (!debug) {
-            pilotsWriter.println("#aoa,v");
-            pilotsWriter.flush();
-        }
+        sendData("#aoa,v");
 
         while (loop) {
             ValuePair pair = aoaAirspeedList.get(dataIndex);
@@ -136,11 +143,8 @@ public class AoaProducer
 
             String data = createPilotsData(new double[]{aoa, v});
             System.out.println("erorr=" + error + ", data=" + data);
-            
-            if (!debug) {
-                pilotsWriter.println(data);
-                pilotsWriter.flush();
-            }
+
+            sendData(data);
             
             try {
                 cmdSock = serverSock.accept();
