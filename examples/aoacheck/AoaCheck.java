@@ -27,15 +27,18 @@ private int currentModeCount;
 
         errorSigs_ = new Vector<ErrorSignature>();
 
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Normal" ) );
-
         Vector<Constraint> constraints1 = new Vector<Constraint>();
-        constraints1.add( new Constraint( Constraint.GREATER_THAN, 13.0 ) );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "AoA sensor failure", constraints1 ) );
+        constraints1.add( new Constraint( Constraint.GREATER_THAN, -10.0 ) );
+        constraints1.add( new Constraint( Constraint.LESS_THAN, 10.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Normal", constraints1 ) );
 
         Vector<Constraint> constraints2 = new Vector<Constraint>();
-        constraints2.add( new Constraint( Constraint.LESS_THAN, 13.0 ) );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Inconsistent airspeed/AoA relationship", constraints2 ) );
+        constraints2.add( new Constraint( Constraint.GREATER_THAN, 20.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "AoA higher-than-actual", constraints2 ) );
+
+        Vector<Constraint> constraints3 = new Vector<Constraint>();
+        constraints3.add( new Constraint( Constraint.LESS_THAN, -13.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "AoA lower-than-actual", constraints3 ) );
 
         errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );
     }
@@ -46,7 +49,7 @@ private int currentModeCount;
                                   Mode mode, int frequency ) {
         aoa.setValue( getData( "aoa", new Method( Method.Closest, "t" ) ) );
         v.setValue( getData( "v", new Method( Method.Closest, "t" ) ) );
-        double e = v.getValue()-1.94384*Math.sqrt(1970.676/(0.215*aoa.getValue()+0.456));
+        double e = v.getValue()-1.94384*Math.sqrt((2*1156.6*9.80665)/((0.0881*aoa.getValue()+0.3143)*16.2*1.225));
 
         win.push( e );
         mode.setMode( errorAnalyzer_.analyze( win, frequency ) );
@@ -55,11 +58,11 @@ private int currentModeCount;
         v_corrected.setValue( v.getValue() );
         switch (mode.getMode()) {
         case 1:
-            aoa_corrected.setValue( ((1970.676/v.getValue()*v.getValue())-0.456)/0.215 );
+            aoa_corrected.setValue( ((2*1156.6*1.94384*1.94384*9.80665)/(0.0881*16.2*1.225*v.getValue()*v.getValue()))-0.3143/0.0881 );
 setModeCount(1);
             break;
         case 2:
-            aoa_corrected.setValue( ((1970.676/v.getValue()*v.getValue())-0.456)/0.215 );
+            aoa_corrected.setValue( ((2*1156.6*1.94384*1.94384*9.80665)/(0.0881*16.2*1.225*v.getValue()*v.getValue()))-0.3143/0.0881 );
 setModeCount(2);
             break;
         default: setModeCount(-1);

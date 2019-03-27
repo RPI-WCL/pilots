@@ -1,7 +1,6 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Vector;
-import java.net.Socket;
+import java.io.*;
+import java.util.*;
+import java.net.*;
 import pilots.runtime.*;
 import pilots.runtime.errsig.*;
 
@@ -11,6 +10,8 @@ public class AirFranceDemo extends PilotsRuntime {
     private Vector<ErrorSignature> errorSigs_;
     private ErrorAnalyzer errorAnalyzer_;
     private double error;
+    private boolean debug = true, logging = true;
+    private FileWriter fw;    
 
     public AirFranceDemo( String args[] ) {
         try {
@@ -46,6 +47,14 @@ public class AirFranceDemo extends PilotsRuntime {
         errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Pitot tube + GPS failure", constraints4 ) );
 
         errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );
+
+        if (logging) {
+            try {
+                fw = new FileWriter(new File("./log.txt"));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }        
     }
 
     public void getCorrectedData( SlidingWindow win,
@@ -84,15 +93,17 @@ public class AirFranceDemo extends PilotsRuntime {
     }
 
     public void startOutput_true_air_speed_out() {
-        try {
-            openSocket( OutputType.Output, 0,
-                        // new String( "airspeed_failed" ),
-                        new String( "corrected_airspeed" ),
-                        new String( "error" ) );
-            openSocket( OutputType.Output, 1,
-                        new String( "mode" ) );
-        } catch ( Exception ex ) {
-            ex.printStackTrace();
+        if (!debug) {
+            try {
+                openSocket( OutputType.Output, 0,
+                            // new String( "airspeed_failed" ),
+                            new String( "corrected_airspeed" ),
+                            new String( "error" ) );
+                openSocket( OutputType.Output, 1,
+                            new String( "mode" ) );
+            } catch ( Exception ex ) {
+                ex.printStackTrace();
+            }
         }
 
         final int frequency = 1000;
@@ -117,14 +128,25 @@ public class AirFranceDemo extends PilotsRuntime {
             String desc = errorAnalyzer_.getDesc( mode.getMode() );
             dbgPrint( desc + ", true_air_speed_out=" + true_air_speed_out + " at " + getTime() );
 
-            try {
-                sendData( OutputType.Output, 0,
-                          // true_air_speed.getValue(),
-                          true_air_speed_out,
-                          error );
-                sendData( OutputType.Output, 1, mode.getMode() );
-            } catch ( Exception ex ) {
-                ex.printStackTrace();
+            if (logging) {
+                try {
+                    fw.write(getTime() + "," + true_air_speed.getValue() + "," + true_air_speed_corrected.getValue() + "," + error + "," + mode.getMode() + "\n");
+                    fw.flush();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }                
+            }
+
+            if (!debug && (true_air_speed.getValue() != 0)) {
+                try {
+                    sendData( OutputType.Output, 0,
+                              // true_air_speed.getValue(),
+                              true_air_speed_out,
+                              error );
+                    sendData( OutputType.Output, 1, mode.getMode() );
+                } catch ( Exception ex ) {
+                    ex.printStackTrace();
+                }
             }
 
             time_ += frequency;
