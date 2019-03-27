@@ -17,12 +17,12 @@ public class AoaCheckDemo extends PilotsRuntime {
     private FileWriter fw;
 
     // Cessna 172 parameters
-    private static final double K = 1.94384;    // m to knot
+    private static final double K = 1.94384;    // m/s to knot
     private static final double A =	0.0881;     // coefficient for cl
     private static final double B = 0.3143;     // coefficient for cl
     private static final double L = 1156.6;     // weight
     private static final double S = 16.2;       // wing surface
-    private static final double rho = 1.225;    // air density
+    private static final double RHO = 1.225;    // air density
     private static final double G = 9.80665;    // gravitational acceleration
     
 
@@ -69,7 +69,7 @@ public class AoaCheckDemo extends PilotsRuntime {
                                   Mode mode, int frequency ) {
         aoa.setValue( getData( "aoa", new Method( Method.Closest, "t" ) ) );
         v.setValue( getData( "v", new Method( Method.Closest, "t" ) ) );
-        error = v.getValue() - K * Math.sqrt((2*L*G) / ((A*aoa.getValue()+B)*S*rho));
+        error = v.getValue() - K * Math.sqrt((2*L*G) / ((A*aoa.getValue()+B)*S*RHO));
 
         // System.out.println("v=" + v.getValue() + ", aoa=" + aoa.getValue() + ", est_v=" + (1.94384*Math.sqrt(11.34796/(0.00076*aoa.getValue()+0.00367))) + ", error=" + error);
 
@@ -80,10 +80,10 @@ public class AoaCheckDemo extends PilotsRuntime {
         v_corrected.setValue( v.getValue() );
         switch (mode.getMode()) {
         case 1:
-            aoa_corrected.setValue(((2*L*K*K*G)/(A*S*rho*v.getValue()*v.getValue())) - B/A);
+            aoa_corrected.setValue(((2*L*K*K*G)/(A*S*RHO*v.getValue()*v.getValue())) - B/A);
             break;
         case 2:
-            aoa_corrected.setValue(((2*L*K*K*G)/(A*S*rho*v.getValue()*v.getValue())) - B/A);            
+            aoa_corrected.setValue(((2*L*K*K*G)/(A*S*RHO*v.getValue()*v.getValue())) - B/A);            
             break;
         default: setModeCount(-1);
         }
@@ -117,7 +117,7 @@ public class AoaCheckDemo extends PilotsRuntime {
 
                     String desc = errorAnalyzer_.getDesc( mode.getMode() );
                     // dbgPrint( desc + ", aoa_out=" + aoa_out + " at " + getTime() );
-                    double estimated_v = K * Math.sqrt((2*L*G) / ((A*aoa.getValue()+B)*S*rho));
+                    double estimated_v = K * Math.sqrt((2*L*G) / ((A*aoa.getValue()+B)*S*RHO));
                     if (logging) {
                         try {
                             fw.write(aoa.getValue() + "," + aoa_corrected.getValue() + "," + v.getValue() + "," + estimated_v + "," + error + "," + mode.getMode() + "\n");
