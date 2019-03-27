@@ -16,6 +16,16 @@ public class AoaCheckDemo extends PilotsRuntime {
     private boolean debug = false, logging = true;
     private FileWriter fw;
 
+    // Cessna 172 parameters
+    private static final double K = 1.94384;    // m to knot
+    private static final double A =	0.0881;     // coefficient for cl
+    private static final double B = 0.3143;     // coefficient for cl
+    private static final double L = 1156.6;     // weight
+    private static final double S = 16.2;       // wing surface
+    private static final double rho = 1.225;    // air density
+    private static final double G = 9.80665;    // gravitational acceleration
+    
+
     public AoaCheckDemo( String args[] ) {
         try {
             parseArgs( args );
@@ -30,17 +40,17 @@ public class AoaCheckDemo extends PilotsRuntime {
         errorSigs_ = new Vector<ErrorSignature>();
 
         Vector<Constraint> constraints1 = new Vector<Constraint>();        
-        constraints1.add( new Constraint( Constraint.GREATER_THAN, -4.0 ) );
-        constraints1.add( new Constraint( Constraint.LESS_THAN, 4.0 ) );
+        constraints1.add( new Constraint( Constraint.GREATER_THAN, -5.0 ) );
+        constraints1.add( new Constraint( Constraint.LESS_THAN, 5.0 ) );
         errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "No error", constraints1 ) );        
 
         Vector<Constraint> constraints2 = new Vector<Constraint>();
-        constraints2.add( new Constraint( Constraint.GREATER_THAN, 13.0 ) );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "AoA sensor failure", constraints2 ) );
+        constraints2.add( new Constraint( Constraint.GREATER_THAN, 20.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "AoA higher-than-actual", constraints2 ) );
 
         Vector<Constraint> constraints3 = new Vector<Constraint>();
-        constraints3.add( new Constraint( Constraint.LESS_THAN, -13.0 ) );
-        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "Inconsistent airspeed/AoA relationship", constraints3 ) );
+        constraints3.add( new Constraint( Constraint.LESS_THAN, -20.0 ) );
+        errorSigs_.add( new ErrorSignature( ErrorSignature.CONST, 0.0, "AoA lower-than-actual", constraints3 ) );
 
         errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );
 
@@ -59,7 +69,7 @@ public class AoaCheckDemo extends PilotsRuntime {
                                   Mode mode, int frequency ) {
         aoa.setValue( getData( "aoa", new Method( Method.Closest, "t" ) ) );
         v.setValue( getData( "v", new Method( Method.Closest, "t" ) ) );
-        error = v.getValue()-1.94384*Math.sqrt(11.34796/(0.00076*aoa.getValue()+0.00367));
+        error = v.getValue() - K * Math.sqrt((2*L*G) / ((A*aoa.getValue()+B)*S*rho));
 
         // System.out.println("v=" + v.getValue() + ", aoa=" + aoa.getValue() + ", est_v=" + (1.94384*Math.sqrt(11.34796/(0.00076*aoa.getValue()+0.00367))) + ", error=" + error);
 
@@ -70,13 +80,13 @@ public class AoaCheckDemo extends PilotsRuntime {
         v_corrected.setValue( v.getValue() );
         switch (mode.getMode()) {
         case 1:
-            aoa_corrected.setValue(((1.94384 * 1.94384 * 11.34796/(v.getValue() * v.getValue())) - 0.00367) / 0.00076);
+            aoa_corrected.setValue(((2*L*K*K*G)/(A*S*rho*v.getValue()*v.getValue())) - B/A);
             break;
         case 2:
-            aoa_corrected.setValue(((1.94384 * 1.94384 * 11.34796/(v.getValue() * v.getValue())) - 0.00367) / 0.00076);            
+            aoa_corrected.setValue(((2*L*K*K*G)/(A*S*rho*v.getValue()*v.getValue())) - B/A);            
             break;
         default: setModeCount(-1);
-}
+        }
     }
 
     public void startOutput_aoa_out() {
@@ -107,9 +117,10 @@ public class AoaCheckDemo extends PilotsRuntime {
 
                     String desc = errorAnalyzer_.getDesc( mode.getMode() );
                     // dbgPrint( desc + ", aoa_out=" + aoa_out + " at " + getTime() );
+                    double estimated_v = K * Math.sqrt((2*L*G) / ((A*aoa.getValue()+B)*S*rho));
                     if (logging) {
                         try {
-                            fw.write(aoa.getValue() + "," + aoa_corrected.getValue() + "," + v.getValue() + "," + (1.94384*Math.sqrt(11.34796/(0.00076*aoa.getValue()+0.00367))) + "," + error + "," + mode.getMode() + "\n");
+                            fw.write(aoa.getValue() + "," + aoa_corrected.getValue() + "," + v.getValue() + "," + estimated_v + "," + error + "," + mode.getMode() + "\n");
                             fw.flush();
                         } catch (Exception ex) {
                             ex.printStackTrace();
