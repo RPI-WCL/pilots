@@ -661,8 +661,15 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         return null;
     }
+
+    public Object visit(ASTConstant node, Object data) {
+        goDown("Constant");
+        goUp();
+        return null;
+    }
+    
     public Object visit(ASTOutput node, Object data) {
-        goDown( "Output" );
+        goDown("Output");
 
         //detailed console printout:
         if(DEBUG){
@@ -769,6 +776,13 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         goUp();
         return null;
     }
+
+    public Object visit(ASTMode node, Object data) {
+        goDown("Mode");
+        goUp();
+        return null;
+    }
+    
     public Object visit(ASTEstimate node, Object data){
         goDown("estimate");
         // BECAREFUL!! THIS WHOLE THING IS HACKED ONLY, IT DOESN'T COMPLY TO ANY DESIGN PATTERN!
@@ -853,7 +867,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         return null;
     }
 
-    public Object visit(ASTConst node, Object data) {
+    public Object visit(ASTConstInSignature node, Object data) {
         goDown( "Const" );        
         goUp();
         return null;

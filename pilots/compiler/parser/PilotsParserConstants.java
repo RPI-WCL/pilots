@@ -15,85 +15,97 @@ public interface PilotsParserConstants {
   /** RegularExpression Id. */
   int INPUTS = 11;
   /** RegularExpression Id. */
-  int OUTPUTS = 12;
+  int CONSTANTS = 12;
   /** RegularExpression Id. */
-  int ERRORS = 13;
+  int OUTPUTS = 13;
   /** RegularExpression Id. */
-  int SIGNATURES = 14;
+  int ERRORS = 14;
   /** RegularExpression Id. */
-  int CORRECTS = 15;
+  int SIGNATURES = 15;
   /** RegularExpression Id. */
-  int USING = 16;
+  int MODES = 16;
   /** RegularExpression Id. */
-  int AT = 17;
+  int CORRECTS = 17;
   /** RegularExpression Id. */
-  int EVERY = 18;
+  int USING = 18;
   /** RegularExpression Id. */
-  int CLOSEST = 19;
+  int AT = 19;
   /** RegularExpression Id. */
-  int EUCLIDEAN = 20;
+  int EVERY = 20;
   /** RegularExpression Id. */
-  int INTERPOLATE = 21;
+  int CLOSEST = 21;
   /** RegularExpression Id. */
-  int PREDICT = 22;
+  int EUCLIDEAN = 22;
   /** RegularExpression Id. */
-  int ESTIMATE = 23;
+  int INTERPOLATE = 23;
   /** RegularExpression Id. */
-  int WHEN = 24;
+  int PREDICT = 24;
   /** RegularExpression Id. */
-  int TIMES = 25;
+  int ESTIMATE = 25;
   /** RegularExpression Id. */
-  int NSEC = 26;
+  int WHEN = 26;
   /** RegularExpression Id. */
-  int USEC = 27;
+  int TIMES = 27;
   /** RegularExpression Id. */
-  int MSEC = 28;
+  int NSEC = 28;
   /** RegularExpression Id. */
-  int SEC = 29;
+  int USEC = 29;
   /** RegularExpression Id. */
-  int MIN = 30;
+  int MSEC = 30;
   /** RegularExpression Id. */
-  int HOUR = 31;
+  int SEC = 31;
   /** RegularExpression Id. */
-  int DAY = 32;
+  int MIN = 32;
   /** RegularExpression Id. */
-  int SQRT = 33;
+  int HOUR = 33;
   /** RegularExpression Id. */
-  int SIN = 34;
+  int DAY = 34;
   /** RegularExpression Id. */
-  int COS = 35;
+  int SQRT = 35;
   /** RegularExpression Id. */
-  int TAN = 36;
+  int SIN = 36;
   /** RegularExpression Id. */
-  int ARCSIN = 37;
+  int COS = 37;
   /** RegularExpression Id. */
-  int ARCCOS = 38;
+  int TAN = 38;
   /** RegularExpression Id. */
-  int ARCTAN = 39;
+  int ARCSIN = 39;
   /** RegularExpression Id. */
-  int ABS = 40;
+  int ARCCOS = 40;
   /** RegularExpression Id. */
-  int PROGRAM_END = 41;
+  int ARCTAN = 41;
   /** RegularExpression Id. */
-  int DIGIT = 42;
+  int ABS = 42;
   /** RegularExpression Id. */
-  int LPAR = 43;
+  int AND = 43;
   /** RegularExpression Id. */
-  int RPAR = 44;
+  int OR = 44;
   /** RegularExpression Id. */
-  int COMMA = 45;
+  int XOR = 45;
   /** RegularExpression Id. */
-  int INTEGER = 46;
+  int NOT = 46;
   /** RegularExpression Id. */
-  int SCALEFACTOR = 47;
+  int PROGRAM_END = 47;
   /** RegularExpression Id. */
-  int REAL = 48;
+  int DIGIT = 48;
   /** RegularExpression Id. */
-  int LETTER = 49;
+  int LPAR = 49;
   /** RegularExpression Id. */
-  int VAR = 50;
+  int RPAR = 50;
   /** RegularExpression Id. */
-  int STRING = 51;
+  int COMMA = 51;
+  /** RegularExpression Id. */
+  int INTEGER = 52;
+  /** RegularExpression Id. */
+  int SCALEFACTOR = 53;
+  /** RegularExpression Id. */
+  int REAL = 54;
+  /** RegularExpression Id. */
+  int LETTER = 55;
+  /** RegularExpression Id. */
+  int VAR = 56;
+  /** RegularExpression Id. */
+  int STRING = 57;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -114,9 +126,11 @@ public interface PilotsParserConstants {
     "\"*/\"",
     "\"program\"",
     "\"inputs\"",
+    "\"constants\"",
     "\"outputs\"",
     "\"errors\"",
     "\"signatures\"",
+    "\"modes\"",
     "\"correct\"",
     "\"using\"",
     "\"at\"",
@@ -143,6 +157,10 @@ public interface PilotsParserConstants {
     "\"acos\"",
     "\"atan\"",
     "\"abs\"",
+    "\"and\"",
+    "\"or\"",
+    "\"xor\"",
+    "\"not\"",
     "\"end\"",
     "<DIGIT>",
     "\"(\"",
@@ -155,8 +173,8 @@ public interface PilotsParserConstants {
     "<VAR>",
     "<STRING>",
     "\";\"",
-    "\":\"",
     "\"=\"",
+    "\":\"",
     "\"+\"",
     "\"-\"",
     "\"*\"",
@@ -167,6 +185,7 @@ public interface PilotsParserConstants {
     "\"<\"",
     "\"<=\"",
     "\"!=\"",
+    "\"==\"",
   };
 
 }

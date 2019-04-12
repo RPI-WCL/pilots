@@ -49,9 +49,11 @@ TOKEN : /* RESERVED TOKENS */
 {
 <PROGRAM_START : "program">
 | <INPUTS: "inputs">
+| <CONSTANTS: "constants">
 | <OUTPUTS: "outputs">
 | <ERRORS: "errors">
 | <SIGNATURES: "signatures">
+| <MODES: "modes">        
 | <CORRECTS: "correct">
 | <USING: "using">
 | <AT: "at">
@@ -78,6 +80,10 @@ TOKEN : /* RESERVED TOKENS */
 | <ARCCOS: "acos">
 | <ARCTAN: "atan">
 | <ABS: "abs">
+| <AND: "and">
+| <OR: "or">
+| <XOR: "xor">
+| <NOT: "not">         
 | <PROGRAM_END: "end">
 }
 
@@ -107,9 +113,11 @@ ASTPilots Pilots():
 {
     <PROGRAM_START> t = <VAR> { jjtThis.jjtSetValue( t.image ); } ";"
         <INPUTS> (";" | (Input())*)
+        (<CONSTANTS> (";" | (Constant())*))?                                                                      
         <OUTPUTS> (";" | (Output())*)
         (<ERRORS> (";" | (Error())*))?
         (<SIGNATURES> (";" | (Signature())*))?
+        (<MODES> (";" | (Mode())*))?                                                                      
         (<CORRECTS> (";" | (Correct())*))?
     <PROGRAM_END> (";")?
     { return jjtThis; }
@@ -121,8 +129,17 @@ void Input():
 }
 {
     str = Vars() 
-    { jjtThis.jjtSetValue( str ); }
+    { jjtThis.jjtSetValue(str); }
     Dim() <USING> Methods() ";"
+}
+
+void Constant():
+{
+    String str, number;
+}
+{
+    str = Vars() "=" number = Number() ";"
+    { jjtThis.jjtSetValue(str + ":" + number); }
 }
 
 void Output(): 
@@ -131,7 +148,7 @@ void Output():
 }
 {
     str = Vars() ":" exps = Exps() <AT> <EVERY> time = Time() ";"
-    { jjtThis.jjtSetValue( str + ":" + exps + ":" + time ); }
+    { jjtThis.jjtSetValue(str + ":" + exps + ":" + time); }
 }
 
 void Error():
@@ -139,8 +156,8 @@ void Error():
     String str, exps;
 }
 {
-    str = Vars() ":" exps = Exps() ";"
-    { jjtThis.jjtSetValue( str + ":" + exps ); }
+    str = Vars() "=" exps = Exps() ";"
+    { jjtThis.jjtSetValue(str + ":" + exps); }
 }
 
 void Signature():
@@ -149,12 +166,29 @@ void Signature():
     Token t1, t2, t3 = null;
 }
 {
-    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? (Estimate())? ";"
+    t1 = <VAR> (constant = ConstInSignature())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? (Estimate())? ";"
     { 
-        if (t3 != null)
-            jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps + ":" + t3.image); 
-        else
-            jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exps);         
+        if (t3 != null) {
+            jjtThis.jjtSetValue(t1.image + ":" + constant + ":" + t2.image + ":" + exps + ":" + t3.image);
+        } else {
+            jjtThis.jjtSetValue(t1.image + ":" + constant + ":" + t2.image + ":" + exps);
+        }
+    }
+}
+
+void Mode():
+{
+    String exps;
+    Token t1, t2 = null;
+}
+{
+    t1 = <VAR> ":" exps = Exps() (t2 = <STRING>)? (Estimate())? ";"
+    { 
+        if (t2 != null) {
+            jjtThis.jjtSetValue(t1.image + ":" + exps + ":" + t2.image);
+        } else {
+            jjtThis.jjtSetValue(t1.image + ":" + exps);
+        }
     }
 }
 
@@ -167,7 +201,7 @@ void Estimate():
 }
 {
     <ESTIMATE> t1 = <VAR> "=" exp = Exp() (<WHEN> t2 = <VAR> (t3 = <INTEGER> <TIMES>)?)?
-    { jjtThis.jjtSetValue( t1.image + ":" + t2.image + ":" + t3.image + ":" + exp); }
+    { jjtThis.jjtSetValue(t1.image + ":" + t2.image + ":" + t3.image + ":" + exp); }
 }
 
 void Correct():
@@ -176,8 +210,8 @@ void Correct():
     Token t1, t2;
 }
 {
-    t1 = <VAR> (constant = Const())? ":" t2 = <VAR> "=" exp = Exp() ";"
-    { jjtThis.jjtSetValue( t1.image + ":" + constant + ":" + t2.image + ":" + exp ); }
+    t1 = <VAR> (constant = ConstInSignature())? ":" t2 = <VAR> "=" exp = Exp() ";"
+    { jjtThis.jjtSetValue(t1.image + ":" + constant + ":" + t2.image + ":" + exp); }
 }
 
 
@@ -192,7 +226,7 @@ String Vars():
     { return str; }
 }
 
-String Const():
+String ConstInSignature():
 {
     Token t;
     String str;
@@ -222,7 +256,7 @@ void Method():
      | t = <INTERPOLATE> { id = t.image; }
      | t = <PREDICT> { id = t.image; } )
     "(" args = Exps() ")"
-    { jjtThis.jjtSetValue( id + ":" + args ); } 
+    { jjtThis.jjtSetValue(id + ":" + args); } 
 }
 
 void Methods(): {}
@@ -290,6 +324,11 @@ String Func():
     | t = "<" { return t.image; }
     | t = "<=" { return t.image; }
     | t = "!=" { return t.image; }
+    | t = "==" { return t.image; }
+    | t = <AND> { return t.image; }
+    | t = <OR> { return t.image; }
+    | t = <XOR> { return t.image; }
+    | t = <NOT> { return t.image; }       
     | t = <SQRT> { return t.image; }
     | t = <SIN> { return t.image; }
     | t = <COS> { return t.image; }
@@ -316,5 +355,5 @@ String Value():
 }
 {
     number = Number() { return number; }
-    | t = <VAR> { jjtThis.jjtSetValue( t.image ); } { return t.image; }
+    | t = <VAR> { jjtThis.jjtSetValue(t.image); } { return t.image; }
 }
