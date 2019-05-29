@@ -144,10 +144,13 @@ void Constant():
 
 void Output(): 
 {
-    String str, exps, time;
+    Token t;
+    String str = null, exps = null, time;
 }
 {
-    str = Vars() ":" exps = Exps() <AT> <EVERY> time = Time() ";"
+    (LOOKAHEAD(2) t = <VAR> { str = t.image; } ":" exps = Exp() | 
+     str = Vars())
+        <AT> <EVERY> time = Time() ";"
     { jjtThis.jjtSetValue(str + ":" + exps + ":" + time); }
 }
 

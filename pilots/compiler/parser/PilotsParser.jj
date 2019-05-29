@@ -240,12 +240,15 @@ void Output():
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
 /*@egen*/
-    String str, exps, time;
+    Token t;
+    String str = null, exps = null, time;
 }
 {/*@bgen(jjtree) Output */
     try {
 /*@egen*/
-    str = Vars() ":" exps = Exps() <AT> <EVERY> time = Time() ";"/*@bgen(jjtree)*/
+    (LOOKAHEAD(2) t = <VAR> { str = t.image; } ":" exps = Exp() | 
+     str = Vars())
+        <AT> <EVERY> time = Time() ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
