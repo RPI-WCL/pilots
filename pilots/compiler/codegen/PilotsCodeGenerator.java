@@ -19,6 +19,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     private List<Correct> corrects = null;
     private String code = null;
     private boolean sim = false;
+    private Map<String, String> varsMap = null;
 
     private static int depth = 0;
     
@@ -49,6 +50,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         modes = new ArrayList<>();
         corrects = new ArrayList<>();
         code = new String();
+        varsMap = new HashMap<>(); // Store variables in inputs
 
         if (System.getProperty("sim") != null)
             sim = true;
@@ -99,16 +101,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += "package " + p + ";\n";
             code += "\n";
         }
-        if (sim) {
-            code += "import java.io.BufferedReader;\n";
-            code += "import java.io.InputStreamReader;\n";
-        }
-        else {
-            code += "import java.util.Timer;\n";
-            code += "import java.util.TimerTask;\n";
-        }
-        code += "import java.text.SimpleDateFormat;import java.util.Date;\n";
-        code += "import java.util.Vector;\n";
+        if (sim)
+            code += "import java.io.*;\n";
+        code += "import java.util.*;\n";
+        code += "import java.text.*;\n";
         code += "import java.net.Socket;\n";
         code += "import pilots.runtime.*;\n";
         code += "import pilots.runtime.errsig.*;\n";
@@ -126,10 +122,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         for (int i = 0; i < outputs.size(); i++) {
             OutputStream output = outputs.get(i);
             String[] outputVarNames = output.getVarNames();
-            code += insIndent() + "private SlidingWindow win" + outputVarNames[0] + ";\n";
+            code += insIndent() + "private SlidingWindow win_" + outputVarNames[0] + ";\n";
         }
         if (sigs != null) {
-            code += insIndent() + "private Vector<ErrorSignature> errorSigs;\n";
+            code += insIndent() + "private List<ErrorSignature> errorSigs;\n";
             code += insIndent() + "private ErrorAnalyzer errorAnalyzer;\n";
         }
         code += "\n";
@@ -160,15 +156,17 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             String[] outputVarNames = output.getVarNames();
             code += insIndent() + "win" + outputVarNames[0] + " = new SlidingWindow(getOmega());\n";
         }
-        code += "\n";
-        code += insIndent() + "errorSigs = new Vector<ErrorSignature>();\n\n";
+        if (sigs != null)
+            code += insIndent() + "errorSigs = new ArrayList<ErrorSignature>();\n";
 
         int constIndex = 1;
         for (int i = 0; i < sigs.size(); i++) {
             Signature sig = sigs.get(i);
 
             if (sig.isConstrained()) {
-                code += insIndent() + "Vector<Constraint> constraints" + constIndex + " = new Vector<Constraint>();\n";
+                code += insIndent()
+                    + "Listr<Constraint> constraints"
+                    + constIndex + " = new ArrayList<Constraint>();\n";
                 List<Constraint> constraints = sig.getConstraints();
                 for (int j = 0; j < constraints.size(); j++) {
                     Constraint c = constraints.get(j);
@@ -204,6 +202,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     private String replaceVar(String exp, Map<String, String> map) {
+        // Replace all variables in exp using entires in map
+        // E.g. exp: "a + b" ==> "data.get("a") + data.get("b")"
         String newExp = "";
         StringTokenizer tokenizer = new StringTokenizer(exp, "()/*+-", true);
 
@@ -245,7 +245,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         
         // getData
         incIndent();
-        generateGetData();
+        // generateGetData();
 
         // e
         code += insIndent() + "double e = ";
@@ -293,13 +293,14 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code += "\n";
     }
 
-    public void generateGetData() {
+    public void generateInputs() {
         for (int i = 0; i < inputs.size(); i++) {
             InputStream input = inputs.get(i);
             String[] inputVarNames = input.getVarNames();
             for (int j = 0; j < inputVarNames.length; j++) {
-                code += insIndent() + inputVarNames[j] + ".setValue(getData(\"";
-                code += inputVarNames[j] + "\", ";
+                code += insIndent() + "data.put(\"" + inputVarNames[j]
+                    + "\", getData(\"" + inputVarNames[j] + "\", ";
+                varsMap.put(inputVarNames[j], "data.get(\"" + inputVarNames[j] + "\")");
 
                 // methods
                 List<Method> methods = input.getMethods();
@@ -312,6 +313,14 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 }
                 code += "));\n";
             }
+        }
+    }
+
+    public void generateError() {
+        for (OutputStream error : errors) {
+            code += insIndent() + "data.put(\"" + error.getVarNames()[0] + "\", ";
+            code += replaceVar(replaceMathFuncs(error.getExp()), varsMap);
+            code += ");\n";
         }
     }
 
@@ -342,14 +351,54 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         
         return exp;
     }
-     
-    private void generateStartOutputs() {
+
+    private void generateSignaturesErrorDetection() {
+        code += insIndent() + "int mode = -1;\n";
+        for (OutputStream error : errors) {
+            code += insIndent() + "win.push(data.get(\""
+                + error.getVarNames()[0] + "\"));\n";
+        }
+        code += insIndent() + "mode = errorAnalyzer.estimateMode(win, frequency);\n";
+    }
+    
+    private void generateModesErrorDetection() {
+    }
+
+    private void generateEstimation() {
+        code += insIndent() + "switch (mode.getMode()) {\n";
+        for (Correct correct : corrects) {
+            code += insIndent() + "case " + correct.getMode() + ":\n";
+            code += incInsIndent() + "data.put(\"" + correct.getVar() + "\", "
+                + replaceVar(replaceMathFuncs(correct.getExp()), varsMap) + ");\n";
+            // reset other counters
+            code += "setModeCount(" + correct.getMode() + ");\n";
+            // trigger save state if this is the one we're recording.
+            if (correct.saveState){
+                code += String.format("triggerSaveState(%d, %d, \"%s\", %scorrected.getValue());\n", 
+                    correct.getMode(), 
+                    correct.saveStateTriggerModeCount,
+                    correct.getVar(),
+                    correct.getVar());
+            }
+            
+            code += insIndent() + "break;\n";
+            decIndent();
+        }
+        code += insIndent() + "default:\n";
+        incIndent();
+        code += insIndent() + "setModeCount(-1);\n";
+        code += insIndent() + "break;\n";
+        decIndent();
+        code += insIndent() + "}\n";
+    }
+    
+    private void generateOutputs() {
         for (int i = 0; i < outputs.size(); i++) {
             OutputStream output = outputs.get(i);
 
             // method declaration
             String[] outputVarNames = output.getVarNames();
-            code += insIndent() + "public void startOutput" + outputVarNames[0] + "() {\n";
+            code += insIndent() + "public void produceOutput_" + outputVarNames[0] + "() {\n";
 
             // openSocket
             code += incInsIndent() + "try {\n";
@@ -432,7 +481,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
     }
 
-    private void generateStartOutputsNoCorrection() {
+    private void generateProduceOutputsNoCorrection() {
         for (int i = 0; i < outputs.size(); i++) {
             OutputStream output = outputs.get(i);
 
@@ -478,7 +527,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += "\n";
             
             // getData
-            generateGetData();
+            // generateGetData();
 
             code += insIndent() + "double " + outputVarNames[0] + " = ";
             code += replaceVar(replaceMathFuncs(output.getExp()), map) + ";\n";
@@ -514,7 +563,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
     }
 
-    private void generateFunctions(){
+    private void generateModeCountFunctions(){
         code += insIndent() + "private void setModeCount(int mode){\n";
         code += incInsIndent() + "if (currentMode != mode){\n";
         code += incInsIndent() +  "currentMode = mode; currentModeCount = 0;\n";
@@ -554,28 +603,104 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code += decInsIndent() + "}\n";
         code += decInsIndent() + "}\n";
     }
+    
 
+
+    private void generateThreads() {
+        // Create one thread per output
+        for (int i = 0; i < outputs.size(); i++) {
+            OutputStream output = outputs.get(i);
+
+            // method declaration
+            code += insIndent() + "public void produceOutput" + output.getVarNames()[0] + "() {\n";
+
+            // openSocket
+            code += incInsIndent() + "try {\n";
+            code += incInsIndent() + "openSocket(OutputType.Output, " + i
+                + ", new String(\"" + output.getVarNames()[0] + "\"));\n";
+            code += decInsIndent() + "} catch (Exception ex) {\n";
+            code += incInsIndent() + "ex.printStackTrace();\n";
+            code += decInsIndent() + "}\n";
+            code += insIndent() + "\n";
+            
+
+            code += insIndent() + "final int frequency = " + output.getFrequency() + ";\n";
+            code += insIndent() + "Map<String, Double> data = new HashMap<>();\n";
+            if (sim)
+                code += insIndent() + "while (!isEndTime()) {\n";
+            else {
+                code += insIndent() + "timer.scheduleAtFixedRate(new TimerTask() {\n";
+                incIndent();
+                code += incInsIndent() + "public void run() {\n";
+            }
+
+            incIndent();
+            generateInputs();
+
+            // Error detection & correction
+            if (0 < errors.size()) {
+                generateError();
+                code += "\n";
+                if (0 < sigs.size()) {
+                    // Signatures-based error detection
+                    generateSignaturesErrorDetection();
+                    code += "\n";
+                }
+                else if(0 < modes.size()) {
+                    // Modes-based error detection
+                    generateModesErrorDetection();
+                    code += "\n";
+                }
+                if (0 < corrects.size()) {
+                    generateEstimation();
+                }
+            }
+            
+            // outputs
+            code += "\n";
+            for (String outputVarName : output.getVarNames()) {
+                if (output.getExp() != null) {
+                    code += insIndent() + "data.put(\"" + outputVarName + "\", "
+                        + replaceVar(replaceMathFuncs(output.getExp()), varsMap) + ");\n";
+                }
+            }
+
+            // sendData
+            code += insIndent() + "try {\n";
+            for (String outputVarName : output.getVarNames()) {
+                code += incInsIndent() + "sendData(OutputType.Output, " + i + ", data.get("
+                    + outputVarName + "\"));\n";
+            }
+            code += decInsIndent() + "} catch (Exception ex) {\n";
+            code += incInsIndent() + "ex.printStackTrace();\n";
+            code += decInsIndent() + "}\n";
+
+            if (sim) {
+                code += "\n";
+                code += insIndent() + "time += frequency;\n";
+                code += insIndent() + "progressTime(frequency);\n";
+                code += decInsIndent() + "}\n";
+                code += "\n";
+                code += insIndent() + "dbgPrint(\"Finished at \" + getTime());\n";
+            }
+            else {
+                code += decInsIndent() + "}\n";
+                decIndent();
+                code += decInsIndent() + "}, 0, frequency);\n";
+            }
+
+            code += decInsIndent() + "}\n";
+            code += "\n";            
+        }
+    }
 
     private void generateCode() {
         generateImports();
         generateClassDeclaration();
         generateConstants();
         generateConstructor();
-        
-        if (0 < errors.size() && 0 < sigs.size()) {
-            // Code for signatures
-            generateGetCorrectedData();
-            generateStartOutputs();
-        }
-        else if(0 < errors.size() && 0 < modes.size()) {
-            // Code for modes
-            ;
-        }
-        else {
-            generateStartOutputsNoCorrection();
-        }
-        
-        generateFunctions();
+        generateThreads();
+        generateModeCountFunctions();
         generateMain();
     }
 
@@ -644,32 +769,32 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         
         OutputStream output = new OutputStream();
         output.setOutputType(OutputType.Output);
-        String[] str = ((String)node.jjtGetValue()).split(":");
+        String[] vals = ((String)node.jjtGetValue()).split(":");
 
-        String[] varNames = str[0].split(",");
+        String[] varNames = vals[0].split(",");
         output.setVarNames(varNames);
-        output.setExp(str[1]);
+        output.setExp(vals[1]);
 
         int unit = 0;
-        if (str[3].equalsIgnoreCase("nsec") || str[3].equalsIgnoreCase("usec")) {
+        if (vals[3].equalsIgnoreCase("nsec") || vals[3].equalsIgnoreCase("usec")) {
             unit = 0;
         }
-        else if (str[3].equalsIgnoreCase("msec")) {
+        else if (vals[3].equalsIgnoreCase("msec")) {
             unit = 1;
         }
-        else if (str[3].equalsIgnoreCase("sec")) {
+        else if (vals[3].equalsIgnoreCase("sec")) {
             unit = 1000;
         }
-        else if (str[3].equalsIgnoreCase("min")) {
+        else if (vals[3].equalsIgnoreCase("min")) {
             unit = 60 * 1000;
         }
-        else if (str[3].equalsIgnoreCase("hour")) {
+        else if (vals[3].equalsIgnoreCase("hour")) {
             unit = 60 * 60 * 1000;
         }
-        else if (str[3].equalsIgnoreCase("day")) {
+        else if (vals[3].equalsIgnoreCase("day")) {
             unit = 24 * 60 * 60 * 1000;
         }
-        output.setFrequency((int)(Double.parseDouble(str[2]) * unit)); // msec
+        output.setFrequency((int)(Double.parseDouble(vals[2]) * unit)); // msec
         outputs.add(output);
 
         node.jjtGetChild(1).jjtAccept(this, output); // accept Exps() only
@@ -684,11 +809,11 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         OutputStream output = new OutputStream();
         output.setOutputType(OutputType.Error);
-        String[] str = ((String) node.jjtGetValue()).split(":");
+        String[] vals = ((String) node.jjtGetValue()).split(":");
 
-        String[] varNames = str[0].split(",");
+        String[] varNames = vals[0].split(",");
         output.setVarNames(varNames);
-        output.setExp(str[1]);
+        output.setExp(vals[1]);
         output.setFrequency(-1); // No frequency for error
         errors.add(output);
 
@@ -702,8 +827,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     public Object visit(ASTSignature node, Object data) {
         goDown("Signature");
 
-        String[] str = ((String) node.jjtGetValue()).split(":");
-        Signature sig = new Signature(str[0], str[1], str[3], str[4]);
+        String[] vals = ((String) node.jjtGetValue()).split(":");
+        Signature sig = new Signature(vals[0], vals[1], vals[3], vals[4]);
         sigs.add(sig);
         // this should be exactly here, otherwise it will generate wrong result        
         node.jjtGetChild(node.jjtGetNumChildren() - 1).jjtAccept(this, null);
@@ -732,9 +857,9 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         goDown("estimate");
         // BECAREFUL!! THIS WHOLE THING IS HACKED ONLY, IT DOESN'T COMPLY TO ANY DESIGN PATTERN!
 
-        String[] str = ((String) node.jjtGetValue()).split(":");
-        String variable = str[0]; String expression = str[3];
-        String when = str[1]; String times = str[2];
+        String[] vals = ((String) node.jjtGetValue()).split(":");
+        String variable = vals[0]; String expression = vals[3];
+        String when = vals[1]; String times = vals[2];
 
         int mode = -1;
         mode = sigs.size() - 1;
@@ -757,18 +882,18 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     public Object visit(ASTCorrect node, Object data) {
         goDown("Correct");
 
-        String[] str = ((String) node.jjtGetValue()).split(":");
+        String[] vals = ((String) node.jjtGetValue()).split(":");
         
         int mode = -1;
         for (int i = 0; i < sigs.size(); i++) {
             Signature sig = sigs.get(i) ;
-            if (sig.getName().equalsIgnoreCase(str[0])) {
+            if (sig.getName().equalsIgnoreCase(vals[0])) {
                 mode = i;
                 break;
             }
         }
 
-        Correct correct = new Correct(mode, str[0], str[1], str[2], str[3]);
+        Correct correct = new Correct(mode, vals[0], vals[1], vals[2], vals[3]);
         corrects.add(correct);
 
         goUp();
@@ -798,20 +923,20 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         goDown("Method");
 
         InputStream input = (InputStream)data;
-        String[] str = ((String) node.jjtGetValue()).split(":");
-        String[] args = str[1].split(",");
+        String[] vals = ((String) node.jjtGetValue()).split(":");
+        String[] args = vals[1].split(",");
 
         int id;
-        if (str[0].equalsIgnoreCase("closest")) {
+        if (vals[0].equalsIgnoreCase("closest")) {
             id = Method.CLOSEST;
-        } else if (str[0].equalsIgnoreCase("euclidean")) {
+        } else if (vals[0].equalsIgnoreCase("euclidean")) {
             id = Method.EUCLIDEAN;
-        } else if (str[0].equalsIgnoreCase("interpolate")) {
+        } else if (vals[0].equalsIgnoreCase("interpolate")) {
             id = Method.INTERPOLATE;
-        } else if (str[0].equalsIgnoreCase("predict")){
+        } else if (vals[0].equalsIgnoreCase("predict")){
             id = Method.PREDICT;
         } else {
-            System.err.println("Invalid method: " + str[0]);
+            System.err.println("Invalid method: " + vals[0]);
             return null;
         }
         
