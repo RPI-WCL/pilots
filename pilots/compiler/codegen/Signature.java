@@ -9,7 +9,6 @@ import pilots.runtime.Value;
 public class Signature {
     public static final int CONST = 0;
     public static final int LINEAR = 1;
-    private static int globalId = 0;
 
     private int id;
     private String name;
@@ -20,7 +19,7 @@ public class Signature {
     private String desc;
 
     public Signature() {
-        this.id = globalId++;
+        this.id = -1;
         this.name = null;
         this.arg = null;
         this.constraints = null;
@@ -28,8 +27,8 @@ public class Signature {
         this.desc = null;
     }
 
-    public Signature(String name, String arg, String exps, String desc) {
-        this.id = globalId++;
+    public Signature(int id, String arg, String exps, String desc) {
+        this.id = id;
         this.name = name;
         this.arg = arg;
 
@@ -40,6 +39,19 @@ public class Signature {
         }
 
         this.desc = desc;
+    }
+
+    public Signature(String id, String arg, String exps, String desc) {
+        this(-1, arg, exps, desc);
+
+        // id must look like sX(k) or sX, where s and k are case-insensitive and X is an integer
+        if (id.charAt(0) != 's' && id.charAt(0) != 'S') {
+            System.err.println("Illegel start of signature identifier: " + id.charAt(0));
+        }        
+
+        int parenIndex = id.indexOf("(");
+        String integerIdStr = (0 < parenIndex) ? id.substring(1, parenIndex) : id.substring(1);
+        this.id = Integer.parseInt(integerIdStr);
     }
 
     public void setName(String name) {
@@ -91,7 +103,6 @@ public class Signature {
     }
     
     public void parseExps(String exps) throws ParseException {
-
         String[] splitExps = exps.split(",");
 
         if (splitExps.length == 0) {
@@ -219,35 +230,31 @@ public class Signature {
         Constraint constraint = null;
         // regular constraint
         if (tokens[0].equalsIgnoreCase(this.arg)) {
-            value = Double.parseDouble(tokens[1]);
             constraints = new ArrayList<>();
-            constraint = new Constraint(type, value);
+            constraint = new Constraint(type, tokens[1]);
             constraints.add(constraint);
         }
         else if (tokens[1].equalsIgnoreCase(this.arg)) {
-            value = Double.parseDouble(tokens[0]);
             constraints = new ArrayList<>();
-            constraint = new Constraint(type, value);
+            constraint = new Constraint(type, tokens[0]);
             constraint.invertType();
             constraints.add(constraint);
         }
         // abs constraint support
         else if (tokens[0].equalsIgnoreCase("abs(" + this.arg + ")")) {
-            value = Double.parseDouble(tokens[1]);
             constraints = new ArrayList<>();
-            constraint = new Constraint(type, value);
+            constraint = new Constraint(type, tokens[1]);
             constraints.add(constraint);
-            constraint = new Constraint(type, -value);
+            constraint = new Constraint(type, "-" + tokens[1]);
             constraint.invertType();
             constraints.add(constraint);
         }
         else if (tokens[1].equalsIgnoreCase("abs(" + this.arg + ")")) {
-            value = Double.parseDouble(tokens[0]);
             constraints = new ArrayList<>();
-            constraint = new Constraint(type, value);
+            constraint = new Constraint(type, tokens[0]);
             constraint.invertType();
             constraints.add(constraint);
-            constraint = new Constraint(type, -value);
+            constraint = new Constraint(type, "-" + tokens[0]);
             constraints.add(constraint);
         }
 

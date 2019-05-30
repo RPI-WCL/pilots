@@ -9,9 +9,9 @@ public class Constraint {
     public static final int LESS_THAN_OR_EQUAL_TO = 3;
 
     private int type; // GREATER_THAN, LESS_THAN, ...
-    private double value; // the value of a endpoint
+    private String value; // the value of a endpoint
 
-    public Constraint( int type, double value ) {
+    public Constraint( int type, String value ) {
         this.type = type;
         this.value = value;
     }
@@ -20,7 +20,7 @@ public class Constraint {
         return type;
     }
 
-    public double getValue() {
+    public String getValue() {
         return value;
     }
 
@@ -30,7 +30,6 @@ public class Constraint {
 
     public String getTypeString() {
         String str = null;
-
         switch (type) {
         case GREATER_THAN:
             str = "GREATER_THAN";
@@ -47,7 +46,6 @@ public class Constraint {
         default:
             break;
         }
-
         return str;
     }
 
@@ -70,9 +68,7 @@ public class Constraint {
             str += "LESS_THAN_OR_EQUAL_TO(<=)";
             break;
         }
-
         str += ", " + value;
-
         return str;
     }
 }

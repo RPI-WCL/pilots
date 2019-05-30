@@ -119,12 +119,11 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += insIndent() + "private int time; // msec\n";
         else
             code += insIndent() + "private Timer timer;\n";
-        for (int i = 0; i < outputs.size(); i++) {
-            OutputStream output = outputs.get(i);
-            String[] outputVarNames = output.getVarNames();
-            code += insIndent() + "private SlidingWindow win_" + outputVarNames[0] + ";\n";
-        }
-        if (sigs != null) {
+        if (0 < sigs.size()) {
+            for (OutputStream error : errors) {
+                code += insIndent() + "private SlidingWindow win_"
+                    + error.getVarNames()[0] + ";\n";
+            }
             code += insIndent() + "private List<ErrorSignature> errorSigs;\n";
             code += insIndent() + "private ErrorAnalyzer errorAnalyzer;\n";
         }
@@ -150,14 +149,15 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += insIndent() + "time = 0;\n";
         else 
             code += insIndent() + "timer = new Timer();\n";
-        code += "\n";
-        for (int i = 0; i < outputs.size(); i++) {
-            OutputStream output = outputs.get(i);
-            String[] outputVarNames = output.getVarNames();
-            code += insIndent() + "win" + outputVarNames[0] + " = new SlidingWindow(getOmega());\n";
-        }
-        if (sigs != null)
+
+        if (0 < sigs.size()) {
+            code += "\n";
+            for (OutputStream error : errors) {
+                code += insIndent() + "win_" + error.getVarNames()[0]
+                    + " = new SlidingWindow(getOmega());\n";
+            }
             code += insIndent() + "errorSigs = new ArrayList<ErrorSignature>();\n";
+        }
 
         int constIndex = 1;
         for (int i = 0; i < sigs.size(); i++) {
@@ -165,7 +165,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
             if (sig.isConstrained()) {
                 code += insIndent()
-                    + "Listr<Constraint> constraints"
+                    + "List<Constraint> constraints"
                     + constIndex + " = new ArrayList<Constraint>();\n";
                 List<Constraint> constraints = sig.getConstraints();
                 for (int j = 0; j < constraints.size(); j++) {
@@ -196,7 +196,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += "\n";
         }
 
-        code += insIndent() + "errorAnalyzer = new ErrorAnalyzer(errorSigs, getTau());\n";
+        if (0 < sigs.size())
+            code += insIndent() + "errorAnalyzer = new ErrorAnalyzer(errorSigs, getTau());\n";
         code += decInsIndent() + "}\n";
         code += "\n";
     }
@@ -209,91 +210,32 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         while (tokenizer.hasMoreElements()) {
             String var = (String)tokenizer.nextElement();
+
+            // Special case for power: a^n, n is integer
+            int powerOpIndex = var.indexOf("^");
+            String exponent = null;
+            if (0 < powerOpIndex) {
+                newExp += "Math.pow(";
+                exponent = var.substring(powerOpIndex + 1);
+                var = var.substring(0, powerOpIndex);
+            }
+
             String hashVar = map.get(var);
+            // System.out.println(var + " --> " + hashVar);
             if (hashVar != null)
                 newExp += hashVar;
             else 
                 newExp += var;
+
+            if (0 < powerOpIndex)
+                newExp += ", " + exponent + ")";
         }
 
         return newExp;
     }
 
-    private void generateGetCorrectedData() {
-        // get all input variables in vars
-        List<String> vars = new ArrayList<>();
-        Map<String,String> map = new HashMap<>();
-        for (int i = 0; i < inputs.size(); i++) {
-            InputStream input = inputs.get(i);
-            String[] inputVarNames = input.getVarNames();
-            for (int j = 0; j < inputVarNames.length; j++) {
-                vars.add(inputVarNames[j]);
-                map.put(inputVarNames[j], inputVarNames[j] + ".getValue()");
-            }
-        }
-
-        // declaration
-        code += insIndent() + "public void getCorrectedData(SlidingWindow win,\n";
-        for (int i = 0; i < vars.size(); i++) {
-            String var = vars.get(i);
-            code += insIndent() + "                              ";
-            code += "Value " + var + ", Value " + var + "corrected,\n";
-        }
-        code += insIndent() + "                              Mode mode, int frequency) {\n";
-
-        // body --->
-        
-        // getData
-        incIndent();
-        // generateGetData();
-
-        // e
-        code += insIndent() + "double e = ";
-        code += replaceVar(replaceMathFuncs(errors.get(0).getExp()), map);
-        code += ";\n";
-        code += "\n";
-
-        // win & mode
-        code += insIndent() + "win.push(e);\n";
-        code += insIndent() + "mode.setMode(errorAnalyzer.analyze(win, frequency));\n";
-        code += "\n";
-
-        // correct values 
-        for (int i = 0; i < vars.size(); i++) {
-            String var = vars.get(i);
-            code += insIndent() + var + "corrected.setValue(";
-            code += map.get(var) + ");\n";
-        }
-        if (0 < corrects.size())
-            code += insIndent() + "switch (mode.getMode()) {\n";
-        for (int i = 0; i < corrects.size(); i++) {
-            Correct correct = corrects.get(i) ;
-            code += insIndent() + "case " + correct.getMode() + ":\n";
-            code += incInsIndent() + correct.getVar() + "corrected.setValue(";
-            code += replaceVar(replaceMathFuncs(correct.getExp()), map);
-            code += ");\n";
-            // reset other counters
-            code += "setModeCount(" + correct.getMode() + ");\n";
-            // trigger save state if this is the one we're recording.
-            if (correct.saveState){
-                code += String.format("triggerSaveState(%d, %d, \"%s\", %scorrected.getValue());\n", 
-                    correct.getMode(), 
-                    correct.saveStateTriggerModeCount,
-                    correct.getVar(),
-                    correct.getVar());
-            }
-            
-            code += insIndent() + "break;\n";
-            decIndent();
-        }
-        if (0 < corrects.size())
-            code += insIndent() + "default: setModeCount(-1);\n}\n";
-
-        code += decInsIndent() + "}\n";
-        code += "\n";
-    }
-
     public void generateInputs() {
+        code += insIndent() + "// Inputs\n";
         for (int i = 0; i < inputs.size(); i++) {
             InputStream input = inputs.get(i);
             String[] inputVarNames = input.getVarNames();
@@ -316,11 +258,14 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
     }
 
-    public void generateError() {
+    public void generateErrors() {
+        code += "\n";
+        code += insIndent() + "// Errors computation\n";
         for (OutputStream error : errors) {
             code += insIndent() + "data.put(\"" + error.getVarNames()[0] + "\", ";
             code += replaceVar(replaceMathFuncs(error.getExp()), varsMap);
             code += ");\n";
+            varsMap.put(error.getVarNames()[0], "data.get(\"" + error.getVarNames()[0] + "\")");
         }
     }
 
@@ -353,27 +298,46 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     private void generateSignaturesErrorDetection() {
+        code += insIndent() + "// Error detection\n";        
         code += insIndent() + "int mode = -1;\n";
         for (OutputStream error : errors) {
-            code += insIndent() + "win.push(data.get(\""
+            code += insIndent() + "win_" + error.getVarNames()[0]
+                + ".push(data.get(\""
                 + error.getVarNames()[0] + "\"));\n";
         }
-        code += insIndent() + "mode = errorAnalyzer.estimateMode(win, frequency);\n";
+        // Currently, only one error variable is supported for error signatures
+        code += insIndent() + "mode = errorAnalyzer.analyze(" 
+            + "win_" + errors.get(0).getVarNames()[0]
+            + ", frequency);\n";
     }
     
     private void generateModesErrorDetection() {
+        code += insIndent() + "// Error detection\n";
+        code += insIndent() + "int mode = -1;\n";
+        for (int i = 0; i < modes.size(); i++) {
+            Mode mode = modes.get(i);
+            if (i == 0)
+                code += insIndent() + "if (";
+            else
+                code += insIndent() + "} else if (";
+            code += replaceVar(mode.getCondition(), varsMap) + ") {\n";
+            code += incInsIndent() + "mode = " + mode.getId() + ";\t// " + mode.getDesc() + "\n";
+            decIndent();
+        }
+        code += insIndent() + "}\n";
     }
 
     private void generateEstimation() {
-        code += insIndent() + "switch (mode.getMode()) {\n";
+        code += insIndent() + "// Correct data estimation\n";
+        code += insIndent() + "switch (mode) {\n";
         for (Correct correct : corrects) {
             code += insIndent() + "case " + correct.getMode() + ":\n";
             code += incInsIndent() + "data.put(\"" + correct.getVar() + "\", "
                 + replaceVar(replaceMathFuncs(correct.getExp()), varsMap) + ");\n";
             // reset other counters
-            code += "setModeCount(" + correct.getMode() + ");\n";
+            code += insIndent() + "setModeCount(" + correct.getMode() + ");\n";
             // trigger save state if this is the one we're recording.
-            if (correct.saveState){
+            if (correct.saveState) {
                 code += String.format("triggerSaveState(%d, %d, \"%s\", %scorrected.getValue());\n", 
                     correct.getMode(), 
                     correct.saveStateTriggerModeCount,
@@ -391,228 +355,48 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         decIndent();
         code += insIndent() + "}\n";
     }
-    
-    private void generateOutputs() {
-        for (int i = 0; i < outputs.size(); i++) {
-            OutputStream output = outputs.get(i);
 
-            // method declaration
-            String[] outputVarNames = output.getVarNames();
-            code += insIndent() + "public void produceOutput_" + outputVarNames[0] + "() {\n";
-
-            // openSocket
-            code += incInsIndent() + "try {\n";
-            code += incInsIndent() + "openSocket(OutputType.Output, " + i
-                + ", new String(\"" + outputVarNames[0] + "\"));\n";
-            code += decInsIndent() + "} catch (Exception ex) {\n";
-            code += incInsIndent() + "ex.printStackTrace();\n";
-            code += decInsIndent() + "}\n";
-            code += insIndent() + "\n";
-            
-            // timer thread --->
-            code += insIndent() + "final int frequency = " + output.getFrequency() + ";\n";
-            if (sim)
-                code += insIndent() + "while (!isEndTime()) {\n";
-            else {
-                code += insIndent() + "timer.scheduleAtFixedRate(new TimerTask() {\n";
-                incIndent();
-                code += incInsIndent() + "public void run() {\n";
+    private void generateOutputs(OutputStream output) {
+        code += "\n";
+        code += insIndent() + "// Outputs computation\n";
+        for (String outputVarName : output.getVarNames()) {
+            if (!output.getExp().equals("null")) {
+                code += insIndent() + "data.put(\"" + outputVarName + "\", "
+                    + replaceVar(replaceMathFuncs(output.getExp()), varsMap) + ");\n";
             }
-
-            // variable declaration
-            List<String> vars = new ArrayList<>();
-            Map<String,String> map = new HashMap<>();
-            for (int j = 0; j < inputs.size(); j++) {
-                InputStream input = inputs.get(j);
-                String[] inputVarNames = input.getVarNames();
-                for (int k = 0; k < inputVarNames.length; k++) {
-                    vars.add(inputVarNames[k]);
-                    map.put(inputVarNames[k], inputVarNames[k] + "corrected.getValue()");
-                }
-            }
-            incIndent();
-            for (int j = 0; j < vars.size(); j++) {
-                String var = vars.get(j);
-                code += insIndent() + "Value " + var + " = new Value();\n";
-                code += insIndent() + "Value " + var + "corrected = new Value();\n";
-            }
-            code += insIndent() + "Mode mode = new Mode();\n";
-            code += "\n";
-            code += insIndent() + "getCorrectedData(win" + outputVarNames[0] + ", ";
-            for (int j = 0; j < vars.size(); j++) {
-                String var = vars.get(j);
-                code += var + ", " + var + "corrected, ";
-            }
-            code += "mode, frequency);\n";
-            code += insIndent() + "double " + outputVarNames[0] + " = ";
-            code += replaceVar(replaceMathFuncs(output.getExp()), map) + ";\n";
-            code += "\n";
-
-            // errorAnalyzer
-            code += insIndent() + "String desc = errorAnalyzer.getDesc(mode.getMode());\n";
-            code += insIndent() + "dbgPrint(desc + \", " + outputVarNames[0]
-                + "=\" + " + outputVarNames[0] + " + \" at \" + getTime());\n";
-            code += "\n";
-
-            // sendData
-            code += insIndent() + "try {\n";
-            code += incInsIndent() + "sendData(OutputType.Output, " + i + ", "
-                + outputVarNames[0] + ");\n";
-            code += decInsIndent() + "} catch (Exception ex) {\n";
-            code += incInsIndent() + "ex.printStackTrace();\n";
-            code += decInsIndent() + "}\n";
-
-            if (sim) {
-                code += "\n";
-                code += insIndent() + "time += frequency;\n";
-                code += insIndent() + "progressTime(frequency);\n";
-                code += decInsIndent() + "}\n";
-                code += "\n";
-                code += insIndent() + "dbgPrint(\"Finished at \" + getTime());\n";
-            }
-            else {
-                code += decInsIndent() + "}\n";
-                decIndent();
-                code += decInsIndent() + "}, 0, frequency);\n";
-            }
-
-            code += decInsIndent() + "}\n";
-            code += "\n";
         }
     }
 
-    private void generateProduceOutputsNoCorrection() {
-        for (int i = 0; i < outputs.size(); i++) {
-            OutputStream output = outputs.get(i);
-
-            // method declaration
-            String[] outputVarNames = output.getVarNames();
-            code += insIndent() + "public void startOutput" + outputVarNames[0] + "() {\n";
-
-            // openSocket
-            code += incInsIndent() + "try {\n";
-            code += incInsIndent() + "openSocket(OutputType.Output, " + i
-                + ", \"" + outputVarNames[0] + "\");\n";
-            code += decInsIndent() + "} catch (Exception ex) {\n";
-            code += incInsIndent() + "ex.printStackTrace();\n";
-            code += decInsIndent() + "}\n";
-            code += insIndent() + "\n";
-            
-            // timer thread --->
-            code += insIndent() + "final int frequency = " + output.getFrequency() + ";\n";
-            if (sim)
-                code += insIndent() + "while (!isEndTime()) {\n";
-            else {
-                code += insIndent() + "timer.scheduleAtFixedRate(new TimerTask() {\n";
-                incIndent();
-                code += incInsIndent() + "public void run() {\n";
-            }
-
-            // variable declaration
-            List<String> vars = new ArrayList<>();
-            HashMap<String,String> map = new HashMap<String,String>();
-            for (int j = 0; j < inputs.size(); j++) {
-                InputStream input = inputs.get(j);
-                String[] inputVarNames = input.getVarNames();
-                for (int k = 0; k < inputVarNames.length; k++) {
-                    vars.add(inputVarNames[k]);
-                    map.put(inputVarNames[k], inputVarNames[k] + ".getValue()");
-                }
-            }
-            incIndent();
-            for (int j = 0; j < vars.size(); j++) {
-                String var = vars.get(j);
-                code += insIndent() + "Value " + var + " = new Value();\n";
-            }
-            code += "\n";
-            
-            // getData
-            // generateGetData();
-
-            code += insIndent() + "double " + outputVarNames[0] + " = ";
-            code += replaceVar(replaceMathFuncs(output.getExp()), map) + ";\n";
-            code += "\n";
-
-            code += insIndent() + "dbgPrint(\"" + outputVarNames[0] + "=\" + "
-                + outputVarNames[0] + " + \" at \" + getTime());\n";
-
-            // sendData
-            code += insIndent() + "try {\n";
-            code += incInsIndent() + "sendData(OutputType.Output, " + i + ", "
-                + outputVarNames[0] + ");\n";
-            code += decInsIndent() + "} catch (Exception ex) {\n";
-            code += incInsIndent() + "ex.printStackTrace();\n";
-            code += decInsIndent() + "}\n";
-
-            if (sim) {
-                code += "\n";
-                code += insIndent() + "time += frequency;\n";
-                code += insIndent() + "progressTime(frequency);\n";
-                code += decInsIndent() + "}\n";
-                code += "\n";
-                code += insIndent() + "dbgPrint(\"Finished at \" + getTime());\n";
-            }
-            else {
-                code += decInsIndent() + "}\n";
-                decIndent();
-                code += decInsIndent() + "}, 0, frequency);\n";
-            }
-
-            code += decInsIndent() + "}\n";
-            code += "\n";
+    private void generateSendData(OutputStream output, int outputIndex) {
+        code += "\n";            
+        code += insIndent() + "// Data transfer\n";
+        code += insIndent() + "try {\n";
+        incIndent();
+        for (String outputVarName : output.getVarNames()) {
+            code += insIndent() + "sendData(OutputType.Output, "
+                + outputIndex + ", data.get(\""
+                + outputVarName + "\"));\n";
         }
-    }
-
-    private void generateModeCountFunctions(){
-        code += insIndent() + "private void setModeCount(int mode){\n";
-        code += incInsIndent() + "if (currentMode != mode){\n";
-        code += incInsIndent() +  "currentMode = mode; currentModeCount = 0;\n";
-        code += decInsIndent() + "}else{\n";
-        code += incInsIndent() + "currentModeCount++;\n";
-        code += decInsIndent() + "}\n";
-        code += decInsIndent() + "}\n";
-        code += insIndent() + "private void triggerSaveState(int mode, int count, String var, double value){\n";
-        code += incInsIndent() + "if (currentMode == mode && currentModeCount > count){\n";
-        code += incInsIndent() + "addData(var, String.format(\":%s:%s\", (new SimpleDateFormat(\"yyyy-MM-dd HHmmssSSSZ\")).format(getTime()), Double.toString(value)));\n";
-        code += decInsIndent() + "}\n";
+        code += decInsIndent() + "} catch (Exception ex) {\n";
+        code += incInsIndent() + "ex.printStackTrace();\n";
         code += decInsIndent() + "}\n";
     }
-
-    private void generateMain() {
-        code += insIndent() + "public static void main(String[] args) {\n";
-        code += incInsIndent() + appName + " app = new " + appName + "(args);\n";
-        code += insIndent() + "app.startServer();\n";
-
-        if (sim) {
-            code += "\n";
-            code += insIndent() + "BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));\n";
-            code += insIndent() + "System.out.println(\"Hit ENTER key after running input producer(s).\");\n";
-            code += insIndent() + "try {\n";
-            code += incInsIndent() + "reader.readLine();\n";
-            code += decInsIndent() + "} catch (Exception ex) {\n";
-            code += incInsIndent() + "ex.printStackTrace();\n";
-            code += decInsIndent() + "}\n";
-            code += "\n";
-        }
-
-        for (int i = 0; i < outputs.size(); i++) {
-            OutputStream output = outputs.get(i);
-            String[] outputVarNames = output.getVarNames();
-            code += insIndent() + "app.startOutput" + outputVarNames[0] + "();\n";
-        }
-        code += decInsIndent() + "}\n";
-        code += decInsIndent() + "}\n";
-    }
-    
-
 
     private void generateThreads() {
+        boolean isOutputsSectionRequired = false;
+        for (OutputStream output : outputs) {
+            if (!output.getExp().equals("null")) {
+                isOutputsSectionRequired = true;
+                break;
+            }
+        }
+        
         // Create one thread per output
         for (int i = 0; i < outputs.size(); i++) {
             OutputStream output = outputs.get(i);
 
             // method declaration
-            code += insIndent() + "public void produceOutput" + output.getVarNames()[0] + "() {\n";
+            code += insIndent() + "public void produce_" + output.getVarNames()[0] + "() {\n";
 
             // openSocket
             code += incInsIndent() + "try {\n";
@@ -639,7 +423,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
             // Error detection & correction
             if (0 < errors.size()) {
-                generateError();
+                generateErrors();
                 code += "\n";
                 if (0 < sigs.size()) {
                     // Signatures-based error detection
@@ -655,25 +439,13 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                     generateEstimation();
                 }
             }
-            
-            // outputs
-            code += "\n";
-            for (String outputVarName : output.getVarNames()) {
-                if (output.getExp() != null) {
-                    code += insIndent() + "data.put(\"" + outputVarName + "\", "
-                        + replaceVar(replaceMathFuncs(output.getExp()), varsMap) + ");\n";
-                }
-            }
 
+            // outputs
+            if (isOutputsSectionRequired)
+                generateOutputs(output);
+            
             // sendData
-            code += insIndent() + "try {\n";
-            for (String outputVarName : output.getVarNames()) {
-                code += incInsIndent() + "sendData(OutputType.Output, " + i + ", data.get("
-                    + outputVarName + "\"));\n";
-            }
-            code += decInsIndent() + "} catch (Exception ex) {\n";
-            code += incInsIndent() + "ex.printStackTrace();\n";
-            code += decInsIndent() + "}\n";
+            generateSendData(output, i);
 
             if (sim) {
                 code += "\n";
@@ -694,6 +466,49 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
     }
 
+    private void generateModeCountFunctions(){
+        code += insIndent() + "private void setModeCount(int mode) {\n";
+        code += incInsIndent() + "if (currentMode != mode) {\n";
+        code += incInsIndent() +  "currentMode = mode; currentModeCount = 0;\n";
+        code += decInsIndent() + "} else {\n";
+        code += incInsIndent() + "currentModeCount++;\n";
+        code += decInsIndent() + "}\n";
+        code += decInsIndent() + "}\n";
+        code += "\n";
+        code += insIndent() + "private void triggerSaveState (int mode, int count, String var, double value) {\n";
+        code += incInsIndent() + "if (currentMode == mode && currentModeCount > count) {\n";
+        code += incInsIndent() + "addData(var, String.format(\":%s:%s\", (new SimpleDateFormat(\"yyyy-MM-dd HHmmssSSSZ\")).format(getTime()), Double.toString(value)));\n";
+        code += decInsIndent() + "}\n";
+        code += decInsIndent() + "}\n";
+        code += "\n";
+    }
+
+    private void generateMain() {
+        code += insIndent() + "public static void main(String[] args) {\n";
+        code += incInsIndent() + appName + " app = new " + appName + "(args);\n";
+        code += insIndent() + "app.startServer();\n";
+
+        if (sim) {
+            code += "\n";
+            code += insIndent() + "BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));\n";
+            code += insIndent() + "System.out.println(\"Hit ENTER key after running input producer(s).\");\n";
+            code += insIndent() + "try {\n";
+            code += incInsIndent() + "reader.readLine();\n";
+            code += decInsIndent() + "} catch (Exception ex) {\n";
+            code += incInsIndent() + "ex.printStackTrace();\n";
+            code += decInsIndent() + "}\n";
+            code += "\n";
+        }
+
+        for (int i = 0; i < outputs.size(); i++) {
+            OutputStream output = outputs.get(i);
+            String[] outputVarNames = output.getVarNames();
+            code += insIndent() + "app.produce_" + outputVarNames[0] + "();\n";
+        }
+        code += decInsIndent() + "}\n";
+        code += decInsIndent() + "}\n";
+    }
+    
     private void generateCode() {
         generateImports();
         generateClassDeclaration();
@@ -826,29 +641,22 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public Object visit(ASTSignature node, Object data) {
         goDown("Signature");
-
         String[] vals = ((String) node.jjtGetValue()).split(":");
+        // format = id:constant:arg:exps
         Signature sig = new Signature(vals[0], vals[1], vals[3], vals[4]);
         sigs.add(sig);
         // this should be exactly here, otherwise it will generate wrong result        
         node.jjtGetChild(node.jjtGetNumChildren() - 1).jjtAccept(this, null);
         goUp();
+
         return null;
     }
 
     public Object visit(ASTMode node, Object data) {
         goDown("Mode");
-
         String[] vals = ((String)node.jjtGetValue()).split(":");
-
-        if (vals[0].charAt(0) != 'm') {
-            System.err.println("Illegel start of mode identifier: " + vals[0].charAt(0));
-            return null;
-        }
-        int id = Integer.parseInt(vals[0].substring(1));
-        String condition = replaceLogicalOps(vals[1]);
-        Mode mode = new Mode(id, condition, vals[2]);
-       
+        Mode mode = new Mode(vals[0], replaceLogicalOps(vals[1]), vals[2]);
+        modes.add(mode);
         goUp();
         return null;
     }
@@ -876,6 +684,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         corrects.add(correct); 
         goUp();
+        
         return null;
     }
 
@@ -895,7 +704,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         Correct correct = new Correct(mode, vals[0], vals[1], vals[2], vals[3]);
         corrects.add(correct);
-
         goUp();
 
         return null;
