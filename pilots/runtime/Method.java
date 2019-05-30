@@ -1,46 +1,59 @@
 package pilots.runtime;
 
 public class Method {
-    public static final int Closest = 0;
-    public static final int Euclidean = 1;
-    public static final int Interpolate = 2;
-    public static final int Predict = 3;
+    public static final int CLOSEST = 0;
+    public static final int EUCLIDEAN = 1;
+    public static final int INTERPOLATE = 2;
+    public static final int PREDICT = 3;
+    public static final String[] methodNames = {"Method.CLOSEST",
+                                                "Method.EUCLIDEAN",
+                                                "Method.INTERPOLATE",
+                                                "Method.PREDICT"};
 
-    private int id_;
-    private String args_[];
+    private int id;
+    private String args[];
 
-    public Method( int id ) {
-        if ((id < Closest) || (Predict < id)) {
-            System.err.println( "Invalid id: " + id );
+    
+    public Method(int id) {
+        if ((id < CLOSEST) || (PREDICT < id)) {
+            System.err.println("Invalid id: " + id);
             return;
         }
 
-        id_ = id;
-        args_ = null;
+        this.id = id;
+        this.args = null;
     }
 
-    public Method( int id, String... args ) {
-        id_ = id;
+    public Method(int id, String... args) {
+        this.id = id;
 
-        args_ = new String[args.length];
+        this.args = new String[args.length];
         for (int i = 0; i < args.length; i++) {
-            args_[i] = args[i];
+            this.args[i] = args[i];
         }
     }
 
-    public int getID() {
-        return id_;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String[] getArgs() {
-        return args_;
+        return args;
     }
 
-    public int searchArg( String arg ) {
+    public void setArgs(String[] args) {
+        this.args = args;
+    }
+
+    public int searchArg(String arg) {
         int found = -1;
 
-        for (int i = 0; i < args_.length; i++) {
-            if (args_[i].equals( arg )) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals(arg)) {
                 found = i;
                 break;
             }
@@ -49,39 +62,15 @@ public class Method {
         return found;
     }
 
-    public void setArgs( String[] args ) {
-        args_ = args;
-    }
-
     public String toString() {
         // this is for the compiler 
-        String str = new String();
+        String str = methodNames[id] + ", ";
 
-        // id 
-        switch (id_) {
-        case Closest:
-            str += "Method.Closest";
-            break;
-        case Euclidean:
-            str += "Method.Euclidean";
-            break;
-        case Interpolate:
-            str += "Method.Interpolate";
-            break;
-        case Predict:
-            str += "Method.Predict";
-            break;
-        default:
-            break;
-        }
-        str += ", ";
-
-        // args
-        for (int i = 0; i < args_.length; i++) {
+        for (int i = 0; i < args.length; i++) {
             if (i == 0) 
-                str += "\"" + args_[i] + "\"";
+                str += "\"" + args[i] + "\"";
             else
-                str += ", \"" + args_[i] + "\"";
+                str += ", \"" + args[i] + "\"";
         }
 
         return str;

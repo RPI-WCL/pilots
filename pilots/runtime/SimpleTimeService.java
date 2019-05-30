@@ -4,27 +4,27 @@ import java.util.Date;
 import java.util.Calendar;
 
 public class SimpleTimeService implements CurrentLocationTimeService {
-    private Date then_;
-    private long baseTime_;
+    private Date then;
+    private long baseTime;
 
     public SimpleTimeService() {
-        then_ = null;
-        baseTime_ = 0;
+        this.then = null;
+        this.baseTime = 0;
     }
     
 
     public SimpleTimeService( Date base ) {
-        then_ = new Date();
-        baseTime_ = base.getTime();
+        this.then = new Date();
+        this.baseTime = base.getTime();
     }
     
     public Date getTime() {
         Date now = new Date();
         
-        if (0 < baseTime_ ) {
-            // calculate time based on baseTime_
-            long diff = now.getTime() - then_.getTime();
-            now.setTime( diff + baseTime_ );
+        if (0 < baseTime ) {
+            // calculate time based on baseTime
+            long diff = now.getTime() - then.getTime();
+            now.setTime(diff + baseTime);
         }
         
         return now;
@@ -34,7 +34,7 @@ public class SimpleTimeService implements CurrentLocationTimeService {
         return null;
     }
 
-    public void progressTime( long offset ) {
+    public void progressTime(long offset) {
         return;
     }
 

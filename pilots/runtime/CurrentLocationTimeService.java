@@ -8,6 +8,6 @@ public interface CurrentLocationTimeService {
     public double[] getLocation();
     
     // for simulation
-    public void progressTime( long offset ); // offset in msec
+    public void progressTime(long offset); // offset in msec
     public boolean isEndTime();
 }

@@ -5,79 +5,79 @@ import java.util.Arrays;
 public class SlidingWindow {
     private static final int MAX_WINDOW_SIZE = 1024; // should be much larger than omega
    
-    private double[] window_;
-    private int omega_;         // window size
-    private int size_;          // current # of elements
-    private int start_pos_;
+    private double[] window;
+    private int omega;         // window size
+    private int size;          // current # of elements
+    private int startPos;
     
-    public SlidingWindow (int omega ) {
-        omega_ = omega;
-        window_ = new double[MAX_WINDOW_SIZE];
-        Arrays.fill( window_, 0 );
-        size_ = 0;
-        start_pos_ = 0;
+    public SlidingWindow (int omega) {
+        this.omega = omega;
+        this.window = new double[MAX_WINDOW_SIZE];
+        Arrays.fill(this.window, 0);
+        this.size = 0;
+        this.startPos = 0;
     }
 
-    public void push ( double data ) {
+    public void push (double data) {
         // adds data to the tail of window
-        if (size_ < omega_) {
-            window_[size_] = data;
-            size_++;
+        if (size < omega) {
+            window[size] = data;
+            size++;
         }
         else {
-            int write_pos = start_pos_ + size_;
+            int writePos = startPos + size;
 
-            // System.out.println( "push, start_pos=" + start_pos_ + ", write_pos=" + write_pos );
+            // System.out.println("push, start_pos=" + startPos + ", writePos=" + writePos);
 
-            if (write_pos < MAX_WINDOW_SIZE) {
+            if (writePos < MAX_WINDOW_SIZE) {
                 // just shift the window, one data to the right
-                window_[write_pos] = data;
-                start_pos_++;
+                window[writePos] = data;
+                startPos++;
             }
             else {
                 // not enough room in the window, copy the data to the beginning
                 // src and dst should not be overlapped
-                for (int i = 0; i < omega_ - 1; i++) {
-                    window_[i] = window_[start_pos_ + i + 1];
+                for (int i = 0; i < omega - 1; i++) {
+                    window[i] = window[startPos + i + 1];
                 }
-                window_[omega_ - 1] = data;
-                start_pos_ = 0;
+                window[omega - 1] = data;
+                startPos = 0;
             }
         }
     }
 
     public String toString() {
         String str = "";
-        for (int i = 0; i < omega_; i++) {
-            if (i == omega_ - 1)
-                str += window_[start_pos_ + i];
+        for (int i = 0; i < omega; i++) {
+            if (i == omega - 1)
+                str += window[startPos + i];
             else 
-                str += window_[start_pos_ + i] + ", ";
+                str += window[startPos + i] + ", ";
         }
 
         return str;
     }
 
-    public double at( int i ) {
+    public double at(int i) {
         // returns the element at index i
-        return window_[start_pos_ + i];
+        return window[startPos + i];
     }
 
     public int getSize() {
-        return size_;
+        return size;
     }
 
     public int getOmega() {
-        return omega_;
+        return omega;
     }
 
-    public static void main( String args[] ) {
+    public static void main(String args[]) {
         // test
-        SlidingWindow win = new SlidingWindow( 5 );  // tested with MAX_WINDOW_SIZE=10
+        SlidingWindow win = new SlidingWindow(5);  // tested with MAX_WINDOW_SIZE=10
 
         for (int i = 1; i < 25; i++) {
-            win.push( i );
-            System.out.println( "i=" + i + ", win=" + win + ", win.at(2)=" + win.at(2) );
+            win.push(i);
+            System.out.println("i=" + i + ", win=" + win + ", win.at(2)=" + win.at(2));
         }
     }
 }

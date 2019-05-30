@@ -19,7 +19,7 @@ echo "package pilots;" > ./pilots/Version.java
 echo "public class Version { public static final String ver = \"$VERSION\"; }" >> ./pilots/Version.java
 
 echo "Compiling pilots..."
-javac -Xlint:none -d $DIST `find . -name "*.java" | egrep -v 'test|example'`
+javac -Xlint:deprecation -d $DIST `find . -name "*.java" | egrep -v 'test|example'`
 # 
 
 echo "Generating jar file..."

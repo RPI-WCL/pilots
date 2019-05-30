@@ -89,38 +89,61 @@ public class AoaCheckDemo extends PilotsRuntime {
         }
     }
 
+
     public void startOutput_aoa_out() {
         if (!debug) {
             try {
                 openSocket(OutputType.Output, 0,
-                           new String( "aoa(monitored)" ),
-                           new String( "aoa(estimated)" ) );
-                openSocket(OutputType.Output, 1, new String( "error"));
-                openSocket(OutputType.Output, 2, new String( "mode" ) );
+                           new String("aoa(monitored)"),
+                           new String("aoa(estimated)"));
+                openSocket(OutputType.Output, 1, new String("error"));
+                openSocket(OutputType.Output, 2, new String("mode"));
                 
             } catch ( Exception ex ) {
                 ex.printStackTrace();
             }
         }
-        
+
+        // Use hashmap to avoid variable name collisions between source PILOTS program and translated java code
+        Map<String, Double> data = new HashMap<>();
         final int frequency = 1000;
         timer_.scheduleAtFixedRate( new TimerTask() {
                 public void run() {
-                    Value aoa = new Value();
-                    Value aoa_corrected = new Value();
-                    Value v = new Value();
-                    Value v_corrected = new Value();
-                    Mode mode = new Mode();
+                    // get inputs & compute error
+                    data.put("aoa", getData("aoa", new Method(Method.Closest, "t")));
+                    data.put("v", getData("v", new Method(Method.Closest, "t")));
+                    data.put("SpeedCheck.mode", getData("SpeedCheck.mode", new Method(Method.Closest, "t")));
+                    data.put("error", data.get("v") - Math.sqrt((2*L*G) / (A*data.get("aoa") + B)*S*RHO));
 
-                    getCorrectedData( win_aoa_out_, aoa, aoa_corrected, v, v_corrected, mode, frequency );
-                    double aoa_out = aoa_corrected.getValue();
-
-                    String desc = errorAnalyzer_.getDesc( mode.getMode() );
-                    // dbgPrint( desc + ", aoa_out=" + aoa_out + " at " + getTime() );
-                    double estimated_v = K * Math.sqrt((2*L*G) / ((A*aoa.getValue()+B)*S*RHO));
+                    int mode = -1;
+                    // code for error signature
+                    win.push(data.get("error"));
+                    mode = errorAnalyzer.estimateMode(win, frequency);
+                    // code for boolean mode estimation
+                    if (("SpeedCheck.mode" == 0) && (Math.abs(data.get("error")) < 10)) {
+                        mode = 0;
+                    } else if (("SpeedCheck.mode" == 0) && (Math.abs(data.get("error")) > 20)) {
+                        mode = 1;
+                    }
+                    
+                    // initial estimated values in case of modes 0 (normal) and -1 (unknown)
+                    data.put("aoa_estimated", data.get("aoa"));
+                    data.put("v_estimated", data.get("v"));
+                    switch(mode) {
+                    case 1:
+                        data.put("aoa_estimated", (2*L*K*K*G)/(A*S*RHO*data.get("v")*data.get("v")) - B/A);
+                        break;
+                    case 2:
+                        data.put("aoa_estimated", (2*L*K*K*G)/(A*S*RHO*data.get("v")*data.get("v")) - B/A);
+                        break;
+                    default:
+                        setModeCount(-1); // is this for the when clause?
+                        break;
+                    }
+                    
                     if (logging) {
                         try {
-                            fw.write(aoa.getValue() + "," + aoa_corrected.getValue() + "," + v.getValue() + "," + estimated_v + "," + error + "," + mode.getMode() + "\n");
+                            fw.write(data.get("aoa") + "," + data.get("aoa_estimated") + "," + data.get("v") + "," + data.get("v_estimated") + "," + error + "," + mode + "\n");
                             fw.flush();
                         } catch (Exception ex) {
                             ex.printStackTrace();

@@ -2,25 +2,25 @@ package pilots.runtime;
 
 public class Value {
     public static final double NULL = Double.MAX_VALUE;
-    double value_;
+    private double value;
 
     public Value() {
-        value_ = NULL;
+        value = NULL;
     }
 
-    public Value( double value ) {
-        value_ = value;
+    public Value(double value) {
+        this.value = value;
     }
 
-    public void setValue( double value ) {
-        value_ = value;
+    public void setValue(double value) {
+        this.value = value;
     }
 
     public double getValue() {
-        return value_;
+        return value;
     }
 
     public String toString() {
-        return Double.toString( value_ );
+        return Double.toString(value);
     }
 }

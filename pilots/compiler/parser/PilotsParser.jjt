@@ -135,11 +135,11 @@ void Input():
 
 void Constant():
 {
-    String str, number;
+    String str, exp;
 }
 {
-    str = Vars() "=" number = Number() ";"
-    { jjtThis.jjtSetValue(str + ":" + number); }
+    str = Vars() "=" exp = Exp() ";"
+    { jjtThis.jjtSetValue(str + ":" + exp); }
 }
 
 void Output(): 
@@ -159,7 +159,7 @@ void Error():
     String str, exps;
 }
 {
-    str = Vars() "=" exps = Exps() ";"
+    str = Vars() ":" exps = Exps() ";"
     { jjtThis.jjtSetValue(str + ":" + exps); }
 }
 

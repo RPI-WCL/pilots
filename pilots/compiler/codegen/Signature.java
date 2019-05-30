@@ -1,130 +1,151 @@
 package pilots.compiler.codegen;
 
-import java.util.Vector;
 import java.text.ParseException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+import java.util.regex.*;
 import pilots.compiler.codegen.Constraint;
 import pilots.runtime.Value;
 
 public class Signature {
-
-    //change to true if you want console printout statements
-    public static final boolean DEBUG = false;
-
     public static final int CONST = 0;
     public static final int LINEAR = 1;
-    private static int global_id = 0;
+    private static int globalId = 0;
 
-    private int id_;
-    private String name_;
-    private int type_;          // LINEAR or CONSTANT
-    private String arg_;        // K
-    private double value_;
-    private Vector<Constraint> constraints_;
-    private String desc_;
+    private int id;
+    private String name;
+    private int type;          // LINEAR or CONSTANT
+    private String arg;        // K
+    private double value;
+    private List<Constraint> constraints;
+    private String desc;
 
     public Signature() {
-        id_ = global_id++;
-        name_ = null;
-        arg_ = null;
-        constraints_ = null;
-        value_ = 0.0;
-        desc_ = null;
+        this.id = globalId++;
+        this.name = null;
+        this.arg = null;
+        this.constraints = null;
+        this.value = 0.0;
+        this.desc = null;
     }
 
-    public Signature( String name, String arg, String exps, String desc ) {
-        id_ = global_id++;
-        name_ = name;
-        arg_ = arg;
+    public Signature(String name, String arg, String exps, String desc) {
+        this.id = globalId++;
+        this.name = name;
+        this.arg = arg;
 
         try {
-            parseExps( exps );
+            parseExps(exps);
         } catch (ParseException ex) {
             ex.printStackTrace();
         }
 
-        desc_ = desc;
+        this.desc = desc;
     }
 
-    public void setName( String name ) {
-        name_ = name;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setArg( String arg ) {
-        arg_ = arg;
+    public String getName() {
+        return name;
     }
 
-    public void setType( int type ) {
-        type_ = type;
+    public void setArg(String arg) {
+        this.arg = arg;
     }
 
-    public void setValue( double value ) {
-        value_ = value;
+    public String getArg() {
+        return arg;
     }
 
-    public void parseExps( String exps ) throws ParseException {
+    public void setType(int type) {
+        this.type = type;
+    }
+    
+    public int getType() {
+        return type;
+    }
 
-        String[] splitExps = exps.split( "," );
+    public void setValue(double value) {
+        this.value = value;
+    }
 
-        //detailed console printout:
-        if(DEBUG){
-            for (int i = 0; i < splitExps.length; i++) 
-                System.out.println( "parseExps, splitExps[" + i + "]=" + splitExps[i] );
-        }
+    public double getValue() {
+        return this.value;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public String getDesc() {
+        return this.desc;
+    }
+    
+    public List<Constraint> getConstraints() {
+        return this.constraints;
+    }
+
+    public boolean isConstrained() {
+        return (this.constraints != null);
+    }
+    
+    public void parseExps(String exps) throws ParseException {
+
+        String[] splitExps = exps.split(",");
 
         if (splitExps.length == 0) {
-            throw new ParseException( "no expression found in the signature", 0 );
+            throw new ParseException("no expression found in the signature", 0);
         }
 
         // check the first exp
         int i = 0;
-        type_ = CONST;
+        type = CONST;
         String delimiter = "+/*"; // parentheses are not supported
         while (i < splitExps[0].length()) {
-            if (0 <= delimiter.indexOf( splitExps[0].charAt( i ) )) {
+            if (0 <= delimiter.indexOf(splitExps[0].charAt(i))) {
                 // if one of "+/*" is found, splitExps[0] must be linear
-                type_ = LINEAR;
+                type = LINEAR;
                 break;
             }
             i++;
         }
-        if (type_ == LINEAR)
-            value_ = extractValue( splitExps[0] );
+        if (type == LINEAR)
+            this.value = extractValue(splitExps[0]);
         else {
-            Pattern pattern = Pattern.compile( "[A-Za-z]+" );
-            Matcher matcher = pattern.matcher( splitExps[0] );
+            Pattern pattern = Pattern.compile("[A-Za-z]+");
+            Matcher matcher = pattern.matcher(splitExps[0]);
 
             // constant value or 'K'
-            if (arg_.equals( "null" ) && matcher.matches()) {
-                throw new ParseException( "constant must be defined on the left side", 0 );
+            if (this.arg.equals("null") && matcher.matches()) {
+                throw new ParseException("constant must be defined on the left side", 0);
             }
 
-            if (!arg_.equalsIgnoreCase( splitExps[0] ))
-                value_ = Double.parseDouble( splitExps[0] );
+            if (!this.arg.equalsIgnoreCase(splitExps[0]))
+                this.value = Double.parseDouble(splitExps[0]);
         }
 
         // check the following exps
-        constraints_ = null;
+        this.constraints = null;
         if (1 < splitExps.length) {
             // there must be a constraint
 
             for (i = 1; i < splitExps.length; i++) {
-                Vector<Constraint> constraints = extractConstraints( splitExps[i] );
+                List<Constraint> constraints = extractConstraints(splitExps[i]);
                 if (constraints != null) {
-                    if (constraints_ == null) 
-                        constraints_ = new Vector<Constraint>();
-                    constraints_.addAll( constraints );
+                    if (this.constraints == null) 
+                        this.constraints = new ArrayList<>();
+                    this.constraints.addAll(constraints);
                 }
             }
         } 
     }
 
-    public double extractValue( String exp ) {
+    public double extractValue(String exp) {
         String delimiter = "+/* "; // parentheses are not supported
         String[] tokens = new String[2];
 
-        int multIndex = exp.indexOf( '*' );
+        int multIndex = exp.indexOf('*');
 
         if (multIndex < 0) {
             return -1;
@@ -133,42 +154,32 @@ public class Signature {
         int i = multIndex - 1;
 
         // scan backwards
-        while (0 <= i && (delimiter.indexOf( exp.charAt( i )) < 0)) {
+        while (0 <= i && (delimiter.indexOf(exp.charAt(i)) < 0)) {
            i-- ;
         }
-        tokens[0] = exp.substring( i+1, multIndex );
-
-        //detailed console printout:
-        if(DEBUG){
-            System.out.println( "extractValue, tokens[0]=" + tokens[0] );
-        }
+        tokens[0] = exp.substring(i+1, multIndex);
 
         // scan forwards
         int expLen = exp.length();
         i = multIndex + 1;
-        while (i < expLen && (delimiter.indexOf( exp.charAt( i )) < 0)) {
+        while (i < expLen && (delimiter.indexOf(exp.charAt(i)) < 0)) {
            i++ ;
         }
-        tokens[1] = exp.substring( multIndex+1, i );
-
-        //detailed console printout:
-        if(DEBUG){
-            System.out.println( "extractValue, tokens[1]=" + tokens[1] );
-        }
+        tokens[1] = exp.substring(multIndex+1, i);
 
         double value = -1.0;
-        if (tokens[0].equalsIgnoreCase( "t" )) {
-            value = Double.parseDouble( tokens[1] );
+        if (tokens[0].equalsIgnoreCase("t")) {
+            value = Double.parseDouble(tokens[1]);
         }
-        else if (tokens[1].equalsIgnoreCase( "t" )) {
-            value = Double.parseDouble( tokens[0] );
+        else if (tokens[1].equalsIgnoreCase("t")) {
+            value = Double.parseDouble(tokens[0]);
         }
 
         return value;
     }
 
 
-    public Vector<Constraint> extractConstraints( String exp ) {
+    public List<Constraint> extractConstraints(String exp) {
         String comparator = "<>=";
         String[] tokens = new String[2];
 
@@ -177,9 +188,9 @@ public class Signature {
         int expLen = exp.length();
         while (i < expLen) {
             // i: start of comparator, j: end of comparator
-            if (0 <= comparator.indexOf(exp.charAt( i ))) {
+            if (0 <= comparator.indexOf(exp.charAt(i))) {
                 j = i;
-                switch (exp.charAt( i )) {
+                switch (exp.charAt(i)) {
                 case '<':
                     type = Constraint.LESS_THAN;
                     break;
@@ -190,7 +201,7 @@ public class Signature {
                     // throw exception
                     break;
                 }
-                if (exp.charAt( j + 1 ) == '=') {
+                if (exp.charAt(j + 1) == '=') {
                     type++;
                     j++;
                 }
@@ -200,90 +211,46 @@ public class Signature {
             i++;
         }
 
-        tokens[0] = exp.substring( 0, i );
+        tokens[0] = exp.substring(0, i);
+        tokens[1] = exp.substring(j + 1);
 
-        //detailed console printout:
-        if(DEBUG){
-            System.out.println( "extractConstraints, tokens[0]=" + tokens[0] );
-        }
-
-        tokens[1] = exp.substring( j + 1 );
-
-        //detailed console printout:
-        if(DEBUG){
-            System.out.println( "extractConstraints, tokens[1]=" + tokens[1] );
-        }
-        
         double value = -1.0;
-        Vector<Constraint> constraints = null;
+        List<Constraint> constraints = null;
         Constraint constraint = null;
         // regular constraint
-        if (tokens[0].equalsIgnoreCase( arg_ )) {
-            value = Double.parseDouble( tokens[1] );
-            constraints = new Vector<Constraint>();
-            constraint = new Constraint( type, value );
-            constraints.add( constraint );
+        if (tokens[0].equalsIgnoreCase(this.arg)) {
+            value = Double.parseDouble(tokens[1]);
+            constraints = new ArrayList<>();
+            constraint = new Constraint(type, value);
+            constraints.add(constraint);
         }
-        else if (tokens[1].equalsIgnoreCase( arg_ )) {
-            value = Double.parseDouble( tokens[0] );
-            constraints = new Vector<Constraint>();
-            constraint = new Constraint( type, value );
+        else if (tokens[1].equalsIgnoreCase(this.arg)) {
+            value = Double.parseDouble(tokens[0]);
+            constraints = new ArrayList<>();
+            constraint = new Constraint(type, value);
             constraint.invertType();
-            constraints.add( constraint );
+            constraints.add(constraint);
         }
         // abs constraint support
-        else if (tokens[0].equalsIgnoreCase( "abs(" + arg_ + ")" )) {
-            value = Double.parseDouble( tokens[1] );
-            constraints = new Vector<Constraint>();
-            constraint = new Constraint( type, value );
-            constraints.add( constraint );
-            constraint = new Constraint( type, -value );
+        else if (tokens[0].equalsIgnoreCase("abs(" + this.arg + ")")) {
+            value = Double.parseDouble(tokens[1]);
+            constraints = new ArrayList<>();
+            constraint = new Constraint(type, value);
+            constraints.add(constraint);
+            constraint = new Constraint(type, -value);
             constraint.invertType();
-            constraints.add( constraint );
+            constraints.add(constraint);
         }
-        else if (tokens[1].equalsIgnoreCase( "abs(" + arg_ + ")" )) {
-            value = Double.parseDouble( tokens[0] );
-            constraints = new Vector<Constraint>();
-            constraint = new Constraint( type, value );
+        else if (tokens[1].equalsIgnoreCase("abs(" + this.arg + ")")) {
+            value = Double.parseDouble(tokens[0]);
+            constraints = new ArrayList<>();
+            constraint = new Constraint(type, value);
             constraint.invertType();
-            constraints.add( constraint );
-            constraint = new Constraint( type, -value );
-            constraints.add( constraint );
+            constraints.add(constraint);
+            constraint = new Constraint(type, -value);
+            constraints.add(constraint);
         }
 
         return constraints;
-    }
-
-
-    public void setDesc( String desc ) {
-        desc_ = desc;
-    }
-
-    public String getName() {
-        return name_;
-    }
-
-    public int getType() {
-        return type_;
-    }
-
-    public String getArg() {
-        return arg_;
-    }
-
-    public Vector<Constraint> getConstraints() {
-        return constraints_;
-    }
-
-    public double getValue() {
-        return value_;
-    }
-    
-    public String getDesc() {
-        return desc_;
-    }
-    
-    public boolean isConstrained() {
-        return (constraints_ != null);
     }
 }

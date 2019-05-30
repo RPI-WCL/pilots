@@ -200,18 +200,18 @@ void Constant():
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
 /*@egen*/
-    String str, number;
+    String str, exp;
 }
 {/*@bgen(jjtree) Constant */
     try {
 /*@egen*/
-    str = Vars() "=" number = Number() ";"/*@bgen(jjtree)*/
+    str = Vars() "=" exp = Exp() ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
 /*@egen*/
-    { jjtn000.jjtSetValue(str + ":" + number); }/*@bgen(jjtree)*/
+    { jjtn000.jjtSetValue(str + ":" + exp); }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -288,7 +288,7 @@ void Error():
 {/*@bgen(jjtree) Error */
     try {
 /*@egen*/
-    str = Vars() "=" exps = Exps() ";"/*@bgen(jjtree)*/
+    str = Vars() ":" exps = Exps() ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;

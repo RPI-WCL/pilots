@@ -283,15 +283,15 @@ if (jjtc000) {
   final public void Constant() throws ParseException {/*@bgen(jjtree) Constant */
     ASTConstant jjtn000 = new ASTConstant(JJTCONSTANT);
     boolean jjtc000 = true;
-    jjtree.openNodeScope(jjtn000);String str, number;
+    jjtree.openNodeScope(jjtn000);String str, exp;
     try {
       str = Vars();
       jj_consume_token(59);
-      number = Number();
+      exp = Exp();
       jj_consume_token(58);
 jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
-jjtn000.jjtSetValue(str + ":" + number);
+jjtn000.jjtSetValue(str + ":" + exp);
     } catch (Throwable jjte000) {
 if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -370,7 +370,7 @@ if (jjtc000) {
     jjtree.openNodeScope(jjtn000);String str, exps;
     try {
       str = Vars();
-      jj_consume_token(59);
+      jj_consume_token(60);
       exps = Exps();
       jj_consume_token(58);
 jjtree.closeNodeScope(jjtn000, true);

@@ -1,58 +1,57 @@
 package pilots.compiler.codegen;
 
-import java.util.HashSet;
+import java.util.*;
 import pilots.compiler.parser.*;
 import pilots.runtime.*;
 
 public class OutputStream {
-    private OutputType type_;
-    private String[] varNames_ = null;
-    private HashSet<String> declaredVarNames_ = null; // use HashSet to avoid duplicate int the variable declaration
-    private String exp_ = null;
-    private int frequency_ = -1;
+    private OutputType type;
+    private String[] varNames = null;
+    private Set<String> declaredVarNames = null; // use HashSet to avoid duplicate int the variable declaration
+    private String exp = null;
+    private int frequency = -1;
 
     public OutputStream() {
-        declaredVarNames_ = new HashSet<String> ();
+        declaredVarNames = new HashSet<>();
     }
 
-    public void setOutputType( OutputType type ) {
-        type_ = type;
-    }
-
-    public void setVarNames( String[] varNames ) {
-        varNames_ = varNames;
-    }
-
-    public void addDeclaredVarNames( String declaredVarNames ) {
-        declaredVarNames_.add( declaredVarNames );
-    }
-
-    public void setExp( String exp ) {
-        exp_ = exp;
-    }
-
-    public void setFrequency( int frequency ) {
-        frequency_ = frequency;
+    public void setOutputType(OutputType type) {
+        this.type = type;
     }
 
     public OutputType getOutputType() {
-        return type_;
+        return type;
     }
 
-    public String[] getVarNames() {
-        return varNames_;
-    }
-
-    public HashSet<String> getDeclaredVarNames() {
-        return declaredVarNames_;
+    public void setVarNames(String[] varNames) {
+        this.varNames = varNames;
     }
     
+    public String[] getVarNames() {
+        return varNames;
+    }
+
+    public void addDeclaredVarNames(String varName) {
+        declaredVarNames.add(varName);
+    }
+
+    public Set<String> getDeclaredVarNames() {
+        return declaredVarNames;
+    }
+    
+    public void setExp(String exp) {
+        this.exp = exp;
+    }
+
     public String getExp() {
-        return exp_;
+        return exp;
+    }
+
+    public void setFrequency(int frequency) {
+        this.frequency = frequency;
     }
 
     public int getFrequency() {
-        return frequency_;
+        return frequency;
     }
-
 }

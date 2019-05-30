@@ -1,44 +1,44 @@
 package pilots.runtime;
 
-import java.util.Vector;
+import java.util.*;
 import java.net.*;
 
 public class HostsPorts {
-    private Vector<String> hosts_;
-    private Vector<Integer> ports_;
+    private List<String> hosts;
+    private List<Integer> ports;
 
     public HostsPorts() {
-        hosts_ = new Vector<String> ();
-        ports_ = new Vector<Integer> ();
+        hosts = new ArrayList<>();
+        ports = new ArrayList<>();
     }
 
-    public void addHostPort( String host, int port ) {
-        //System.out.println( "addHostPort, host=" + host + ", port=" + port );
-        hosts_.add( host );
-        ports_.add( new Integer( port ) );
+    public void addHostPort(String host, int port) {
+        //System.out.println("addHostPort, host=" + host + ", port=" + port);
+        hosts.add(host);
+        ports.add(port);
     }
 
-    public String getHost( int index ) {
-        return hosts_.get( index );
+    public String getHost(int index) {
+        return hosts.get(index);
     }
     
-    public int getPort( int index ) {
-        Integer port = ports_.get( index );
+    public int getPort(int index) {
+        Integer port = ports.get(index);
         return port.intValue();
     }
 
     public int getSize() {
-        return hosts_.size();  // must be equal to ports_size()
+        return hosts.size();  // must be equal to portssize()
     }
 
-    public String toString( int index ) {
-        return hosts_.get( index ) + ":" + ports_.get( index );
+    public String toString(int index) {
+        return hosts.get(index) + ":" + ports.get(index);
     }
 
     public String toString() {
         String str = "";
-        for (int i = 0; i < hosts_.size(); i++) 
-            str += toString( i ) + " ";
+        for (int i = 0; i < hosts.size(); i++) 
+            str += toString(i) + " ";
         return str;
     }
             
