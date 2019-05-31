@@ -5,14 +5,17 @@ import pilots.compiler.parser.*;
 import pilots.runtime.*;
 
 public class OutputStream {
+    private static int globalId = 0;
     private OutputType type;
+    private int sockIndex;
     private String[] varNames = null;
     private Set<String> declaredVarNames = null; // use HashSet to avoid duplicate int the variable declaration
     private String exp = null;
     private int frequency = -1;
 
     public OutputStream() {
-        declaredVarNames = new HashSet<>();
+        this.declaredVarNames = new HashSet<>();
+        this.sockIndex = globalId++;
     }
 
     public void setOutputType(OutputType type) {
@@ -21,6 +24,10 @@ public class OutputStream {
 
     public OutputType getOutputType() {
         return type;
+    }
+
+    public int getSockIndex() {
+        return sockIndex;
     }
 
     public void setVarNames(String[] varNames) {

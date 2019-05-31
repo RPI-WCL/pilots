@@ -127,6 +127,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += insIndent() + "private List<ErrorSignature> errorSigs;\n";
             code += insIndent() + "private ErrorAnalyzer errorAnalyzer;\n";
         }
+        code += insIndent() + "private long[] nextSendTimes;\n";
         code += "\n";
     }
 
@@ -162,7 +163,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         int constIndex = 1;
         for (int i = 0; i < sigs.size(); i++) {
             Signature sig = sigs.get(i);
-
             if (sig.isConstrained()) {
                 code += insIndent()
                     + "List<Constraint> constraints"
@@ -193,11 +193,18 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             }
             else
                 code += "));\n";
+
             code += "\n";
         }
 
         if (0 < sigs.size())
             code += insIndent() + "errorAnalyzer = new ErrorAnalyzer(errorSigs, getTau());\n";
+
+        if (0 < outputs.size()) {
+            code += insIndent() + "nextSendTimes = new long[" + outputs.size() + "];\n";
+            code += insIndent() + "Arrays.fill(nextSendTimes, 0L);\n";
+        }
+        
         code += decInsIndent() + "}\n";
         code += "\n";
     }
@@ -356,115 +363,135 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code += insIndent() + "}\n";
     }
 
-    private void generateOutputs(OutputStream output) {
+    private void generateOutputs() {
         code += "\n";
         code += insIndent() + "// Outputs computation\n";
-        for (String outputVarName : output.getVarNames()) {
-            if (!output.getExp().equals("null")) {
-                code += insIndent() + "data.put(\"" + outputVarName + "\", "
-                    + replaceVar(replaceMathFuncs(output.getExp()), varsMap) + ");\n";
+        for (OutputStream output : outputs) {
+            for (String outputVarName : output.getVarNames()) {
+                if (!output.getExp().equals("null")) {
+                    code += insIndent() + "data.put(\"" + outputVarName + "\", "
+                        + replaceVar(replaceMathFuncs(output.getExp()), varsMap) + ");\n";
+                }
             }
         }
     }
 
-    private void generateSendData(OutputStream output, int sockIndex) {
+    private void generateSendData() {
         code += "\n";            
         code += insIndent() + "// Data transfer\n";
+        code += insIndent() + "Date now = getTime();\n";
         code += insIndent() + "try {\n";
-        code += incInsIndent() + "sendData(OutputType.Output, " + sockIndex + ", ";
-        String[] outputVarNames = output.getVarNames();
-        for (int i = 0; i < outputVarNames.length; i++) {
-            if (i == outputVarNames.length - 1)
-                code += "data.get(\"" + outputVarNames[i] + "\"));\n";
-            else
-                code += "data.get(\"" + outputVarNames[i] + "\"), ";
+        incIndent();
+        for (OutputStream output : outputs) {
+            code += insIndent() + "if (nextSendTimes["
+                + output.getSockIndex() + "] <= now.getTime()) {\n";
+            code += incInsIndent() + "sendData(OutputType.Output, "
+                + output.getSockIndex() + ", ";
+            String[] outputVarNames = output.getVarNames();
+            for (int i = 0; i < outputVarNames.length; i++) {
+                if (i == outputVarNames.length - 1)
+                    code += "data.get(\"" + outputVarNames[i] + "\"));\n";
+                else
+                    code += "data.get(\"" + outputVarNames[i] + "\"), ";
+            }
+            code += insIndent() + "nextSendTimes[" + output.getSockIndex()
+                + "] = now.getTime() + " + output.getFrequency() + ";\n";
+            code += decInsIndent() + "}\n";
         }
         code += decInsIndent() + "} catch (Exception ex) {\n";
         code += incInsIndent() + "ex.printStackTrace();\n";
         code += decInsIndent() + "}\n";
     }
 
-    private void generateThreads() {
+    private void generateLoop() {
         boolean isOutputsSectionRequired = false;
+        int frequency = Integer.MAX_VALUE;
         for (OutputStream output : outputs) {
             if (!output.getExp().equals("null")) {
                 isOutputsSectionRequired = true;
                 break;
             }
+            if (output.getFrequency() < frequency)
+                frequency = output.getFrequency();
         }
         
-        for (int i = 0; i < outputs.size(); i++) {
-            OutputStream output = outputs.get(i);
+        // method declaration
+        code += insIndent() + "public void produceOutputs() {\n";
 
-            // method declaration
-            code += insIndent() + "public void produce_" + output.getVarNames()[0] + "() {\n";
-
-            // openSocket
-            code += incInsIndent() + "try {\n";
-            code += incInsIndent() + "openSocket(OutputType.Output, " + i
-                + ", new String(\"" + output.getVarNames()[0] + "\"));\n";
-            code += decInsIndent() + "} catch (Exception ex) {\n";
-            code += incInsIndent() + "ex.printStackTrace();\n";
-            code += decInsIndent() + "}\n";
-            code += insIndent() + "\n";
-            
-
-            code += insIndent() + "final int frequency = " + output.getFrequency() + ";\n";
-            code += insIndent() + "Map<String, Double> data = new HashMap<>();\n";
-            if (sim)
-                code += insIndent() + "while (!isEndTime()) {\n";
-            else {
-                code += insIndent() + "timer.scheduleAtFixedRate(new TimerTask() {\n";
-                incIndent();
-                code += incInsIndent() + "public void run() {\n";
+        // openSocket
+        code += incInsIndent() + "try {\n";
+        incIndent();
+        for (OutputStream output : outputs) {
+            code += insIndent() + "openSocket(OutputType.Output, "
+                + output.getSockIndex() + ", ";
+            String[] outputVarNames = output.getVarNames();
+            for (int i = 0; i < outputVarNames.length; i++) {
+                if (i == outputVarNames.length - 1)
+                    code += "\"" + outputVarNames[i] + "\");\n";
+                else
+                    code += "\"" + outputVarNames[i] + "\", ";
             }
-
-            incIndent();
-            generateInputs();
-
-            // Error detection & correction
-            if (0 < errors.size()) {
-                generateErrors();
-                code += "\n";
-                if (0 < sigs.size()) {
-                    // Signatures-based error detection
-                    generateSignaturesErrorDetection();
-                    code += "\n";
-                }
-                else if(0 < modes.size()) {
-                    // Modes-based error detection
-                    generateModesErrorDetection();
-                    code += "\n";
-                }
-                if (0 < corrects.size()) {
-                    generateEstimation();
-                }
-            }
-
-            // outputs
-            if (isOutputsSectionRequired)
-                generateOutputs(output);
-            
-            // sendData
-            generateSendData(output, i);
-
-            if (sim) {
-                code += "\n";
-                code += insIndent() + "time += frequency;\n";
-                code += insIndent() + "progressTime(frequency);\n";
-                code += decInsIndent() + "}\n";
-                code += "\n";
-                code += insIndent() + "dbgPrint(\"Finished at \" + getTime());\n";
-            }
-            else {
-                code += decInsIndent() + "}\n";
-                decIndent();
-                code += decInsIndent() + "}, 0, frequency);\n";
-            }
-
-            code += decInsIndent() + "}\n";
-            code += "\n";            
         }
+        code += decInsIndent() + "} catch (Exception ex) {\n";
+        code += incInsIndent() + "ex.printStackTrace();\n";
+        code += decInsIndent() + "}\n";
+        code += insIndent() + "\n";
+
+        code += insIndent() + "final int frequency = " + frequency + ";\n";
+        code += insIndent() + "Map<String, Double> data = new HashMap<>();\n";            
+        if (sim)
+            code += insIndent() + "while (!isEndTime()) {\n";
+        else {
+            code += insIndent() + "timer.scheduleAtFixedRate(new TimerTask() {\n";
+            incIndent();
+            code += incInsIndent() + "public void run() {\n";
+        }
+
+        incIndent();
+        generateInputs();
+
+        // Error detection & correction
+        if (0 < errors.size()) {
+            generateErrors();
+            code += "\n";
+            if (0 < sigs.size()) {
+                // Signatures-based error detection
+                generateSignaturesErrorDetection();
+                code += "\n";
+            }
+            else if(0 < modes.size()) {
+                // Modes-based error detection
+                generateModesErrorDetection();
+                code += "\n";
+            }
+            if (0 < corrects.size()) {
+                generateEstimation();
+            }
+        }
+
+        // outputs
+        if (isOutputsSectionRequired)
+            generateOutputs();
+            
+        // sendData
+        generateSendData();
+
+        if (sim) {
+            code += "\n";
+            code += insIndent() + "time += frequency;\n";
+            code += insIndent() + "progressTime(frequency);\n";
+            code += decInsIndent() + "}\n";
+            code += "\n";
+            code += insIndent() + "dbgPrint(\"Finished at \" + getTime());\n";
+        }
+        else {
+            code += decInsIndent() + "}\n";
+            decIndent();
+            code += decInsIndent() + "}, 0, frequency);\n";
+        }
+        
+        code += decInsIndent() + "}\n";
+        code += "\n";            
     }
 
     private void generateModeCountFunctions(){
@@ -504,7 +531,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         for (int i = 0; i < outputs.size(); i++) {
             OutputStream output = outputs.get(i);
             String[] outputVarNames = output.getVarNames();
-            code += insIndent() + "app.produce_" + outputVarNames[0] + "();\n";
+            code += insIndent() + "app.produceOutputs();\n";
         }
         code += decInsIndent() + "}\n";
         code += decInsIndent() + "}\n";
@@ -515,7 +542,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         generateClassDeclaration();
         generateConstants();
         generateConstructor();
-        generateThreads();
+        generateLoop();
         generateModeCountFunctions();
         generateMain();
     }
@@ -582,7 +609,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     public Object visit(ASTOutput node, Object data) {
         goDown("Output");
 
-        
         OutputStream output = new OutputStream();
         output.setOutputType(OutputType.Output);
         String[] vals = ((String)node.jjtGetValue()).split(":");

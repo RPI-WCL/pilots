@@ -135,7 +135,7 @@ public class PilotsRuntime extends DebugPrint {
             }
             if (outputSockets[sockIndex] == null) {
                 outputSockets[sockIndex] = new Socket(outputs.getHost(sockIndex),
-                                                        outputs.getPort(sockIndex));
+                                                      outputs.getPort(sockIndex));
             }
             sock = outputSockets[sockIndex];
 
