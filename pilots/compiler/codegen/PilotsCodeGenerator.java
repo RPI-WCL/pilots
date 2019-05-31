@@ -271,7 +271,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public String replaceMathFuncs(String exp) {
         String[] funcs1 = {"asin", "acos", "atan"};
-        String[] funcs2 = {"sqrt", "sin", "cos", "abs", "PI"};
+        String[] funcs2 = {"sqrt", "sin", "cos", "abs"};
         String[] funcs3 = {"arcs", "arcc", "arct"};
 
         for (int i = 0; i < funcs1.length; i++)
@@ -367,15 +367,17 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
     }
 
-    private void generateSendData(OutputStream output, int outputIndex) {
+    private void generateSendData(OutputStream output, int sockIndex) {
         code += "\n";            
         code += insIndent() + "// Data transfer\n";
         code += insIndent() + "try {\n";
-        incIndent();
-        for (String outputVarName : output.getVarNames()) {
-            code += insIndent() + "sendData(OutputType.Output, "
-                + outputIndex + ", data.get(\""
-                + outputVarName + "\"));\n";
+        code += incInsIndent() + "sendData(OutputType.Output, " + sockIndex + ", ";
+        String[] outputVarNames = output.getVarNames();
+        for (int i = 0; i < outputVarNames.length; i++) {
+            if (i == outputVarNames.length - 1)
+                code += "data.get(\"" + outputVarNames[i] + "\"));\n";
+            else
+                code += "data.get(\"" + outputVarNames[i] + "\"), ";
         }
         code += decInsIndent() + "} catch (Exception ex) {\n";
         code += incInsIndent() + "ex.printStackTrace();\n";
@@ -391,7 +393,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             }
         }
         
-        // Create one thread per output
         for (int i = 0; i < outputs.size(); i++) {
             OutputStream output = outputs.get(i);
 

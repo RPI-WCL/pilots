@@ -255,31 +255,6 @@ public class PilotsRuntime extends DebugPrint {
         return writer;
     }
 
-    // protected void sendData(OutputType outputType, int sockIndex, double val) {
-    //     Date date = currLocTime.getTime();
-        
-    //     if (animation && (prevDate != null)) {
-    //         long currTime = date.getTime();
-    //         long prevTime = prevDate.getTime().getTime();
-    //         long waitTime = (long)((currTime - prevTime) / timeSpeed);
-    //         // System.out.println("sendData, curr=" + (currTime - prevTime) + ", " + waitTime); 
-    //         try {
-    //             Thread.sleep(waitTime );
-    //         } catch (InterruptedException ex) {
-    //             System.err.println(ex);
-    //         }
-    //     }
-
-    //     // write the value on the socket
-    //     PrintWriter printWriter = getWriter(outputType, sockIndex);
-    //     printWriter.println(":" + dateFormat.format(date) + ":" + val);
-    //     printWriter.flush();
-
-    //     if (prevDate == null)
-    //         prevDate = Calendar.getInstance();
-    //     prevDate.setTime(date);
-    // }
-
     protected void sendData(OutputType outputType, int sockIndex, double... values) {
         Date date = currLocTime.getTime();
         
