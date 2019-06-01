@@ -2,10 +2,13 @@ package pilots.compiler.codegen;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 import pilots.compiler.parser.*;
 import pilots.runtime.*;
 
 public class PilotsCodeGenerator implements PilotsParserVisitor {
+    private static Logger LOGGER = Logger.getLogger(PilotsCodeGenerator.class.getName());
+
     private static final String TAB = "    ";
     private static int indent = 0;
 
@@ -24,6 +27,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     private static int depth = 0;
     
     public static void main(String[] args) {
+
         try {
             PilotsParser parser = new PilotsParser(new FileReader(args[0]));
             Node node = parser.Pilots();
@@ -31,13 +35,13 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             node.jjtAccept(visitor, null);
         } 
         catch (FileNotFoundException ex) {
-            System.err.println("FileNotFoundException: " + ex.getMessage());
+            LOGGER.log(Level.SEVERE, ex.toString(), ex);
         }
         catch (TokenMgrError ex) {
-            System.err.println("TokeMgrError: " +  ex.getMessage());
+            LOGGER.log(Level.SEVERE, ex.toString(), ex);            
         }
         catch (ParseException ex) {
-            System.err.println("ParseException: " +  ex.getMessage());
+            LOGGER.log(Level.SEVERE, ex.toString(), ex);                        
         }
     }
 
@@ -57,6 +61,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     private void goDown(String node) {
+        String msg = "";
+        for (int i = 0; i < depth; i++)
+            msg += " ";
+        LOGGER.finest(msg + node);
         depth++;
     }
 
@@ -575,6 +583,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public Object visit(ASTPilots node, Object data) {
         goDown("Pilots");
+        LOGGER.info("Visiting ASTPilots...");
 
         appName = (String) node.jjtGetValue();
         appName = appName.substring(0, 1).toUpperCase() + appName.substring(1);
