@@ -426,14 +426,18 @@ if (jjtc000) {
         jj_la1[22] = jj_gen;
         ;
       }
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case ESTIMATE:{
-        Estimate();
-        break;
+      label_8:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case ESTIMATE:{
+          ;
+          break;
+          }
+        default:
+          jj_la1[23] = jj_gen;
+          break label_8;
         }
-      default:
-        jj_la1[23] = jj_gen;
-        ;
+        Estimate();
       }
       jj_consume_token(58);
 jjtree.closeNodeScope(jjtn000, true);
@@ -482,14 +486,18 @@ if (jjtc000) {
         jj_la1[24] = jj_gen;
         ;
       }
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case ESTIMATE:{
-        Estimate();
-        break;
+      label_9:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case ESTIMATE:{
+          ;
+          break;
+          }
+        default:
+          jj_la1[25] = jj_gen;
+          break label_9;
         }
-      default:
-        jj_la1[25] = jj_gen;
-        ;
+        Estimate();
       }
       jj_consume_token(58);
 jjtree.closeNodeScope(jjtn000, true);
@@ -629,7 +637,7 @@ if (jjtc000) {
     try {
       t = jj_consume_token(VAR);
 str = t.image;
-      label_8:
+      label_10:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA:{
@@ -638,7 +646,7 @@ str = t.image;
           }
         default:
           jj_la1[29] = jj_gen;
-          break label_8;
+          break label_10;
         }
         jj_consume_token(COMMA);
         t = jj_consume_token(VAR);
@@ -770,7 +778,7 @@ if (jjtc000) {
   jjtree.openNodeScope(jjtn000);
     try {
       Method();
-      label_9:
+      label_11:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA:{
@@ -779,7 +787,7 @@ if (jjtc000) {
           }
         default:
           jj_la1[31] = jj_gen;
-          break label_9;
+          break label_11;
         }
         jj_consume_token(COMMA);
         Method();
@@ -895,7 +903,7 @@ if (jjtc000) {
     jjtree.openNodeScope(jjtn000);String exp, temp;
     try {
       exp = Exp();
-      label_10:
+      label_12:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case COMMA:{
@@ -904,7 +912,7 @@ if (jjtc000) {
           }
         default:
           jj_la1[33] = jj_gen;
-          break label_10;
+          break label_12;
         }
         jj_consume_token(COMMA);
         temp = Exp();

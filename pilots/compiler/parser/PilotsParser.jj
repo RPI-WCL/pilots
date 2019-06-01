@@ -100,7 +100,7 @@ TOKEN : /* Normal Tokens */
 | <INTEGER : ("+" | "-")? (<DIGIT>)+>
 | <#SCALEFACTOR : ("E" | "e") ("+" | "-")? (<DIGIT>)+>
 | <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
-| <#LETTER : ["A"-"Z","a"-"z","_"]>
+| <#LETTER : ["A"-"Z","a"-"z","_","."]>
 | <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
 | <STRING : "\"" (~["\""])* "\"" >
 }
@@ -329,7 +329,7 @@ void Signature():
 {/*@bgen(jjtree) Signature */
     try {
 /*@egen*/
-    t1 = <VAR> (constant = ConstInSignature())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? (Estimate())? ";"/*@bgen(jjtree)*/
+    t1 = <VAR> (constant = ConstInSignature())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? (Estimate())* ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
@@ -376,7 +376,7 @@ void Mode():
 {/*@bgen(jjtree) Mode */
     try {
 /*@egen*/
-    t1 = <VAR> ":" exps = Exps() (t2 = <STRING>)? (Estimate())? ";"/*@bgen(jjtree)*/
+    t1 = <VAR> ":" exps = Exps() (t2 = <STRING>)? (Estimate())* ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;

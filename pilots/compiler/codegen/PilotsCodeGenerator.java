@@ -266,7 +266,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     public void generateErrors() {
-        code += "\n";
         code += insIndent() + "// Errors computation\n";
         for (OutputStream error : errors) {
             code += insIndent() + "data.put(\"" + error.getVarNames()[0] + "\", ";
@@ -364,7 +363,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     private void generateOutputs() {
-        code += "\n";
         code += insIndent() + "// Outputs computation\n";
         for (OutputStream output : outputs) {
             for (String outputVarName : output.getVarNames()) {
@@ -377,7 +375,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     private void generateSendData() {
-        code += "\n";            
         code += insIndent() + "// Data transfer\n";
         code += insIndent() + "Date now = getTime();\n";
         code += insIndent() + "try {\n";
@@ -404,16 +401,18 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     private void generateLoop() {
-        boolean isOutputsSectionRequired = false;
+        boolean requireOutputsComputation = false;
         int frequency = Integer.MAX_VALUE;
         for (OutputStream output : outputs) {
-            if (!output.getExp().equals("null")) {
-                isOutputsSectionRequired = true;
-                break;
-            }
             if (output.getFrequency() < frequency)
                 frequency = output.getFrequency();
+            if (!output.getExp().equals("null")) {
+                requireOutputsComputation = true;
+                break;
+            }            
         }
+        boolean requireSignatures = 0 < errors.size() && 0 < sigs.size();
+        boolean requireModes = 0 < modes.size();
         
         // method declaration
         code += insIndent() + "public void produceOutputs() {\n";
@@ -449,35 +448,42 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         incIndent();
         generateInputs();
+        code += "\n";        
 
         // Error detection & correction
-        if (0 < errors.size()) {
-            generateErrors();
-            code += "\n";
-            if (0 < sigs.size()) {
-                // Signatures-based error detection
+        if (requireSignatures || requireModes) {
+            if (requireSignatures) {
+                // Signatures-based error detection                
+                generateErrors();
+                code += "\n";
                 generateSignaturesErrorDetection();
                 code += "\n";
             }
-            else if(0 < modes.size()) {
+            else if (requireModes) {
                 // Modes-based error detection
+                if (0 < errors.size()) {
+                    // errors are optional for modes
+                    generateErrors();
+                    code += "\n";
+                }
                 generateModesErrorDetection();
-                code += "\n";
+                code += "\n";                
             }
             if (0 < corrects.size()) {
                 generateEstimation();
-            }
+                code += "\n";                
+            }            
         }
 
-        // outputs
-        if (isOutputsSectionRequired)
+        if (requireOutputsComputation) {
             generateOutputs();
-            
-        // sendData
+            code += "\n";
+        }
+
         generateSendData();
+        code += "\n";        
 
         if (sim) {
-            code += "\n";
             code += insIndent() + "time += frequency;\n";
             code += insIndent() + "progressTime(frequency);\n";
             code += decInsIndent() + "}\n";
@@ -684,6 +690,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         String[] vals = ((String)node.jjtGetValue()).split(":");
         Mode mode = new Mode(vals[0], replaceLogicalOps(vals[1]), vals[2]);
         modes.add(mode);
+        // node.jjtGetChild(node.jjtGetNumChildren() - 1).jjtAccept(this, null);
         goUp();
         return null;
     }

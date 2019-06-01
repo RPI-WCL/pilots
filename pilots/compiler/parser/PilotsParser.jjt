@@ -96,7 +96,7 @@ TOKEN : /* Normal Tokens */
 | <INTEGER : ("+" | "-")? (<DIGIT>)+>
 | <#SCALEFACTOR : ("E" | "e") ("+" | "-")? (<DIGIT>)+>
 | <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
-| <#LETTER : ["A"-"Z","a"-"z","_"]>
+| <#LETTER : ["A"-"Z","a"-"z","_","."]>
 | <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
 | <STRING : "\"" (~["\""])* "\"" >
 }
@@ -169,7 +169,7 @@ void Signature():
     Token t1, t2, t3 = null;
 }
 {
-    t1 = <VAR> (constant = ConstInSignature())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? (Estimate())? ";"
+    t1 = <VAR> (constant = ConstInSignature())? ":" t2 = <VAR> "=" exps = Exps() (t3 = <STRING>)? (Estimate())* ";"
     { 
         if (t3 != null) {
             jjtThis.jjtSetValue(t1.image + ":" + constant + ":" + t2.image + ":" + exps + ":" + t3.image);
@@ -185,7 +185,7 @@ void Mode():
     Token t1, t2 = null;
 }
 {
-    t1 = <VAR> ":" exps = Exps() (t2 = <STRING>)? (Estimate())? ";"
+    t1 = <VAR> ":" exps = Exps() (t2 = <STRING>)? (Estimate())* ";"
     { 
         if (t2 != null) {
             jjtThis.jjtSetValue(t1.image + ":" + exps + ":" + t2.image);
