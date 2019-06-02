@@ -1,11 +1,14 @@
 package pilots.runtime.errsig;
 
 import java.util.*;
+import java.util.logging.Logger;
 import pilots.runtime.errsig.ErrorSignature;
 import pilots.runtime.errsig.SlidingWindow;
-import pilots.runtime.DebugPrint;
 
-public class ErrorAnalyzer extends DebugPrint {
+
+public class ErrorAnalyzer {
+    private static Logger LOGGER = Logger.getLogger(ErrorAnalyzer.class.getName());
+    
     private List<ErrorSignature> errorSigs;
     private double tau;
 
@@ -94,7 +97,7 @@ public class ErrorAnalyzer extends DebugPrint {
             for (int i = 0; i < numSignatures; i++)
                 dbgInfo += likelihood[i] + " ";
             dbgInfo += "}, mode = " + mode;
-            dbgPrint(dbgInfo);
+            LOGGER.finest(dbgInfo);
         }
 
         // sort the likelihood vector in asceding order (i.e., likelihood[numSignatures - 1] is the largest)

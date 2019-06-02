@@ -8,12 +8,15 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.Logger;
 
 import pilots.Version;
 import pilots.runtime.*;
 
 
-public class PilotsRuntime extends DebugPrint {
+public class PilotsRuntime {
+    private static Logger LOGGER = Logger.getLogger(PilotsRuntime.class.getName());
+    
     private static final int DEFAULT_OMEGA = 1;
     private static final double DEFAULT_TAU = 0.8;
 
@@ -65,7 +68,7 @@ public class PilotsRuntime extends DebugPrint {
         String timeSpeed = System.getProperty("timeSpeed");
         if ((timeSpan != null) && (timeSpeed != null)) {
             if ((timeSpeed.charAt(0) != 'x') && (timeSpeed.charAt(0) != 'X')) {
-                System.err.println("ERROR: -DtimeSpeed format: \"x\" 1*DIGIT (e.g., x100)");
+                LOGGER.severe("ERROR: -DtimeSpeed format: \"x\" 1*DIGIT (e.g., x100)");
             }
             else {
                 animation = true;
@@ -73,7 +76,7 @@ public class PilotsRuntime extends DebugPrint {
             }
         }
 
-        System.out.println("PILOTS Runtime v" + Version.ver + " has started.");
+        LOGGER.info("PILOTS Runtime v" + Version.ver + " initialized.");
     }
 
 
@@ -100,16 +103,13 @@ public class PilotsRuntime extends DebugPrint {
 
     protected boolean startServer() {
         int inputPort = input.getPort(0);
-        //dbgPrint("startServer " + inputPort + " begin");
 
         if (inputPort == 0) {
-            System.err.println("input port is not initialized" );
+            LOGGER.severe("Input port not initialized");
             return false;
         }
 
         DataReceiver.startServer(inputPort);
-
-        //dbgPrint("startServer end");
 
         return true;
     }
@@ -214,7 +214,7 @@ public class PilotsRuntime extends DebugPrint {
         try {
             sock.close();
         } catch (IOException ex) {
-            System.err.println(ex);
+            LOGGER.severe(ex.toString());
         }
     }
 
@@ -262,11 +262,11 @@ public class PilotsRuntime extends DebugPrint {
             long currTime = date.getTime();
             long prevTime = prevDate.getTime().getTime();
             long waitTime = (long)((currTime - prevTime) / timeSpeed);
-            // System.out.println("sendData, curr=" + (currTime - prevTime) + ", " + waitTime); 
+            LOGGER.finer("sendData, curr=" + (currTime - prevTime) + ", " + waitTime);
             try {
                 Thread.sleep(waitTime );
             } catch (InterruptedException ex) {
-                System.err.println(ex);
+                LOGGER.severe(ex.toString());
             }
         }
 
@@ -291,10 +291,10 @@ public class PilotsRuntime extends DebugPrint {
         DataStore store = DataStore.findStore(var);
         if (store != null){
             if (!store.addData(value)){
-                dbgPrint("Unable to parse the input");
+                LOGGER.warning("Unable to parse the input");
             }
         }else{
-            dbgPrint("no matching variable stored for \"" + var + "\"");
+            LOGGER.warning("No matching variable stored for \"" + var + "\"");
         }
     }
 
@@ -304,15 +304,15 @@ public class PilotsRuntime extends DebugPrint {
         double d = 0;
 
         if (store != null) {
-            // for (int i = 0; i < methods.length; i++)
-            //     System.out.println("methods[" + i + "]=" + methods[i]);
-            // System.out.println("store=" + store + ",var=" + var + ",methods=" + methods);
+            for (int i = 0; i < methods.length; i++)
+                LOGGER.finest("methods[" + i + "]=" + methods[i]);
+            LOGGER.finest("store=" + store + ",var=" + var + ",methods=" + methods);
             synchronized (this) {
                 d = store.getData(var, methods);
             }
         }
         else {
-            dbgPrint("no matching variable stored for \"" + var + "\"");
+            LOGGER.warning("No matching variable stored for \"" + var + "\"");
         }
 
         return d;

@@ -5,18 +5,21 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Calendar;
+import java.util.logging.Logger;
 
 import pilots.runtime.*;
 
 
-public class SimTimeService extends DebugPrint implements CurrentLocationTimeService {
+public class SimTimeService implements CurrentLocationTimeService {
+    private static Logger LOGGER = Logger.getLogger(SimTimeService.class.getName());
+    
     private Date now, end;
 
     public SimTimeService() {
         String timeSpan = System.getProperty("timeSpan");
         if (timeSpan == null) {
             // should throw an exception here
-            System.err.println("Need \"timeSpan\" property to be defined!!!");
+            LOGGER.severe("Need \"timeSpan\" property to be defined!!!");
             return;
         }
 
@@ -55,7 +58,7 @@ public class SimTimeService extends DebugPrint implements CurrentLocationTimeSer
                 locations[i] = store.getData(varNames[i], methods);
             }
             else {
-                dbgPrint("SimTimeService: no matching variable stored for \"" + varNames[i] + "\"");
+                LOGGER.warning("No matching variable stored for \"" + varNames[i] + "\"");
             }
         }
 

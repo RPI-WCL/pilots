@@ -2,10 +2,13 @@ package pilots.runtime;
 
 import java.net.*;
 import java.io.*;
+import java.util.logging.Logger;
 import pilots.runtime.*;
 
 
-public class DataReceiver extends DebugPrint implements Runnable  {
+public class DataReceiver implements Runnable  {
+    private static Logger LOGGER = Logger.getLogger(SimTimeService.class.getName());
+    
     private static int DEFAULT_PORT = 8888;
     private static boolean loop = true;
     private static int globalId = 0;
@@ -17,12 +20,12 @@ public class DataReceiver extends DebugPrint implements Runnable  {
         id = globalId++;
     }
 
-    private void dbgPrint2(String str) {
-        dbgPrint("(Thread " + id + ") " + str);
+    private void dbgPrint(String str) {
+        LOGGER.info("(Thread " + id + ") " + str);
     }
 
     public void run() {
-        dbgPrint2("started");
+        dbgPrint("Started");
 
         try {
 
@@ -32,11 +35,11 @@ public class DataReceiver extends DebugPrint implements Runnable  {
 
             while ((str = in.readLine()) != null) {
                 if (str.length() == 0) {
-                    dbgPrint2("EOS marker received");
+                    dbgPrint("EOS marker received");
                     break;
                 }
                 else if (str.charAt(0) == '#') {
-                    dbgPrint2("first line received: " + str);
+                    dbgPrint("First line received: " + str);
                     varNames = str;
                     synchronized (this) {
                         dataStore = DataStore.getInstance(str);
@@ -44,11 +47,11 @@ public class DataReceiver extends DebugPrint implements Runnable  {
                 }
                 else {
                     if (dataStore == null) {
-                        dbgPrint2("no data store");
+                        dbgPrint("No data store");
                         break;
                     }
 
-                    dbgPrint2("data received for \"" + varNames + "\": " + str);
+                    dbgPrint("Data received for \"" + varNames + "\": " + str);
                     dataStore.addData(str);
                 }
 
@@ -58,10 +61,10 @@ public class DataReceiver extends DebugPrint implements Runnable  {
             sock.close();
 
         } catch (IOException ex) {
-            System.err.println(ex);
+            LOGGER.severe(ex.toString());
         }
 
-        dbgPrint2("finished");
+        dbgPrint("Finished");
     }
 
     public static void startServer(int port) {
@@ -73,7 +76,7 @@ public class DataReceiver extends DebugPrint implements Runnable  {
             public void run() {
                 try {
                     ServerSocket serverSock = new ServerSocket(serverPort);
-                    System.out.println("[DataReceiver] started listening to port:" + serverPort);
+                    LOGGER.info("Started listening to port:" + serverPort);
 
                     while (loop) {
                         Socket newSock = serverSock.accept();
@@ -82,7 +85,7 @@ public class DataReceiver extends DebugPrint implements Runnable  {
                         t.start();
                     } 
                 } catch (Exception ex) {
-                    System.err.println(ex);
+                    LOGGER.severe(ex.toString());                    
                 }
             }
         }.start();

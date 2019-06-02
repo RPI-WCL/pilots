@@ -2,11 +2,14 @@ package pilots.runtime;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.logging.Logger;
 
 import pilots.util.learningmodel.Client;
 
 
-public class DataStore extends DebugPrint {
+public class DataStore {
+    private static Logger LOGGER = Logger.getLogger(SimTimeService.class.getName());
+    
     private static List<DataStore> stores = null;
     private static CurrentLocationTimeService currLocTime = null;
     private static Comparator<SpatioTempoData> distComparator = null;
@@ -47,7 +50,7 @@ public class DataStore extends DebugPrint {
         try {
             varNames = parseVarNames(str);
         } catch (ParseException ex) {
-            System.err.println(ex + " at " + ex.getErrorOffset());
+            LOGGER.severe(ex + " at " + ex.getErrorOffset());
             return null;
         }
 
@@ -64,17 +67,17 @@ public class DataStore extends DebugPrint {
         if (foundStore == null) {
             store = new DataStore(varNames);
             stores.add(store);
-            store.dbgPrint("created DataStore for " + str);
+            LOGGER.info("Created DataStore for " + str);
         }
         else {
             store = foundStore;
-            store.dbgPrint("found exsiting DataStore for " + str);
+            LOGGER.info("Found exsiting DataStore for " + str);
         }
         return store;
     }
 
     public static DataStore findStore(String varName) {
-        //System.out.println("findStore, varName=" + varName);
+        LOGGER.finest("findStore, varName=" + varName);
         DataStore store = null;
 
         if (stores == null) {
@@ -85,7 +88,7 @@ public class DataStore extends DebugPrint {
         for (int i = 0; i < stores.size(); i++) {
             store = stores.get(i);
             if (store.containVarName(varName)) {
-                // System.out.println("store found!!");
+                LOGGER.finest("Store found!!");
                 found = true;
                 break;
             }
@@ -96,7 +99,7 @@ public class DataStore extends DebugPrint {
 
 
     private List<SpatioTempoData> applyClosest(List<SpatioTempoData> data, String arg) {
-// System.out.println("### applyClosest");
+        LOGGER.finest("Entering applyClosest");
 
         List<SpatioTempoData> newData = new ArrayList<>();
 
@@ -106,7 +109,7 @@ public class DataStore extends DebugPrint {
 
         if (coord == Dimension.TIME) {
             Date currTime = currLocTime.getTime();
-            // System.out.println("currTime=" + currTime);
+            LOGGER.finest("currTime=" + currTime);
 
             long minDiff = Long.MAX_VALUE;
 
@@ -119,16 +122,16 @@ public class DataStore extends DebugPrint {
                 }
                 else {
                     long diff = stData.calcTimeDiff(currTime);
-// System.out.println("i=" + i + ", minDiff=" + minDiff + ", diff=" + diff);
-// stData.print();                
+                    LOGGER.finest("i=" + i + ", minDiff=" + minDiff + ", diff=" + diff);
+                    stData.print();
                     if (diff < minDiff) {
-// System.out.println("Clo, dist < minDist: ");
+                        LOGGER.finest("Clo, dist < minDist: ");
                         newData.clear();
                         newData.add(stData);
                         minDiff = diff;
                     }
                     else if (diff == minDiff) {
-// System.out.println("Clo, dist == minDist: ");
+                        LOGGER.finest("Clo, dist == minDist: ");
                         newData.add(stData);
                     }
                 }
@@ -160,20 +163,20 @@ public class DataStore extends DebugPrint {
             }
         }
 
-// for (int i = 0; i < newData.size(); i++) 
-//     System.out.println("newData[" + i + "]=" + newData.get(i));
+        for (int i = 0; i < newData.size(); i++) 
+            LOGGER.finest("newData[" + i + "]=" + newData.get(i));
 
         return newData;
     }
 
     private List<SpatioTempoData> applyEuclidean(List<SpatioTempoData> data, String[] args) {
-// System.out.println("### applyEuclidean");
+        LOGGER.finest("Entering applyEuclidean");
 
         List<SpatioTempoData> newData = new ArrayList<>();
 
         double[] currLoc = currLocTime.getLocation();
         if (currLoc == null) {
-            dbgPrint("current location is null");
+            LOGGER.warning("Current location is null");
             return null;
         }
 
@@ -184,8 +187,8 @@ public class DataStore extends DebugPrint {
             coords[i] = Dimension.parseCoord(args[i]);
         double minDist = Double.MAX_VALUE;
 
-// for (int i = 0; i < currLoc.length; i++)
-//     System.out.println("Euc, currLoc[" + i + "]=" + currLoc[i] );
+        for (int i = 0; i < currLoc.length; i++)
+            LOGGER.finest("Euc, currLoc[" + i + "]=" + currLoc[i]);
 
         for (int i = 0; i < data.size(); i++) {
             SpatioTempoData stData = data.get(i);
@@ -199,7 +202,7 @@ public class DataStore extends DebugPrint {
             double dist = Math.sqrt(sum);
 
             if (dist < minDist) {
-// System.out.print("Euc, dist(" + dist + ") < minDist(" + minDist + "): ");
+                LOGGER.finest("Euc, dist(" + dist + ") < minDist(" + minDist + "): ");
 // stData.print();
                 newData.clear();
                 newData.add(stData);
@@ -264,7 +267,7 @@ public class DataStore extends DebugPrint {
 
         
     private Double applyInterpolation(List<SpatioTempoData> data, String[] args, int varIndex) {
-// System.out.println("### applyInterpolation");
+        LOGGER.finest("Entering applyInterpolation");
 
         int dimension = args.length - 1; // last arg is n_interp
         int numInterp;
@@ -315,17 +318,17 @@ public class DataStore extends DebugPrint {
             break;
             
         default:
-            dbgPrint("applyEuclidean failed due to unknown dimension: " + dimension);
+            LOGGER.warning("applyEuclidean failed due to unknown dimension: " + dimension);
             break;
         }
 
-// if (currTime != null)
-//     System.out.println("currTime=" + currTime);
+        if (currTime != null)
+            LOGGER.finest("currTime=" + currTime);
         
         double sum = 0.0;
         // stDataArray must be sorted in ascending order of whatever distance
         for (int i = 0; i < numInterp; i++) {
-// stDataArray[i].print();
+            stDataArray[i].print();
             sum += stDataArray[i].getDist();
         }
         double interpVal = 0.0;
@@ -338,7 +341,7 @@ public class DataStore extends DebugPrint {
 
     private int getVarIndex(String varName) {
         for (int i = 0; i < varNames.length; i++) {
-            // System.out.println("getVarIndex(), varNames[" + i + "]=" + varNames[i]);
+            LOGGER.finest("varNames[" + i + "]=" + varNames[i]);
             if (varNames[i].equals(varName)) {
                 return i;
             }
@@ -366,7 +369,7 @@ public class DataStore extends DebugPrint {
 
     private synchronized void printData(){
         for (String s : methodDictionary.keySet()){
-            System.out.println(methodDictionary.get(s).toString());
+            LOGGER.finest(methodDictionary.get(s).toString());
         }
     }
     
@@ -376,7 +379,7 @@ public class DataStore extends DebugPrint {
         List<SpatioTempoData> workData = new ArrayList<>();
         workData = data;  // shallow copy
 
-//        System.out.println ("DataStore.getData, varName=" + varName);
+        LOGGER.finest("varName=" + varName);
 
         int varIndex = getVarIndex(varName);
         
@@ -394,7 +397,7 @@ public class DataStore extends DebugPrint {
         for (int i = 0; i < methods.length; i++) {
             String[] args = methods[i].getArgs();
             if (args.length == 0) {
-                System.err.println("Invalid number of arguments for closest method: " + args.length);
+                LOGGER.severe("Invalid number of arguments for closest method: " + args.length);
                 errorCondition = true;
                 break;
             } 
@@ -403,7 +406,7 @@ public class DataStore extends DebugPrint {
             case Method.CLOSEST:
                 // this applies to one of {x, y, z, t}
                 if (1 < args.length) {
-                    System.err.println("Invalid number of arguments for closest method: " + args.length);
+                    LOGGER.severe("Invalid number of arguments for closest method: " + args.length);
                     errorCondition = true;
                     break;
                 } 
@@ -413,7 +416,7 @@ public class DataStore extends DebugPrint {
             case Method.EUCLIDEAN:
                 // this applies to any combinations of {x, y, z}
                 if (3 < args.length) {
-                    System.err.println("Invalid number of arguments for euclidean method: " + args.length);
+                    LOGGER.severe("Invalid number of arguments for euclidean method: " + args.length);
                     errorCondition = true;
                     break;
                 }
@@ -425,7 +428,7 @@ public class DataStore extends DebugPrint {
                 // this applies to any combinations of {x, y, z} and t
                 // also takes one argument to specify up to how many points to interpolate
                 if ((args.length < 2) || (4 < args.length)) {
-                    System.err.println("Invalid number arguments for interpolation method: " + args.length);
+                    LOGGER.severe("Invalid number arguments for interpolation method: " + args.length);
                     errorCondition = true;
                     break;
                 }
@@ -454,7 +457,7 @@ public class DataStore extends DebugPrint {
                 break;
             }
 
-            // System.out.println("workData.size()=" + workData.size());
+            LOGGER.finest("workData.size()=" + workData.size());
         }
 
         if (!interpolated && 1 < workData.size() && !predicted) {
@@ -464,7 +467,7 @@ public class DataStore extends DebugPrint {
         }
 
         // if (varName.equals("air_speed") && (d == 50.0)) {
-        //     System.err.println("########## Unusual airspeed found!!");
+        //     LOGGER.severe("########## Unusual airspeed found!!");
         //     System.exit(1);
         // }
         
@@ -478,14 +481,13 @@ public class DataStore extends DebugPrint {
 
         String[] varNames = str.split("[#, ]");
 
-        // for (int i = 0; i < varNames.length; i++)
-        //     System.out.println("varNames[" + i + "]: " + varNames[i]);
+        for (int i = 0; i < varNames.length; i++)
+            LOGGER.finest("varNames[" + i + "]: " + varNames[i]);
 
         return varNames;
     }
 
     private boolean hasIdenticalVarNames(String[] varNames) {
-
         if (this.varNames.length != varNames.length) {
             return false;
         }
@@ -507,7 +509,7 @@ public class DataStore extends DebugPrint {
             }
         }
 
-        //System.out.println("# found identical varNames: " + flag);
+        LOGGER.finest("Found identical varNames: " + flag);
 
         return flag;
     }
@@ -533,11 +535,11 @@ public class DataStore extends DebugPrint {
         SpatioTempoData stData = new SpatioTempoData();
 
         if (!stData.parse(str)) {
-            System.err.println("parse failed: " + str);
+            LOGGER.severe("parse failed: " + str);
             return false;
         }
 
-        //stData.print();
+        stData.print();
         
         if (System.getProperty("timeSpan") == null &&
              MAX_DATA_NUM <= data.size()) {

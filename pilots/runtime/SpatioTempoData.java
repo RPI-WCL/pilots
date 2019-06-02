@@ -1,11 +1,14 @@
 package pilots.runtime;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.text.*;
 import pilots.runtime.Dimension;
 
 
 public class SpatioTempoData {
+    private static Logger LOGGER = Logger.getLogger(SpatioTempoData.class.getName());
+    
     public static String datePattern = "yyyy-MM-dd HHmmssSSSZ";
     public static String timeZoneID = "America/New_York";
 
@@ -64,7 +67,7 @@ public class SpatioTempoData {
         dist = 0.0;
 
         if (!parse(str)) {
-            System.err.println("parse failed");
+            LOGGER.severe("Parse failed");
         }
     }
 
@@ -106,14 +109,14 @@ public class SpatioTempoData {
 
         String[] data = str.split(":");
 
-        // for (int i = 0; i < data.length; i++) 
-        //     System.out.println(data[i]);
+        for (int i = 0; i < data.length; i++)
+            LOGGER.finest(data[i]);
 
         // Spatio part
         if (0 < data[0].length()) {
             String[] locationStr = data[0].split("~");
             if (2 < locationStr.length) {
-                System.err.println("Invalid location length: " + locationStr.length);
+                LOGGER.warning("Invalid location length: " + locationStr.length);
                 return false;
             }
             isLocationInterval = (locationStr.length == 2) ? true : false;
@@ -122,7 +125,7 @@ public class SpatioTempoData {
                 // check spatial dimension
                 String[] dimensionStr = locationStr[i].split(",");
                 if (Dimension.MAX_SPATIAL_DIMENSION < dimensionStr.length) {
-                    System.err.println("Invalid dimension length: " + dimensionStr.length);
+                    LOGGER.warning("Invalid dimension length: " + dimensionStr.length);
                     return false;
                 }
                 dimension = new Dimension(dimensionStr.length);
@@ -143,7 +146,7 @@ public class SpatioTempoData {
         if (0 < data[1].length()) {
             String[] timeStr = data[1].split("~");
             if (2 < timeStr.length) {
-                System.err.println("Invalid time length: " + timeStr.length);
+                LOGGER.warning("Invalid time length: " + timeStr.length);
                 return false;
             }
             isTimeInterval = (timeStr.length == 2) ? true : false;
@@ -155,8 +158,8 @@ public class SpatioTempoData {
                 try {
                     // dateFormat = new SimpleDateFormat("yyyy-MM-dd HHMMZ");
                     times[i] = dateFormat.parse(timeStr[i]);
-                } catch (ParseException e) {
-                    System.out.println(e);
+                } catch (ParseException ex) {
+                    LOGGER.warning(ex.toString());
                 }
             }
             hasTimes = true;
@@ -188,9 +191,8 @@ public class SpatioTempoData {
 
 
     public void print() {
-        System.out.println(marshal());
-        System.out.println(" (dist=" + dist + ")");
-        //System.out.println();
+        LOGGER.info(marshal());
+        LOGGER.info(" (dist=" + dist + ")");
     }
 
     public Date[] getTimes() {
@@ -212,7 +214,7 @@ public class SpatioTempoData {
 
     // marshal generates a string, which can be parsed back to the same spatio 
     // tempo data.
-    public String marshal(){
+    public String marshal() {
         StringBuilder builder = new StringBuilder();
         if (locations != null) {
             switch(dimension.getDim()) {
