@@ -3,8 +3,12 @@ package pilots.compiler.codegen;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
+
 import pilots.compiler.parser.*;
 import pilots.runtime.*;
+
+import net.sourceforge.argparse4j.inf.Namespace;
+
 
 public class PilotsCodeGenerator implements PilotsParserVisitor {
     private static Logger LOGGER = Logger.getLogger(PilotsCodeGenerator.class.getName());
@@ -21,13 +25,12 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     private List<Mode> modes = null;
     private Map<Integer, List<Correct>> corrects = null;    // key: mode, val: list of corrects
     private String code = null;
-    private boolean sim = false;
     private Map<String, String> varsMap = null;
+    private Namespace opts = null;
 
     private static int depth = 0;
     
     public static void main(String[] args) {
-
         try {
             PilotsParser parser = new PilotsParser(new FileReader(args[0]));
             Node node = parser.Pilots();
@@ -55,9 +58,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         corrects = new HashMap<>();
         code = new String();
         varsMap = new HashMap<>(); // Store variables in inputs
+    }
 
-        if (System.getProperty("sim") != null)
-            sim = true;
+    public void setOptions(Namespace opts) {
+        this.opts = opts;
     }
 
     private void goDown(String node) {
@@ -106,14 +110,15 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     private void generateImports() {
-        String p = System.getProperty("package");
+        String p = opts.get("package");
         if (p != null) {
             code += "package " + p + ";\n";
             code += "\n";
         }
-        if (sim)
+        if (opts.get("sim"))
             code += "import java.io.*;\n";
         code += "import java.util.*;\n";
+        code += "import java.util.logging.*;\n";        
         code += "import java.text.*;\n";
         code += "import java.net.Socket;\n";
         code += "import pilots.runtime.*;\n";
@@ -123,9 +128,11 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     private void generateClassDeclaration() {
         code += "public class " + appName + " extends PilotsRuntime {\n";
-        code += incInsIndent() + "private int currentMode;\n";
+        code += incInsIndent() + "private static Logger LOGGER = Logger.getLogger("
+            + appName + ".class.getName());\n";
+        code += insIndent() + "private int currentMode;\n";
         code += insIndent() + "private int currentModeCount;\n";
-        if (sim)
+        if (opts.get("sim"))
             code += insIndent() + "private int time; // msec\n";
         else
             code += insIndent() + "private Timer timer;\n";
@@ -156,7 +163,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code += incInsIndent() + "ex.printStackTrace();\n";
         code += decInsIndent() + "};\n";
         code += "\n";
-        if (sim)
+        if (opts.get("sim"))
             code += insIndent() + "time = 0;\n";
         else 
             code += insIndent() + "timer = new Timer();\n";
@@ -456,7 +463,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         code += insIndent() + "final int frequency = " + frequency + ";\n";
         code += insIndent() + "Map<String, Double> data = new HashMap<>();\n";            
-        if (sim)
+        if (opts.get("sim"))
             code += insIndent() + "while (!isEndTime()) {\n";
         else {
             code += insIndent() + "timer.scheduleAtFixedRate(new TimerTask() {\n";
@@ -501,12 +508,12 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         generateSendData();
         code += "\n";        
 
-        if (sim) {
+        if (opts.get("sim")) {
             code += insIndent() + "time += frequency;\n";
             code += insIndent() + "progressTime(frequency);\n";
             code += decInsIndent() + "}\n";
             code += "\n";
-            code += insIndent() + "dbgPrint(\"Finished at \" + getTime());\n";
+            code += insIndent() + "LOGGER.info(\"Finished at \" + getTime());\n";
         }
         else {
             code += decInsIndent() + "}\n";
@@ -539,7 +546,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code += incInsIndent() + appName + " app = new " + appName + "(args);\n";
         code += insIndent() + "app.startServer();\n";
 
-        if (sim) {
+        if (opts.get("sim")) {
             code += "\n";
             code += insIndent() + "BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));\n";
             code += insIndent() + "System.out.println(\"Hit ENTER key after running input producer(s).\");\n";
@@ -571,7 +578,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     private void outputCode() {
-        if (System.getProperty("stdout") != null) {
+        if (opts.get("stdout")) {
             System.out.println(code);
         }
         else {

@@ -2,29 +2,63 @@ package pilots.compiler;
 
 import java.io.*;
 import java.util.logging.*;
+
 import pilots.Version;
 import pilots.compiler.parser.*;
 import pilots.compiler.codegen.*;
 
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.impl.Arguments;
+
+
 public class PilotsCompiler {
-    private PilotsParser parser = null;
-    private PilotsCodeGenerator codegen = null;
-    private String file = null;
+    private PilotsParser parser;
+    private PilotsCodeGenerator codegen;
+    private String file;
+    private Namespace opts;
 
     public static void main(String[] args) {
-        System.out.println("PILOTS Compiler v" + Version.ver + " compiling " + args[0] + "...");
-        PilotsCompiler compiler = new PilotsCompiler(args);
+        ArgumentParser parser = ArgumentParsers.newFor("PilotsCompiler").build()
+            .defaultHelp(true)
+            .description("Translate PILOTS programs into java code.");
+        parser.addArgument("-s", "--sim")
+            .action(Arguments.storeTrue())
+            .help("Flag to generate simulation code");
+        parser.addArgument("-o", "--stdout")
+            .action(Arguments.storeTrue())
+            .help("Flag to print generated code in stdout");
+        parser.addArgument("-p", "--package")
+            .help("Specify package name");
+        parser.addArgument("file")
+            .help("File to traslate");
+
+        Namespace opts = null;
+        try {
+            opts = parser.parseArgs(args);
+        } catch (ArgumentParserException ex) {
+            parser.handleError(ex);
+            System.exit(1);
+        }
+        
+        PilotsCompiler compiler = new PilotsCompiler(opts);
         compiler.compile();
     }
 
-    public PilotsCompiler(String[] args) {
-        file = args[0];
+    public PilotsCompiler(Namespace opts) {
+        this.opts = opts;
+        this.file = opts.get("file");
     }
 
     public void compile() {
+        System.out.println("PILOTS Compiler v" + Version.ver + " compiling " + file + "...");
+        
         try {
             parser = new PilotsParser(new FileReader(file)); // setting a static input stream
-            codegen = new PilotsCodeGenerator();            
+            codegen = new PilotsCodeGenerator();
+            codegen.setOptions(opts);
             Node node = parser.Pilots(); 
             node.jjtAccept(codegen, null);
         } 
