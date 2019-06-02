@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import pilots.runtime.errsig.ErrorSignature;
 import pilots.runtime.errsig.SlidingWindow;
+import net.sourceforge.argparse4j.inf.Namespace;
 
 
 public class ErrorAnalyzer {
@@ -11,11 +12,13 @@ public class ErrorAnalyzer {
     
     private List<ErrorSignature> errorSigs;
     private double tau;
+    private Namespace opts;
 
 
-    public ErrorAnalyzer(List<ErrorSignature> errorSigs, double tau) {
+    public ErrorAnalyzer(List<ErrorSignature> errorSigs, double tau, Namespace opts) {
         this.errorSigs = errorSigs;
         this.tau = tau;
+        this.opts = opts;
     }
 
     public int analyze(SlidingWindow win, int frequency) {
@@ -90,14 +93,14 @@ public class ErrorAnalyzer {
 
         // debug info
         String dbgInfo = "d = { ";
-        if (System.getProperty("debug") != null) {
+        if (opts.get("errorsig_debug")) {
             for (int i = 0; i < numSignatures; i++)
                 dbgInfo += deltas[i] + " ";
             dbgInfo += "}, l = { ";
             for (int i = 0; i < numSignatures; i++)
                 dbgInfo += likelihood[i] + " ";
             dbgInfo += "}, mode = " + mode;
-            LOGGER.finest(dbgInfo);
+            LOGGER.INFO(dbgInfo);
         }
 
         // sort the likelihood vector in asceding order (i.e., likelihood[numSignatures - 1] is the largest)

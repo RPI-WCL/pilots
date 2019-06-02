@@ -3,15 +3,16 @@ package pilots.compiler;
 import java.io.*;
 import java.util.logging.*;
 
-import pilots.Version;
-import pilots.compiler.parser.*;
-import pilots.compiler.codegen.*;
-
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.impl.Arguments;
+
+import pilots.Version;
+import pilots.compiler.parser.*;
+import pilots.compiler.codegen.*;
+
 
 
 public class PilotsCompiler {

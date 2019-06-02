@@ -10,29 +10,27 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Logger;
 
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.impl.Arguments;
+
 import pilots.Version;
 import pilots.runtime.*;
 
 
 public class PilotsRuntime {
     private static Logger LOGGER = Logger.getLogger(PilotsRuntime.class.getName());
-    
+
+    private static final int DEFAULT_INPUT_PORT = 8888;
     private static final int DEFAULT_OMEGA = 1;
     private static final double DEFAULT_TAU = 0.8;
 
-    // hosts, ports, sockets
-    private HostsPorts input;
-    private HostsPorts outputs;
-    private HostsPorts errors;
-
-    private Socket[] outputSockets;
-    private PrintWriter[] outputWriters;
-    private Socket[] errorSockets;
-    private PrintWriter[] errorWriters;
-
+    private WriterManager writerManager;
+    private Namespace opts;
     private int omega;
     private double tau;
-
     protected DateFormat dateFormat;
 
     CurrentLocationTimeService currLocTime;
@@ -42,19 +40,42 @@ public class PilotsRuntime {
     private double timeSpeed;
     private Calendar prevDate;
 
-    public PilotsRuntime() {
-        input = new HostsPorts();
+    public PilotsRuntime(String[] args) {
+        ArgumentParser parser = ArgumentParsers.newFor("PilotsRuntime").build()
+            .defaultHelp(true)
+            .description("PILOTS application runtime");
+        parser.addArgument("-c", "--current-loctime")
+            .help("Full class name for current location time service");
+        parser.addArgument("-r", "--time-range")
+            .help("Time range to run in simulation mode");
+        parser.addArgument("-s", "--time-speed")
+            .help("Rate of time progression in simulation mode");
+        parser.addArgument("-p", "--input-port")
+            .type(Integer.class)
+            .setDefault(DEFAULT_INPUT_PORT)
+            .help("Data input port");
+        parser.addArgument("-o", "--outputs")
+            .nargs("*")
+            .help("List of outputs in 'host:port' format");
+        parser.addArgument("-m", "--omega")
+            .type(Double.class)
+            .setDefault(DEFAULT_OMEGA)
+            .help("Omega parameter");
+        parser.addArgument("-t", "--tau")
+            .type(Double.class)
+            .setDefault(DEFAULT_TAU)
+            .help("Tau parameter");        
 
-        outputs = new HostsPorts();
-        outputSockets = null;
-        outputWriters = null;
+        try {
+            opts = parser.parseArgs(args);
+        } catch (ArgumentParserException ex) {
+            parser.handleError(ex);
+            System.exit(1);
+        }
 
-        errors = new HostsPorts();
-        errorSockets = null;
-        errorWriters = null;
-
-        omega = DEFAULT_OMEGA;
-        tau = DEFAULT_TAU;
+        writerManager = new WriterManager();
+        omega = opts.get("omega");
+        tau = opts.get("tau");
 
         dateFormat = new SimpleDateFormat(SpatioTempoData.datePattern);
 
@@ -64,11 +85,11 @@ public class PilotsRuntime {
         timeSpeed = 1.0;
         prevDate = null;
 
-        String timeSpan = System.getProperty("timeSpan");
-        String timeSpeed = System.getProperty("timeSpeed");
-        if ((timeSpan != null) && (timeSpeed != null)) {
+        String timeRange = opts.get("time-range");
+        String timeSpeed = opts.get("time-speed");
+        if ((timeRange != null) && (timeSpeed != null)) {
             if ((timeSpeed.charAt(0) != 'x') && (timeSpeed.charAt(0) != 'X')) {
-                LOGGER.severe("ERROR: -DtimeSpeed format: \"x\" 1*DIGIT (e.g., x100)");
+                LOGGER.warning("ERROR: -DtimeSpeed format: \"x\" 1*DIGIT (e.g., x100)");
             }
             else {
                 animation = true;
@@ -76,186 +97,41 @@ public class PilotsRuntime {
             }
         }
 
+        int i = 0;
+        for (String hostport : opts.<String> getList("outputs")) {
+            writerManager.addHost(i++, hostport);
+        }
+
         LOGGER.info("PILOTS Runtime v" + Version.ver + " initialized.");
     }
 
-
-    protected void parseArgs(String[] args) throws ParseException {
-        Value omega = new Value(Value.NULL);
-        Value tau = new Value(Value.NULL);
-
-        try {
-            // ArgParser.parse(args, // input 
-            //                  input, outputs, errors); // output
-            ArgParser.parse(args, // input 
-                             input, outputs,
-                             omega, tau);
-        } catch (ParseException ex) {
-            throw ex;
-        }
-
-        if (omega.getValue() != Value.NULL) 
-            this.omega = (int)omega.getValue();
-
-        if (tau.getValue() != Value.NULL) 
-            this.tau = tau.getValue();
+    protected void startServer() {
+        DataReceiver.startServer(opts.get("input-port"));
     }
-
-    protected boolean startServer() {
-        int inputPort = input.getPort(0);
-
-        if (inputPort == 0) {
-            LOGGER.severe("Input port not initialized");
-            return false;
-        }
-
-        DataReceiver.startServer(inputPort);
-
-        return true;
-    }
-
 
     protected void stopServer() {
+        writerManager.closeAll();
         DataReceiver.stopServer();
     }
 
+    protected void openOutput(int sockIndex, String... vars) {
+        PrintWriter writer = writerManager.open(sockIndex);
 
-    protected Socket openSocket(OutputType outputType, int sockIndex, String... vars) 
-        throws UnknownHostException, IOException {
-        
-        Socket sock;
-
-        // create sockets if it has not been created
-        switch (outputType) {
-        case Output:    // OutputType.Output gives a compile error
-            if (outputSockets == null) {
-                outputSockets = new Socket[outputs.getSize()];
-                for (int i = 0; i < outputSockets.length; i++)
-                    outputSockets[i] = null;
-            }
-            if (outputSockets[sockIndex] == null) {
-                outputSockets[sockIndex] = new Socket(outputs.getHost(sockIndex),
-                                                      outputs.getPort(sockIndex));
-            }
-            sock = outputSockets[sockIndex];
-
-            if (outputWriters == null) {
-                outputWriters = new PrintWriter[outputs.getSize()];
-                for (int i = 0; i < outputWriters.length; i++)
-                    outputWriters[i] = null;
-            }
-            if (outputWriters[sockIndex] == null) {
-                outputWriters[sockIndex] = new PrintWriter(sock.getOutputStream(), true);
-                // send the first line of the output stream
-                outputWriters[sockIndex].print("#");
-                for (int i = 0; i < vars.length; i++) {
-                    if (i == vars.length - 1)
-                        outputWriters[sockIndex].println(vars[i]);
-                    else
-                        outputWriters[sockIndex].print(vars[i] + ",");
-                }
-                outputWriters[sockIndex].flush();
-            }
-            break;
-
-        case Error:
-            if (errorSockets == null) {
-                errorSockets = new Socket[errors.getSize()];
-                for (int i = 0; i < errorSockets.length; i++)
-                    errorSockets[i] = null;
-            }
-            if (errorSockets[sockIndex] == null) {
-                errorSockets[sockIndex] = new Socket(errors.getHost(sockIndex),
-                                                     errors.getPort(sockIndex));
-                System.out.println("openSocket, socket opened for " + 
-                                    errors.getHost(sockIndex) + ":" + errors.getPort(sockIndex) +
-                                    ", sock=" + errorSockets[sockIndex]);
-            }
-            sock = errorSockets[sockIndex];
-
-            if (errorWriters == null) {
-                errorWriters = new PrintWriter[errors.getSize()];
-                for (int i = 0; i < errorWriters.length; i++)
-                    errorWriters[i] = null;
-            }
-            if (errorWriters[sockIndex] == null) {
-                errorWriters[sockIndex] = new PrintWriter(sock.getOutputStream(), true);
-                // send the first line of the output stream
-
-                errorWriters[sockIndex].print("#");
-                for (int i = 0; i < vars.length; i++) {
-                    if (i == vars.length - 1)
-                        errorWriters[sockIndex].println(vars[i]);
-                    else
-                        errorWriters[sockIndex].print(vars[i] + ",");
-                }
-                errorWriters[sockIndex].flush();
-            }
-            break;
-
-        default:
-            sock = null;
-            throw new IOException();
+        writer.print("#");
+        for (int i = 0; i < vars.length; i++) {
+            if (i == vars.length - 1)
+                writer.println(vars[i]);
+            else
+                writer.print(vars[i] + ",");
         }
-        // PrintWriter printWriter = new PrintWriter(sock.getOutputStream(), true);
-
-        // // send the first line of the output stream
-        // printWriter.println("#" + var);
-        // printWriter.flush();
-        // printWriter.close(); // should we do this here???
-
-        return sock;
+        writer.flush();
     }
 
-
-    protected void closeSocket(OutputType outputType, int sockIndex) {
-        Socket sock= getSocket(outputType, sockIndex);
-        
-        try {
-            sock.close();
-        } catch (IOException ex) {
-            LOGGER.severe(ex.toString());
-        }
+    protected void closeOutput(int sockIndex) {
+        writerManager.close(sockIndex);
     }
 
-
-    protected Socket getSocket(OutputType outputType, int sockIndex) {
-        Socket sock;
-
-        switch (outputType) {
-        case Output:
-            sock = outputSockets[sockIndex];
-            break;
-        case Error:
-            sock = errorSockets[sockIndex];
-            break;
-        default:
-            sock = null;
-            break;
-        }
-        
-        return sock;
-    }
-
-    protected PrintWriter getWriter(OutputType outputType, int sockIndex) {
-        PrintWriter writer;
-
-        switch (outputType) {
-        case Output:
-            writer = outputWriters[sockIndex];
-            break;
-        case Error:
-            writer = errorWriters[sockIndex];
-            break;
-        default:
-            writer = null;
-            break;
-        }
-        
-        return writer;
-    }
-
-    protected void sendData(OutputType outputType, int sockIndex, double... values) {
+    protected void sendData(int sockIndex, double... values) {
         Date date = currLocTime.getTime();
         
         if (animation && (prevDate != null)) {
@@ -271,15 +147,15 @@ public class PilotsRuntime {
         }
 
         // write the value on the socket
-        PrintWriter printWriter = getWriter(outputType, sockIndex);
-        printWriter.print(":" + dateFormat.format(date) + ":");
+        PrintWriter writer = writerManager.get(sockIndex);
+        writer.print(":" + dateFormat.format(date) + ":");
         for (int i = 0; i < values.length; i++) {
             if (i == values.length - 1)
-                printWriter.println(values[i]);
+                writer.println(values[i]);
             else
-                printWriter.print(values[i] + ",");
+                writer.print(values[i] + ",");
         }
-        printWriter.flush();
+        writer.flush();
 
         if (prevDate == null)
             prevDate = Calendar.getInstance();

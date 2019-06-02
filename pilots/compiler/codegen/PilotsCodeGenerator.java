@@ -157,11 +157,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     private void generateConstructor() {
         code += insIndent() + "public " + appName + "(String args[]) {\n";
-        code += incInsIndent() + "try {\n";
-        code += incInsIndent() + "parseArgs(args);\n";
-        code += decInsIndent() + "} catch (Exception ex) {\n";
-        code += incInsIndent() + "ex.printStackTrace();\n";
-        code += decInsIndent() + "};\n";
+        code += incInsIndent() + "super(args);\n";
         code += "\n";
         if (opts.get("sim"))
             code += insIndent() + "time = 0;\n";
@@ -407,7 +403,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         for (OutputStream output : outputs) {
             code += insIndent() + "if (nextSendTimes["
                 + output.getSockIndex() + "] <= now.getTime()) {\n";
-            code += incInsIndent() + "sendData(OutputType.Output, "
+            code += incInsIndent() + "sendData("
                 + output.getSockIndex() + ", ";
             String[] outputVarNames = output.getVarNames();
             for (int i = 0; i < outputVarNames.length; i++) {
@@ -442,11 +438,11 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         // method declaration
         code += insIndent() + "public void produceOutputs() {\n";
 
-        // openSocket
+        // open output
         code += incInsIndent() + "try {\n";
         incIndent();
         for (OutputStream output : outputs) {
-            code += insIndent() + "openSocket(OutputType.Output, "
+            code += insIndent() + "openOutput("
                 + output.getSockIndex() + ", ";
             String[] outputVarNames = output.getVarNames();
             for (int i = 0; i < outputVarNames.length; i++) {
@@ -557,12 +553,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += decInsIndent() + "}\n";
             code += "\n";
         }
-
-        for (int i = 0; i < outputs.size(); i++) {
-            OutputStream output = outputs.get(i);
-            String[] outputVarNames = output.getVarNames();
-            code += insIndent() + "app.produceOutputs();\n";
-        }
+        
+        code += insIndent() + "app.produceOutputs();\n";
         code += decInsIndent() + "}\n";
         code += decInsIndent() + "}\n";
     }
