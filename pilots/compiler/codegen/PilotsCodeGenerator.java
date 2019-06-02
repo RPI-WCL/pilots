@@ -19,7 +19,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     private List<OutputStream> errors = null;
     private List<Signature> sigs = null;
     private List<Mode> modes = null;
-    private List<Correct> corrects = null;
+    private Map<Integer, List<Correct>> corrects = null;    // key: mode, val: list of corrects
     private String code = null;
     private boolean sim = false;
     private Map<String, String> varsMap = null;
@@ -35,13 +35,13 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             node.jjtAccept(visitor, null);
         } 
         catch (FileNotFoundException ex) {
-            LOGGER.log(Level.SEVERE, ex.toString(), ex);
+            LOGGER.severe(ex.toString());
         }
         catch (TokenMgrError ex) {
-            LOGGER.log(Level.SEVERE, ex.toString(), ex);            
+            LOGGER.severe(ex.toString());            
         }
         catch (ParseException ex) {
-            LOGGER.log(Level.SEVERE, ex.toString(), ex);                        
+            LOGGER.severe(ex.toString());                        
         }
     }
 
@@ -52,7 +52,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         errors = new ArrayList<>();
         sigs = new  ArrayList<>();
         modes = new ArrayList<>();
-        corrects = new ArrayList<>();
+        corrects = new HashMap<>();
         code = new String();
         varsMap = new HashMap<>(); // Store variables in inputs
 
@@ -61,10 +61,12 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     private void goDown(String node) {
+        /*
         String msg = "";
         for (int i = 0; i < depth; i++)
             msg += " ";
         LOGGER.finest(msg + node);
+        */
         depth++;
     }
 
@@ -344,30 +346,38 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     private void generateEstimation() {
         code += insIndent() + "// Correct data estimation\n";
         code += insIndent() + "switch (mode) {\n";
-        for (Correct correct : corrects) {
-            code += insIndent() + "case " + correct.getMode() + ":\n";
-            code += incInsIndent() + "data.put(\"" + correct.getVar() + "\", "
-                + replaceVar(replaceMathFuncs(correct.getExp()), varsMap) + ");\n";
-            // reset other counters
-            code += insIndent() + "setModeCount(" + correct.getMode() + ");\n";
-            // trigger save state if this is the one we're recording.
-            if (correct.saveState) {
-                code += String.format("triggerSaveState(%d, %d, \"%s\", %scorrected.getValue());\n", 
-                    correct.getMode(), 
-                    correct.saveStateTriggerModeCount,
-                    correct.getVar(),
-                    correct.getVar());
+
+        for (Integer modeId : corrects.keySet()) {
+            code += insIndent() + "case " + modeId + ":\n";
+            incIndent();
+            List<Correct> correctList = corrects.get(modeId);
+            for (Correct correct : correctList) {
+                code += insIndent() + "data.put(\"" + correct.getVar() + "\", "
+                    + replaceVar(replaceMathFuncs(correct.getExp()), varsMap) + ");\n";
+
+                /* SI: Comment out for now - the following code does not support
+                   multiple estimates associated with a single mode
+
+                // reset other counters
+                code += insIndent() + "setModeCount(" + modeId + ");\n";
+                // trigger save state if this is the one we're recording.
+                if (correct.saveState) {
+                    code += String.format("triggerSaveState(%d, %d, \"%s\", %scorrected.getValue());\n", 
+                                          correct.getMode(), 
+                                          correct.saveStateTriggerModeCount,
+                                          correct.getVar(),
+                                          correct.getVar());
+                }
+                */
             }
-            
             code += insIndent() + "break;\n";
             decIndent();
         }
         code += insIndent() + "default:\n";
         incIndent();
-        code += insIndent() + "setModeCount(-1);\n";
+        // code += insIndent() + "setModeCount(-1);\n";
         code += insIndent() + "break;\n";
-        decIndent();
-        code += insIndent() + "}\n";
+        code += decInsIndent() + "}\n";
     }
 
     private void generateOutputs() {
@@ -450,7 +460,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += insIndent() + "while (!isEndTime()) {\n";
         else {
             code += insIndent() + "timer.scheduleAtFixedRate(new TimerTask() {\n";
-            incIndent();
             code += incInsIndent() + "public void run() {\n";
         }
 
@@ -477,6 +486,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 generateModesErrorDetection();
                 code += "\n";                
             }
+            LOGGER.finest("corrects.size() = " + corrects.size());
             if (0 < corrects.size()) {
                 generateEstimation();
                 code += "\n";                
@@ -500,7 +510,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
         else {
             code += decInsIndent() + "}\n";
-            decIndent();
             code += decInsIndent() + "}, 0, frequency);\n";
         }
         
@@ -557,7 +566,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         generateConstants();
         generateConstructor();
         generateLoop();
-        generateModeCountFunctions();
+        // generateModeCountFunctions();
         generateMain();
     }
 
@@ -583,7 +592,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public Object visit(ASTPilots node, Object data) {
         goDown("Pilots");
-        LOGGER.info("Visiting ASTPilots...");
 
         appName = (String) node.jjtGetValue();
         appName = appName.substring(0, 1).toUpperCase() + appName.substring(1);
@@ -597,6 +605,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     public Object visit(ASTInput node, Object data) {
+        LOGGER.finest("ASTInput: value=" + node.jjtGetValue()
+                     + ", #children=" + node.jjtGetNumChildren()
+                     + ", data=" + data);
+
         goDown("Input");
 
         InputStream input = new InputStream();
@@ -611,6 +623,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     public Object visit(ASTConstant node, Object data) {
+        LOGGER.finest("ASTConstant: value=" + node.jjtGetValue()
+                     + ", #children=" + node.jjtGetNumChildren()
+                     + ", data=" + data);
+        
         goDown("Constant");
 
         String[] vals = ((String)node.jjtGetValue()).split(":");
@@ -622,6 +638,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
     
     public Object visit(ASTOutput node, Object data) {
+        LOGGER.finest("ASTOutput: value=" + node.jjtGetValue()
+                     + ", #children=" + node.jjtGetNumChildren()
+                     + ", data=" + data);
+        
         goDown("Output");
 
         OutputStream output = new OutputStream();
@@ -662,6 +682,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     public Object visit(ASTError node, Object data) {
+        LOGGER.finest("ASTError: value=" + node.jjtGetValue()
+                     + ", #children=" + node.jjtGetNumChildren()
+                     + ", data=" + data);
+        
         goDown("Error");
 
         OutputStream output = new OutputStream();
@@ -682,42 +706,88 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     public Object visit(ASTSignature node, Object data) {
+        LOGGER.finest("ASTSignature: value=" + node.jjtGetValue()
+                     + ", #children=" + node.jjtGetNumChildren()
+                     + ", data=" + data);
+        
         goDown("Signature");
         String[] vals = ((String) node.jjtGetValue()).split(":");
         // format = id:constant:arg:exps
         Signature sig = new Signature(vals[0], vals[1], vals[3], vals[4]);
         sigs.add(sig);
-        // this should be exactly here, otherwise it will generate wrong result        
-        node.jjtGetChild(node.jjtGetNumChildren() - 1).jjtAccept(this, null);
+        
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            LOGGER.finest("ASTSignature: child=" + node.jjtGetChild(i));            
+        }
+
+        // First child is Exp. Multiple Estimates can follow that.
+        if (1 < node.jjtGetNumChildren()) {
+            for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+                LOGGER.finest("ASTSignature: child=" + node.jjtGetChild(i));
+                node.jjtGetChild(i).jjtAccept(this, sig);
+            }
+        }        
         goUp();
 
         return null;
     }
 
     public Object visit(ASTMode node, Object data) {
+        LOGGER.finest("ASTMode: value=" + node.jjtGetValue()
+                     + ", #children=" + node.jjtGetNumChildren()
+                     + ", data=" + data);
+        
         goDown("Mode");
         String[] vals = ((String)node.jjtGetValue()).split(":");
         Mode mode = new Mode(vals[0], replaceLogicalOps(vals[1]), vals[2]);
         modes.add(mode);
-        // node.jjtGetChild(node.jjtGetNumChildren() - 1).jjtAccept(this, null);
+
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            LOGGER.finest("ASTMode: child=" + node.jjtGetChild(i));
+        }
+
+        // First child is Exp. Multiple Estimates can follow that.
+        if (1 < node.jjtGetNumChildren()) {
+            for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+                LOGGER.finest("ASTMode: child=" + node.jjtGetChild(i));
+                node.jjtGetChild(i).jjtAccept(this, mode);
+            }
+        }
+
         goUp();
+        
         return null;
     }
     
     public Object visit(ASTEstimate node, Object data){
+        LOGGER.finest("ASTEstimate: value=" + node.jjtGetValue()
+                     + ", #children=" + node.jjtGetNumChildren()
+                     + ", data=" + data);
+        
         goDown("estimate");
-        // BECAREFUL!! THIS WHOLE THING IS HACKED ONLY, IT DOESN'T COMPLY TO ANY DESIGN PATTERN!
-
+        
         String[] vals = ((String) node.jjtGetValue()).split(":");
-        String variable = vals[0]; String expression = vals[3];
-        String when = vals[1]; String times = vals[2];
+        String var = vals[0]; 
+        String when = vals[1];
+        String times = vals[2];
+        String exp = vals[3];
 
-        int mode = -1;
-        mode = sigs.size() - 1;
-        String signame = sigs.get(mode).getName();
-        String argument = sigs.get(mode).getArg();
-        Correct correct = new Correct(mode, signame, argument, variable, expression);
-        if (!when.equals("null")){
+        int modeId = -1;
+        String name = null, arg = null;
+        if (data instanceof Mode) {
+            Mode mode = (Mode)data;
+            modeId = mode.getId();
+        } else {
+            // it must be Signature
+            Signature sig = (Signature)data;
+            modeId = sig.getId();
+            name = sig.getName();
+            arg = sig.getArg();
+        }
+
+        Correct correct = new Correct(modeId, name, arg, var, exp);
+
+        if (!when.equals("null")) {
             correct.saveState = true;
             correct.saveStateTriggerModeCount = 1;
             if (!times.equals("null")){
@@ -725,28 +795,44 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             }
         }
 
-        corrects.add(correct); 
+        // Since now a mode can have multiple estimates, they are chained by a list
+        List<Correct> correctsList = corrects.getOrDefault(modeId, new ArrayList<>());
+        correctsList.add(correct);
+        corrects.put(modeId, correctsList);
+        
         goUp();
         
         return null;
     }
 
     public Object visit(ASTCorrect node, Object data) {
+        LOGGER.finest("ASTCorrect: value=" + node.jjtGetValue()
+                     + ", #children=" + node.jjtGetNumChildren()
+                     + ", data=" + data);
+        
         goDown("Correct");
 
         String[] vals = ((String) node.jjtGetValue()).split(":");
-        
-        int mode = -1;
-        for (int i = 0; i < sigs.size(); i++) {
-            Signature sig = sigs.get(i) ;
-            if (sig.getName().equalsIgnoreCase(vals[0])) {
-                mode = i;
-                break;
-            }
+
+        int modeId = -1;
+        String id = vals[0];
+        if (id.charAt(0) == 's' || id.charAt(0) == 'S') {
+            // node is for signature
+            int parenIndex = id.indexOf("(");
+            String integerIdStr = (0 < parenIndex) ? id.substring(1, parenIndex) : id.substring(1);
+            modeId = Integer.parseInt(integerIdStr);            
+        } else if (id.charAt(0) == 'm' || id.charAt(0) == 'M') {
+            // node is for mode
+            modeId = Integer.parseInt(id.substring(1));            
+        } else {
+            System.err.println("Illegel start of signature identifier: " + id.charAt(0));
+            return null;
         }
 
-        Correct correct = new Correct(mode, vals[0], vals[1], vals[2], vals[3]);
-        corrects.add(correct);
+        Correct correct = new Correct(modeId, vals[0], vals[1], vals[2], vals[3]);
+        List<Correct> correctsList = corrects.getOrDefault(modeId, new ArrayList<>());
+        correctsList.add(correct);
+
         goUp();
 
         return null;

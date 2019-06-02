@@ -44,7 +44,6 @@ public class Signature {
     public Signature(String id, String arg, String exps, String desc) {
         this(-1, arg, exps, desc);
 
-        // id must look like sX(k) or sX, where s and k are case-insensitive and X is an integer
         if (id.charAt(0) != 's' && id.charAt(0) != 'S') {
             System.err.println("Illegel start of signature identifier: " + id.charAt(0));
         }        
@@ -52,6 +51,10 @@ public class Signature {
         int parenIndex = id.indexOf("(");
         String integerIdStr = (0 < parenIndex) ? id.substring(1, parenIndex) : id.substring(1);
         this.id = Integer.parseInt(integerIdStr);
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void setName(String name) {
