@@ -15,13 +15,9 @@ public class ServiceFactory {
 
     public synchronized static CurrentLocationTimeService getCurrentLocationTime() {
         if (currLocTime == null) {
-            String className = null;
-            className = System.getProperty("currLocTime");
-            if (className == null) className = currLocTimeClass;
-
             try {
                 currLocTime = (CurrentLocationTimeService)Class
-                    .forName(className)
+                    .forName(currLocTimeClass)
                     .getDeclaredConstructor()
                     .newInstance();
             } 

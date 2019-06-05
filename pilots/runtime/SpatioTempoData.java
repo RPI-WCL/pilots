@@ -191,8 +191,8 @@ public class SpatioTempoData {
 
 
     public void print() {
-        LOGGER.info(marshal());
-        LOGGER.info(" (dist=" + dist + ")");
+        LOGGER.finest(marshal());
+        LOGGER.finest(" (dist=" + dist + ")");
     }
 
     public Date[] getTimes() {

@@ -20,10 +20,10 @@ public class DataStore {
 
     
     public DataStore(String[] varNames) {
-        varNames = new String[varNames.length];
+        this.varNames = new String[varNames.length];
         methodDictionary = new HashMap<>();
         for (int i = 0; i < varNames.length; i++)
-            varNames[i] = varNames[i];        // shallow copy
+            this.varNames[i] = varNames[i];        // shallow copy
 
         data = new ArrayList<>();
 
@@ -87,7 +87,7 @@ public class DataStore {
         boolean found = false;
         for (int i = 0; i < stores.size(); i++) {
             store = stores.get(i);
-            if (store.containVarName(varName)) {
+            if (store.containsVarName(varName)) {
                 LOGGER.finest("Store found!!");
                 found = true;
                 break;
@@ -514,7 +514,7 @@ public class DataStore {
         return flag;
     }
 
-    private boolean containVarName(String varName) {
+    private boolean containsVarName(String varName) {
         boolean flag = false;
 
         for (int i = 0; i < this.varNames.length; i++) {

@@ -15,9 +15,9 @@ public class ErrorAnalyzer {
     private Namespace opts;
 
 
-    public ErrorAnalyzer(List<ErrorSignature> errorSigs, double tau, Namespace opts) {
+    public ErrorAnalyzer(List<ErrorSignature> errorSigs, Namespace opts) {
         this.errorSigs = errorSigs;
-        this.tau = tau;
+        this.tau = opts.get("tau");
         this.opts = opts;
     }
 
@@ -93,14 +93,14 @@ public class ErrorAnalyzer {
 
         // debug info
         String dbgInfo = "d = { ";
-        if (opts.get("errorsig_debug")) {
+        if (opts.get("errordebug")) {
             for (int i = 0; i < numSignatures; i++)
                 dbgInfo += deltas[i] + " ";
             dbgInfo += "}, l = { ";
             for (int i = 0; i < numSignatures; i++)
                 dbgInfo += likelihood[i] + " ";
             dbgInfo += "}, mode = " + mode;
-            LOGGER.INFO(dbgInfo);
+            LOGGER.info(dbgInfo);
         }
 
         // sort the likelihood vector in asceding order (i.e., likelihood[numSignatures - 1] is the largest)

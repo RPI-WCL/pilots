@@ -33,7 +33,7 @@ public class ChartServer {
 
 
     public ChartServer(int port) {
-        port = port;
+        this.port = port;
         timeSeries = new TimeSeries[MAX_TIME_SERIES];
         timeSeriesCollection = new TimeSeriesCollection();
         currSeries = 0;

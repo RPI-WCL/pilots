@@ -27,10 +27,11 @@ public class PilotsRuntime {
     private static final int DEFAULT_OMEGA = 1;
     private static final double DEFAULT_TAU = 0.8;
 
-    private WriterManager writerManager;
-    private Namespace opts;
+    private ConnectionManager connectionManager;
     private int omega;
     private double tau;
+
+    protected Namespace opts;
     protected DateFormat dateFormat;
 
     CurrentLocationTimeService currLocTime;
@@ -44,13 +45,13 @@ public class PilotsRuntime {
         ArgumentParser parser = ArgumentParsers.newFor("PilotsRuntime").build()
             .defaultHelp(true)
             .description("PILOTS application runtime");
-        parser.addArgument("-c", "--current-loctime")
+        parser.addArgument("-c", "--currloctime")
             .help("Full class name for current location time service");
-        parser.addArgument("-r", "--time-range")
+        parser.addArgument("-r", "--timerange")
             .help("Time range to run in simulation mode");
-        parser.addArgument("-s", "--time-speed")
+        parser.addArgument("-s", "--timespeed")
             .help("Rate of time progression in simulation mode");
-        parser.addArgument("-p", "--input-port")
+        parser.addArgument("-p", "--inputport")
             .type(Integer.class)
             .setDefault(DEFAULT_INPUT_PORT)
             .help("Data input port");
@@ -58,13 +59,16 @@ public class PilotsRuntime {
             .nargs("*")
             .help("List of outputs in 'host:port' format");
         parser.addArgument("-m", "--omega")
-            .type(Double.class)
+            .type(Integer.class)
             .setDefault(DEFAULT_OMEGA)
             .help("Omega parameter");
         parser.addArgument("-t", "--tau")
             .type(Double.class)
             .setDefault(DEFAULT_TAU)
-            .help("Tau parameter");        
+            .help("Tau parameter");
+        parser.addArgument("-e", "--errordebug")
+            .action(Arguments.storeTrue())
+            .help("Debug flag for erorr signature");
 
         try {
             opts = parser.parseArgs(args);
@@ -73,20 +77,24 @@ public class PilotsRuntime {
             System.exit(1);
         }
 
-        writerManager = new WriterManager();
+        System.out.println(opts);
+
+        connectionManager = new ConnectionManager();
         omega = opts.get("omega");
         tau = opts.get("tau");
 
         dateFormat = new SimpleDateFormat(SpatioTempoData.datePattern);
 
+        if (opts.get("currloctime") != null)
+            ServiceFactory.setCurrClass(opts.get("currloctime"));
         currLocTime = ServiceFactory.getCurrentLocationTime();
 
         animation = false;
         timeSpeed = 1.0;
         prevDate = null;
 
-        String timeRange = opts.get("time-range");
-        String timeSpeed = opts.get("time-speed");
+        String timeRange = opts.get("timerange");
+        String timeSpeed = opts.get("timespeed");
         if ((timeRange != null) && (timeSpeed != null)) {
             if ((timeSpeed.charAt(0) != 'x') && (timeSpeed.charAt(0) != 'X')) {
                 LOGGER.warning("ERROR: -DtimeSpeed format: \"x\" 1*DIGIT (e.g., x100)");
@@ -97,25 +105,36 @@ public class PilotsRuntime {
             }
         }
 
-        int i = 0;
-        for (String hostport : opts.<String> getList("outputs")) {
-            writerManager.addHost(i++, hostport);
+        // connId is defined by the order in outputs list
+        int  connId = 0;
+        if (opts.get("outputs") != null) {
+            for (String hostport : opts.<String> getList("outputs"))
+                connectionManager.create(connId++, hostport);
         }
 
         LOGGER.info("PILOTS Runtime v" + Version.ver + " initialized.");
     }
 
     protected void startServer() {
-        DataReceiver.startServer(opts.get("input-port"));
+        DataReceiver.startServer(opts.get("inputport"));
     }
 
     protected void stopServer() {
-        writerManager.closeAll();
+        connectionManager.closeAll();
         DataReceiver.stopServer();
     }
 
-    protected void openOutput(int sockIndex, String... vars) {
-        PrintWriter writer = writerManager.open(sockIndex);
+    protected void openOutput(int connId, String... vars) {
+        if (!connectionManager.isCreated(connId)) {
+            LOGGER.warning("Instance not created for connId: " + connId);
+            return;
+        }
+        if (!connectionManager.isConnected(connId)) {
+            LOGGER.warning("Connection already established for connId: " + connId);
+            return;
+        }
+        
+        PrintWriter writer = connectionManager.open(connId);
 
         writer.print("#");
         for (int i = 0; i < vars.length; i++) {
@@ -127,11 +146,17 @@ public class PilotsRuntime {
         writer.flush();
     }
 
-    protected void closeOutput(int sockIndex) {
-        writerManager.close(sockIndex);
+    protected void closeOutput(int connId) {
+        if (connectionManager.isConnected(connId))
+            connectionManager.close(connId);
     }
 
-    protected void sendData(int sockIndex, double... values) {
+    protected void sendData(int connId, double... values) {
+        if (!connectionManager.isConnected(connId)) {
+            LOGGER.warning("Connection not established for connId: " + connId);
+            return;
+        }
+        
         Date date = currLocTime.getTime();
         
         if (animation && (prevDate != null)) {
@@ -147,7 +172,7 @@ public class PilotsRuntime {
         }
 
         // write the value on the socket
-        PrintWriter writer = writerManager.get(sockIndex);
+        PrintWriter writer = connectionManager.get(connId);
         writer.print(":" + dateFormat.format(date) + ":");
         for (int i = 0; i < values.length; i++) {
             if (i == values.length - 1)
@@ -163,19 +188,18 @@ public class PilotsRuntime {
     }
 
     // addData adds a spatioTempoData into datastore
-    protected void addData(String var, String value){
+    protected void addData(String var, String value) {
         DataStore store = DataStore.findStore(var);
-        if (store != null){
-            if (!store.addData(value)){
+        if (store != null) {
+            if (!store.addData(value)) {
                 LOGGER.warning("Unable to parse the input");
             }
-        }else{
+        } else {
             LOGGER.warning("No matching variable stored for \"" + var + "\"");
         }
     }
 
     protected double getData(String var, Method... methods) {
-
         DataStore store = DataStore.findStore(var);
         double d = 0;
 

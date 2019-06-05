@@ -16,8 +16,8 @@ public class DataReceiver implements Runnable  {
     private int id;
     
     public DataReceiver(Socket sock) {
-        sock = sock;
-        id = globalId++;
+        this.sock = sock;
+        this.id = globalId++;
     }
 
     private void dbgPrint(String str) {

@@ -211,7 +211,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
 
         if (0 < sigs.size())
-            code += insIndent() + "errorAnalyzer = new ErrorAnalyzer(errorSigs, getTau());\n";
+            code += insIndent() + "errorAnalyzer = new ErrorAnalyzer(errorSigs, opts);\n";
 
         if (0 < outputs.size()) {
             code += insIndent() + "nextSendTimes = new long[" + outputs.size() + "];\n";
@@ -230,6 +230,12 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
         while (tokenizer.hasMoreElements()) {
             String var = (String)tokenizer.nextElement();
+
+            // Special case for the mode keyword
+            if (var.equals("mode")) {
+                newExp += var;
+                continue;
+            }
 
             // Special case for power: a^n, n is integer
             int powerOpIndex = var.indexOf("^");
@@ -317,8 +323,9 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     }
 
     private void generateSignaturesErrorDetection() {
-        code += insIndent() + "// Error detection\n";        
+        code += insIndent() + "// Error detection\n";
         code += insIndent() + "int mode = -1;\n";
+        
         for (OutputStream error : errors) {
             code += insIndent() + "win_" + error.getVarNames()[0]
                 + ".push(data.get(\""
@@ -333,6 +340,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     private void generateModesErrorDetection() {
         code += insIndent() + "// Error detection\n";
         code += insIndent() + "int mode = -1;\n";
+
         for (int i = 0; i < modes.size(); i++) {
             Mode mode = modes.get(i);
             if (i == 0)
@@ -358,8 +366,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 code += insIndent() + "data.put(\"" + correct.getVar() + "\", "
                     + replaceVar(replaceMathFuncs(correct.getExp()), varsMap) + ");\n";
 
-                /* SI: Comment out for now - the following code does not support
-                   multiple estimates associated with a single mode
+                /* Shigeru: Comment out for now - the following code by Liyu 
+                   does not support multiple estimates associated with a single mode
 
                 // reset other counters
                 code += insIndent() + "setModeCount(" + modeId + ");\n";
@@ -407,10 +415,14 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 + output.getSockIndex() + ", ";
             String[] outputVarNames = output.getVarNames();
             for (int i = 0; i < outputVarNames.length; i++) {
-                if (i == outputVarNames.length - 1)
-                    code += "data.get(\"" + outputVarNames[i] + "\"));\n";
+                if (outputVarNames[i].equals("mode"))   
+                    code += "mode"; // special variable
                 else
-                    code += "data.get(\"" + outputVarNames[i] + "\"), ";
+                    code += "data.get(\"" + outputVarNames[i] + "\")";
+                if (i == outputVarNames.length - 1)
+                    code += ");\n";
+                else
+                    code += ", ";
             }
             code += insIndent() + "nextSendTimes[" + output.getSockIndex()
                 + "] = now.getTime() + " + output.getFrequency() + ";\n";
@@ -434,31 +446,35 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
         boolean requireSignatures = 0 < errors.size() && 0 < sigs.size();
         boolean requireModes = 0 < modes.size();
+        boolean requireOutputs = 0 < outputs.size();
         
         // method declaration
         code += insIndent() + "public void produceOutputs() {\n";
 
         // open output
-        code += incInsIndent() + "try {\n";
         incIndent();
-        for (OutputStream output : outputs) {
-            code += insIndent() + "openOutput("
-                + output.getSockIndex() + ", ";
-            String[] outputVarNames = output.getVarNames();
-            for (int i = 0; i < outputVarNames.length; i++) {
-                if (i == outputVarNames.length - 1)
-                    code += "\"" + outputVarNames[i] + "\");\n";
-                else
-                    code += "\"" + outputVarNames[i] + "\", ";
+        if (requireOutputs) {
+            code += insIndent() + "try {\n";
+            incIndent();
+            for (OutputStream output : outputs) {
+                code += insIndent() + "openOutput("
+                    + output.getSockIndex() + ", ";
+                String[] outputVarNames = output.getVarNames();
+                for (int i = 0; i < outputVarNames.length; i++) {
+                    if (i == outputVarNames.length - 1)
+                        code += "\"" + outputVarNames[i] + "\");\n";
+                    else
+                        code += "\"" + outputVarNames[i] + "\", ";
+                }
             }
+            code += decInsIndent() + "} catch (Exception ex) {\n";
+            code += incInsIndent() + "ex.printStackTrace();\n";
+            code += decInsIndent() + "}\n";
+            code += insIndent() + "\n";
         }
-        code += decInsIndent() + "} catch (Exception ex) {\n";
-        code += incInsIndent() + "ex.printStackTrace();\n";
-        code += decInsIndent() + "}\n";
-        code += insIndent() + "\n";
 
         code += insIndent() + "final int frequency = " + frequency + ";\n";
-        code += insIndent() + "Map<String, Double> data = new HashMap<>();\n";            
+        code += insIndent() + "Map<String, Double> data = new HashMap<>();\n";
         if (opts.get("sim"))
             code += insIndent() + "while (!isEndTime()) {\n";
         else {
@@ -501,8 +517,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += "\n";
         }
 
-        generateSendData();
-        code += "\n";        
+        if (requireOutputs) {
+            generateSendData();
+            code += "\n";
+        }
 
         if (opts.get("sim")) {
             code += insIndent() + "time += frequency;\n";
