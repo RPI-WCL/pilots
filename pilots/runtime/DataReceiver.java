@@ -2,6 +2,7 @@ package pilots.runtime;
 
 import java.net.*;
 import java.io.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import pilots.runtime.*;
 
@@ -20,12 +21,12 @@ public class DataReceiver implements Runnable  {
         this.id = globalId++;
     }
 
-    private void dbgPrint(String str) {
-        LOGGER.info("(Thread " + id + ") " + str);
+    private void threadLog(Level level, String msg) {
+        LOGGER.log(level, "(Thread " + id + ") " + msg);
     }
 
     public void run() {
-        dbgPrint("Started");
+        threadLog(Level.INFO, "Started");
 
         try {
 
@@ -35,11 +36,11 @@ public class DataReceiver implements Runnable  {
 
             while ((str = in.readLine()) != null) {
                 if (str.length() == 0) {
-                    dbgPrint("EOS marker received");
+                    threadLog(Level.INFO, "EOS marker received");
                     break;
                 }
                 else if (str.charAt(0) == '#') {
-                    dbgPrint("First line received: " + str);
+                    threadLog(Level.INFO, "First line received: " + str);
                     varNames = str;
                     synchronized (this) {
                         dataStore = DataStore.getInstance(str);
@@ -47,11 +48,11 @@ public class DataReceiver implements Runnable  {
                 }
                 else {
                     if (dataStore == null) {
-                        dbgPrint("No data store");
+                        threadLog(Level.WARNING, "No data store");
                         break;
                     }
 
-                    dbgPrint("Data received for \"" + varNames + "\": " + str);
+                    threadLog(Level.FINER, "Data received for \"" + varNames + "\": " + str);
                     dataStore.addData(str);
                 }
 
@@ -64,7 +65,7 @@ public class DataReceiver implements Runnable  {
             LOGGER.severe(ex.toString());
         }
 
-        dbgPrint("Finished");
+        threadLog(Level.INFO, "Finished");
     }
 
     public static void startServer(int port) {

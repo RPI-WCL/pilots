@@ -334,7 +334,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         // Currently, only one error variable is supported for error signatures
         code += insIndent() + "mode = errorAnalyzer.analyze(" 
             + "win_" + errors.get(0).getVarNames()[0]
-            + ", frequency);\n";
+            + ", interval);\n";
     }
     
     private void generateModesErrorDetection() {
@@ -414,16 +414,23 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += incInsIndent() + "sendData("
                 + output.getSockIndex() + ", ";
             String[] outputVarNames = output.getVarNames();
+            String info = "";
             for (int i = 0; i < outputVarNames.length; i++) {
-                if (outputVarNames[i].equals("mode"))   
+                if (outputVarNames[i].equals("mode")) {
                     code += "mode"; // special variable
-                else
+                    info += "\"mode=\" + mode + \" \"";
+                } else {
                     code += "data.get(\"" + outputVarNames[i] + "\")";
+                    info += "\"" + outputVarNames[i] + "=\" + data.get(\"" + outputVarNames[i] + "\") + \" \"";
+                }
                 if (i == outputVarNames.length - 1)
                     code += ");\n";
-                else
+                else {
                     code += ", ";
+                    info += " + ";
+                }
             }
+            code += insIndent() + "LOGGER.info(modeInfo + " + info + ");\n";
             code += insIndent() + "nextSendTimes[" + output.getSockIndex()
                 + "] = now.getTime() + " + output.getFrequency() + ";\n";
             code += decInsIndent() + "}\n";
@@ -473,7 +480,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += insIndent() + "\n";
         }
 
-        code += insIndent() + "final int frequency = " + frequency + ";\n";
+        // TODO: replace frequency with interval
+        code += insIndent() + "final int interval = " + frequency + ";\n"; 
         code += insIndent() + "Map<String, Double> data = new HashMap<>();\n";
         if (opts.get("sim"))
             code += insIndent() + "while (!isEndTime()) {\n";
@@ -483,6 +491,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
 
         incIndent();
+        code += insIndent() + "String modeInfo = \"\";\n";
+        code += "\n";        
         generateInputs();
         code += "\n";        
 
@@ -505,11 +515,13 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 generateModesErrorDetection();
                 code += "\n";                
             }
+            code += insIndent() + "modeInfo += \"mode=\" + mode + \" \";\n";
+            code += "\n";
             LOGGER.finest("corrects.size() = " + corrects.size());
             if (0 < corrects.size()) {
                 generateEstimation();
                 code += "\n";                
-            }            
+            }
         }
 
         if (requireOutputsComputation) {
@@ -523,15 +535,15 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
 
         if (opts.get("sim")) {
-            code += insIndent() + "time += frequency;\n";
-            code += insIndent() + "progressTime(frequency);\n";
+            code += insIndent() + "time += interval;\n";
+            code += insIndent() + "progressTime(interval);\n";
             code += decInsIndent() + "}\n";
             code += "\n";
             code += insIndent() + "LOGGER.info(\"Finished at \" + getTime());\n";
         }
         else {
             code += decInsIndent() + "}\n";
-            code += decInsIndent() + "}, 0, frequency);\n";
+            code += decInsIndent() + "}, 0, interval);\n";
         }
         
         code += decInsIndent() + "}\n";

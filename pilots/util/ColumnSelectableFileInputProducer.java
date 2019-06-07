@@ -113,17 +113,15 @@ public class ColumnSelectableFileInputProducer
     public void start() {
         try {
             String line = reader.readLine();
-            String header = "#";
             String[] vars = line.substring(1).split(","); // skip the first '#'
+            List<String> selectedVarsList = new ArrayList<>();
             for (int i = 0; i < vars.length; i++) {
                 if (selectedVars.contains(vars[i])) {
                     selectedColumnIndices.add(i);
-                    header += vars[i];
-                    if (i < vars.length - 1)
-                        header += ",";
+                    selectedVarsList.add(vars[i]);
                 }
             }
-            sendData(header);
+            sendData("#" + String.join(",", selectedVarsList));
 
             int dataFormat = DATA_FORMAT_NULL;
             Pattern pilotsDataPattern = Pattern.compile("([^:]*):([^:]*):([^:]*)");
@@ -143,7 +141,12 @@ public class ColumnSelectableFileInputProducer
                         // System.out.println("DATA_FORMAT_PILOTS: " + m.group(0));
                         dataFormat = DATA_FORMAT_PILOTS;
                         selectedColumns = getSelectedColumns(m.group(3));
-                        data = m.group(1) + ":" + m.group(2) + ":" + selectedColumns;                        
+                        if (sim) {
+                            data = m.group(1) + ":" + m.group(2) + ":" + selectedColumns;
+                        } else {
+                            // ignore time component
+                            data = m.group(1) + addTimeComponent(selectedColumns);
+                        }
                     } else {
                         m = csvPattern.matcher(line);                        
                         if (m.find()) {
@@ -161,7 +164,11 @@ public class ColumnSelectableFileInputProducer
                     data = "";
                     if (m.find()) {
                         selectedColumns = getSelectedColumns(m.group(3));
-                        data = m.group(1) + ":" + m.group(2) + ":" + selectedColumns;
+                        if (sim) {
+                            data = m.group(1) + ":" + m.group(2) + ":" + selectedColumns;
+                        } else {
+                            data = m.group(1) + addTimeComponent(selectedColumns);
+                        }
                     }
                     break;
                     

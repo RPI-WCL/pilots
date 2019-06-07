@@ -153,7 +153,7 @@ public class PilotsRuntime {
 
     protected void sendData(int connId, double... values) {
         if (!connectionManager.isConnected(connId)) {
-            LOGGER.warning("Connection not established for connId: " + connId);
+            LOGGER.finer("Connection not established for connId: " + connId);
             return;
         }
         
@@ -195,7 +195,7 @@ public class PilotsRuntime {
                 LOGGER.warning("Unable to parse the input");
             }
         } else {
-            LOGGER.warning("No matching variable stored for \"" + var + "\"");
+            LOGGER.finer("No matching variable stored for \"" + var + "\"");
         }
     }
 
@@ -212,7 +212,7 @@ public class PilotsRuntime {
             }
         }
         else {
-            LOGGER.warning("No matching variable stored for \"" + var + "\"");
+            LOGGER.finer("No matching variable stored for \"" + var + "\"");
         }
 
         return d;
