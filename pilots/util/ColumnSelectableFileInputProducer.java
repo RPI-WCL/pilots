@@ -127,7 +127,7 @@ public class ColumnSelectableFileInputProducer
 
             int dataFormat = DATA_FORMAT_NULL;
             Pattern pilotsDataPattern = Pattern.compile("([^:]*):([^:]*):([^:]*)");
-            Pattern csvPattern = Pattern.compile("([^,]*),([^,]*),([^,]*)");
+            Pattern csvPattern = Pattern.compile("(([^,]*),)*([^,]*)");
             Matcher m = null;
             // Regex test data
             // Matcher m = p.matcher("42.748,-73.802~41.476,-75.483:2019-06-06 013008015-0400:162,246");
