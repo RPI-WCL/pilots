@@ -21,7 +21,7 @@ public class ErrorAnalyzer {
         this.opts = opts;
     }
 
-    public int analyze(SlidingWindow win, int frequency) {
+    public int analyze(SlidingWindow win, int interval) {
         int numSignatures = errorSigs.size();
         int winSize = win.getSize();
 
@@ -65,7 +65,7 @@ public class ErrorAnalyzer {
                     double thisFail = 0.0;
                     double ref = win.at(j);
                     for (int k = 0; k < winSize; k++) {
-                        double anticipated = ref + ((k - j) * ((double)frequency / 1000) * errorSig.getValue());
+                        double anticipated = ref + ((k - j) * ((double)interval / 1000) * errorSig.getValue());
                         thisFail += calcDiff(win.at(k), anticipated);
                     }
                     closestFail = (thisFail < closestFail) ? thisFail : closestFail;

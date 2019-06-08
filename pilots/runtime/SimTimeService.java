@@ -16,24 +16,26 @@ public class SimTimeService implements CurrentLocationTimeService {
     private Date now, end;
 
     public SimTimeService() {
-        String timeSpan = System.getProperty("timeSpan");
-        if (timeSpan == null) {
+        String timeRange = System.getProperty("timeRange");
+        if (timeRange == null) {
             // should throw an exception here
-            LOGGER.severe("Need \"timeSpan\" property to be defined!!!");
+            LOGGER.severe("Need \"timeRange\" property to be set!!!");
             return;
         }
 
-        String[] timeSpans = timeSpan.split("~");
+        String[] timeRanges = timeRange.split("~");
 
         String datePattern = "yyyy-MM-dd HHmmssZ";
         DateFormat dateFormat = new SimpleDateFormat(datePattern);
 
         Date[] time = new Date[2];
         for (int i = 0; i < 2; i++) {
-            if (timeSpans[i] != null) {
+            if (timeRanges[i] != null) {
                 time[i] = new Date();
                 try {
-                    time[i] = dateFormat.parse(timeSpans[i]);
+                    time[i] = dateFormat.parse(timeRanges[i]);
+                    LOGGER.finest("timeRanges[" + i + "]=" + timeRanges[i]
+                                  + ", time[" + i + "]=" + time[i]);
                 } catch (ParseException ex) {
                     ex.printStackTrace();
                 }

@@ -85,17 +85,19 @@ public class PilotsRuntime {
 
         dateFormat = new SimpleDateFormat(SpatioTempoData.datePattern);
 
+        if (opts.get("timerange") != null)
+            System.setProperty("timeRange", opts.get("timerange"));
+
         if (opts.get("currloctime") != null)
-            ServiceFactory.setCurrClass(opts.get("currloctime"));
+            System.setProperty("currLocTime", opts.get("currloctime"));
         currLocTime = ServiceFactory.getCurrentLocationTime();
 
         animation = false;
         timeSpeed = 1.0;
         prevDate = null;
 
-        String timeRange = opts.get("timerange");
         String timeSpeed = opts.get("timespeed");
-        if ((timeRange != null) && (timeSpeed != null)) {
+        if ((opts.get("timerange") != null) && (timeSpeed != null)) {
             if ((timeSpeed.charAt(0) != 'x') && (timeSpeed.charAt(0) != 'X')) {
                 LOGGER.warning("ERROR: -DtimeSpeed format: \"x\" 1*DIGIT (e.g., x100)");
             }
@@ -191,7 +193,7 @@ public class PilotsRuntime {
     protected void addData(String var, String value) {
         DataStore store = DataStore.findStore(var);
         if (store != null) {
-            if (!store.addData(value)) {
+            if (store.addData(value) < 0) {
                 LOGGER.warning("Unable to parse the input");
             }
         } else {

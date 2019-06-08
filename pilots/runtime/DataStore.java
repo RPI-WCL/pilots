@@ -13,7 +13,7 @@ public class DataStore {
     private static List<DataStore> stores = null;
     private static CurrentLocationTimeService currLocTime = null;
     private static Comparator<SpatioTempoData> distComparator = null;
-    private static int MAX_DATA_NUM = 10;
+    private static int MAX_DATA_NUM = 8192; // TODO: optimize this number depending on sim or real mode
     private static Map<String, Method[]> methodDictionary = new HashMap<>();
     private String[] varNames;
     private List<SpatioTempoData> data;
@@ -134,6 +134,11 @@ public class DataStore {
                         LOGGER.finest("Clo, dist == minDist: ");
                         newData.add(stData);
                     }
+
+                    if (diff == 0.0) {
+                        LOGGER.finest("Clo, exact data found, exit the loop");
+                        break;
+                    }
                 }
             }
         }
@@ -158,7 +163,12 @@ public class DataStore {
                     }
                     else if (diff == minDiff) {
                         newData.add(stData);
-                    }                
+                    }
+
+                    if (diff == 0.0) {
+                        LOGGER.finest("Clo, exact data found, exit the loop");
+                        break;
+                    }                    
                 }
             }
         }
@@ -379,7 +389,8 @@ public class DataStore {
         List<SpatioTempoData> workData = new ArrayList<>();
         workData = data;  // shallow copy
 
-        LOGGER.finest("varName=" + varName);
+        LOGGER.finest("varName=" + varName + ", methods="
+                      + methods + ", data.size()=" + data.size());
 
         int varIndex = getVarIndex(varName);
         
@@ -531,12 +542,12 @@ public class DataStore {
         return varNames;
     }
 
-    public synchronized boolean addData(String str) {
+    public synchronized int addData(String str) {
         SpatioTempoData stData = new SpatioTempoData();
 
         if (!stData.parse(str)) {
             LOGGER.severe("parse failed: " + str);
-            return false;
+            return -1;
         }
 
         stData.print();
@@ -548,7 +559,7 @@ public class DataStore {
         }
         data.add(stData);
 
-        return true;
+        return data.size();
     }
  }
 

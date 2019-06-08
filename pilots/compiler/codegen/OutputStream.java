@@ -11,7 +11,7 @@ public class OutputStream {
     private String[] varNames = null;
     private Set<String> declaredVarNames = null; // use HashSet to avoid duplicate int the variable declaration
     private String exp = null;
-    private int frequency = -1;
+    private int interval = -1;
 
     public OutputStream() {
         this.declaredVarNames = new HashSet<>();
@@ -54,11 +54,11 @@ public class OutputStream {
         return exp;
     }
 
-    public void setFrequency(int frequency) {
-        this.frequency = frequency;
+    public void setInterval(int interval) {
+        this.interval = interval;
     }
 
-    public int getFrequency() {
-        return frequency;
+    public int getInterval() {
+        return interval;
     }
 }

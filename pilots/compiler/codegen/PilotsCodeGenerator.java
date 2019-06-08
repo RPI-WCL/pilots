@@ -27,6 +27,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     private String code = null;
     private Map<String, String> varsMap = null;
     private Namespace opts = null;
+    private int minInterval = Integer.MAX_VALUE;
 
     private static int depth = 0;
     
@@ -262,6 +263,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     public void generateInputs() {
         code += insIndent() + "// Inputs\n";
+        String info = "LOGGER.fine(\"Inputs: \" + ";        
+        boolean firstVar = true;
         for (int i = 0; i < inputs.size(); i++) {
             InputStream input = inputs.get(i);
             String[] inputVarNames = input.getVarNames();
@@ -269,7 +272,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 code += insIndent() + "data.put(\"" + inputVarNames[j]
                     + "\", getData(\"" + inputVarNames[j] + "\", ";
                 varsMap.put(inputVarNames[j], "data.get(\"" + inputVarNames[j] + "\")");
-
                 // methods
                 List<Method> methods = input.getMethods();
                 for (int l = 0; l < methods.size(); l++) {
@@ -280,18 +282,35 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                         code += ", new Method(" + method.toString() + ")";
                 }
                 code += "));\n";
+                
+                if (firstVar) {
+                    firstVar = false;
+                } else {
+                    info += " + \", \" + ";
+                }
+                info += "\"" + inputVarNames[j] + "=\" + data.get(\"" + inputVarNames[j] + "\")";
             }
         }
+        code += insIndent() + info + ");\n";
     }
 
     public void generateErrors() {
         code += insIndent() + "// Errors computation\n";
+        String info = "LOGGER.fine(\"Errors: \" + ";                
+        boolean firstVar = true;        
         for (OutputStream error : errors) {
             code += insIndent() + "data.put(\"" + error.getVarNames()[0] + "\", ";
             code += replaceVar(replaceMathFuncs(error.getExp()), varsMap);
             code += ");\n";
             varsMap.put(error.getVarNames()[0], "data.get(\"" + error.getVarNames()[0] + "\")");
-        }
+
+            if (firstVar) {
+                firstVar = false;
+            } else {
+                info += " + \", \" + ";
+            }
+            info += "\"" + error.getVarNames()[0] + "=\" + data.get(\"" + error.getVarNames()[0] + "\")";                  }
+        code += insIndent() + info + ");\n";
     }
 
     public String replaceMathFuncs(String exp) {
@@ -362,6 +381,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += insIndent() + "case " + modeId + ":\n";
             incIndent();
             List<Correct> correctList = corrects.get(modeId);
+            String info = "LOGGER.fine(\"Estimated: \" + ";
+            boolean firstVar = true;
             for (Correct correct : correctList) {
                 code += insIndent() + "data.put(\"" + correct.getVar() + "\", "
                     + replaceVar(replaceMathFuncs(correct.getExp()), varsMap) + ");\n";
@@ -380,7 +401,15 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                                           correct.getVar());
                 }
                 */
+
+                if (firstVar) {
+                    firstVar = false;
+                } else {
+                    info += " + \", \" + ";
+                }
+                info += "\"" + correct.getVar() + "=\" + data.get(\"" + correct.getVar() + "\")";                
             }
+            code += insIndent() + info + ");\n";            
             code += insIndent() + "break;\n";
             decIndent();
         }
@@ -430,9 +459,9 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                     info += " + ";
                 }
             }
-            code += insIndent() + "LOGGER.info(modeInfo + " + info + ");\n";
+            code += insIndent() + "LOGGER.info(\"Outputs: \" + " + info + ");\n";
             code += insIndent() + "nextSendTimes[" + output.getSockIndex()
-                + "] = now.getTime() + " + output.getFrequency() + ";\n";
+                + "] = now.getTime() + " + output.getInterval() + ";\n";
             code += decInsIndent() + "}\n";
         }
         code += decInsIndent() + "} catch (Exception ex) {\n";
@@ -442,10 +471,10 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
 
     private void generateLoop() {
         boolean requireOutputsComputation = false;
-        int frequency = Integer.MAX_VALUE;
         for (OutputStream output : outputs) {
-            if (output.getFrequency() < frequency)
-                frequency = output.getFrequency();
+            // Get the minimum interval
+            if (output.getInterval() < minInterval) {
+                minInterval = output.getInterval();
             if (!output.getExp().equals("null")) {
                 requireOutputsComputation = true;
                 break;
@@ -480,8 +509,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += insIndent() + "\n";
         }
 
-        // TODO: replace frequency with interval
-        code += insIndent() + "final int interval = " + frequency + ";\n"; 
+        code += insIndent() + "final int interval = " + minFrequency + ";\n"; 
         code += insIndent() + "Map<String, Double> data = new HashMap<>();\n";
         if (opts.get("sim"))
             code += insIndent() + "while (!isEndTime()) {\n";
@@ -491,8 +519,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         }
 
         incIndent();
-        code += insIndent() + "String modeInfo = \"\";\n";
-        code += "\n";        
         generateInputs();
         code += "\n";        
 
@@ -503,6 +529,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 generateErrors();
                 code += "\n";
                 generateSignaturesErrorDetection();
+                code += insIndent() + "LOGGER.fine(\"Detected: mode=\" + mode);\n";
                 code += "\n";
             }
             else if (requireModes) {
@@ -513,10 +540,9 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                     code += "\n";
                 }
                 generateModesErrorDetection();
+                code += insIndent() + "LOGGER.fine(\"Detected: mode=\" + mode);\n";                
                 code += "\n";                
             }
-            code += insIndent() + "modeInfo += \"mode=\" + mode + \" \";\n";
-            code += "\n";
             LOGGER.finest("corrects.size() = " + corrects.size());
             if (0 < corrects.size()) {
                 generateEstimation();
@@ -700,7 +726,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         else if (vals[3].equalsIgnoreCase("day")) {
             unit = 24 * 60 * 60 * 1000;
         }
-        output.setFrequency((int)(Double.parseDouble(vals[2]) * unit)); // msec
+        output.setInterval((int)(Double.parseDouble(vals[2]) * unit)); // msec
         outputs.add(output);
 
         node.jjtGetChild(1).jjtAccept(this, output); // accept Exps() only
@@ -724,7 +750,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         String[] varNames = vals[0].split(",");
         output.setVarNames(varNames);
         output.setExp(vals[1]);
-        output.setFrequency(-1); // No frequency for error
+        output.setInterval(-1); // No interval for error
         errors.add(output);
 
         node.jjtGetChild(1).jjtAccept(this, output); // accept Exps() only
