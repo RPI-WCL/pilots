@@ -1,5 +1,3 @@
-java -Dsim -classpath .:$PILOTS_HOME/lib/* \
-     pilots.util.ColumnSelectableFileInputProducer \
-        $PILOTS_HOME/data/XPlane_AoaCheck/aoaspeed.txt \
-        aoa,va \
-        localhost:8888
+java -classpath .:$PILOTS_HOME/* \
+	pilots.util.AoaProducer nodebug \
+	../../data/XPlane_AoaCheck/aoa_airspeed.csv

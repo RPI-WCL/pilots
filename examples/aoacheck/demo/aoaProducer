@@ -1,3 +1,0 @@
-java -classpath .:$PILOTS_HOME/* \
-	pilots.util.AoaProducer nodebug \
-	../../data/XPlane_AoaCheck/aoa_airspeed.csv

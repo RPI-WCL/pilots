@@ -1,6 +1,1 @@
-java -classpath .:$PILOTS_HOME/lib/* \
-    -DseriesColors=magenta,green \
-    -DchartTitle="Mode and Estimated AoA" \
-    -DxAxisLegend="Time" -DyAxisLegend="Mode / AoA [degree]" \
-    -DvalueRange=-1~100 \
-    pilots.util.ChartServer 9999
+java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar -DseriesColors=magenta,green -DchartTitle="Angle of Attack (Monitored vs. Estimated)" -DxAxisLegend="Time" -DyAxisLegend="Angle of Attack [degree]" -DvalueRange=-5~20 pilots.util.ChartServer 9999
