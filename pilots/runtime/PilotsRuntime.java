@@ -131,7 +131,7 @@ public class PilotsRuntime {
             LOGGER.warning("Instance not created for connId: " + connId);
             return;
         }
-        if (!connectionManager.isConnected(connId)) {
+        if (connectionManager.isConnected(connId)) {
             LOGGER.warning("Connection already established for connId: " + connId);
             return;
         }

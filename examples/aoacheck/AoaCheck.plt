@@ -1,22 +1,22 @@
-
-
-
-
-program AoaCheck;
-  inputs
-    aoa, v (t) using closest(t);
+program AoaCheck; /* Model 3 */
+  /* aoa: angle of attack, va: airspeed */
+  inputs aoa, va (t) using closest(t);
+  constants
+    V_CRUISE = 110;
+    NORMAL_L = -0.10 * V_CRUISE;
+    NORMAL_H =  0.10 * V_CRUISE;
+    MPS2KNOT = 1.94384;
+    K1       = 2.90094;
+    K2       = 0.00024;
+    K3       = 0.00108;
   outputs
-    aoa_out: aoa at every 1 sec;
+    aoa, mode at every 1 sec;
   errors
-    /* MPS2KNOT=1.94384, A=0.0881, B=0.3143 */
-    /* L=1156.6, S=16.2, RHO=1.225, G=9.80665 */
-    e: v - 1.94384 * sqrt((2*1156.6*9.80665) / ((0.0881*aoa + 0.3143)*16.2*1.225));
+      e2: va - MPS2KNOT*
+          sqrt(K1/(K2*aoa + K3));
   signatures
-    s0(K): e = K, -10 < K, K < 10  "Normal";
-    s1(K): e = K, K > 20           "AoA higher-than-actual"
-      estimate aoa = ((2*1156.6*1.94384*1.94384*9.80665)/(0.0881*16.2*1.225*v*v))
-                      - 0.3143/0.0881;
-    s1(K): e = K, K <-13           "AoA lower-than-actual"
-      estimate aoa = ((2*1156.6*1.94384*1.94384*9.80665)/(0.0881*16.2*1.225*v*v))
-                      - 0.3143/0.0881;      
+    s0(k): e2 = k, NORMAL_L < k, k < NORMAL_H  "Normal";
+    s1(k): e2 = k, k < NORMAL_L, NORMAL_H < k
+      "AoA sensor failure"
+      estimate aoa = (1/K2)*((MPS2KNOT^2/va^2)*K1 - K3);
 end;

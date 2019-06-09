@@ -438,10 +438,12 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code += insIndent() + "try {\n";
         incIndent();
         for (OutputStream output : outputs) {
-            code += insIndent() + "if (nextSendTimes["
-                + output.getSockIndex() + "] <= now.getTime()) {\n";
-            code += incInsIndent() + "sendData("
-                + output.getSockIndex() + ", ";
+            if (minInterval != output.getInterval()) {
+                code += insIndent() + "if (nextSendTimes["
+                    + output.getSockIndex() + "] <= now.getTime()) {\n";
+                incIndent();
+            }
+            code += insIndent() + "sendData(" + output.getSockIndex() + ", ";
             String[] outputVarNames = output.getVarNames();
             String info = "";
             for (int i = 0; i < outputVarNames.length; i++) {
@@ -459,10 +461,12 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                     info += " + ";
                 }
             }
-            code += insIndent() + "LOGGER.info(\"Outputs: \" + " + info + ");\n";
-            code += insIndent() + "nextSendTimes[" + output.getSockIndex()
-                + "] = now.getTime() + " + output.getInterval() + ";\n";
-            code += decInsIndent() + "}\n";
+            code += insIndent() + "LOGGER.info(\"Outputs: \" + now + \" \" + " + info + ");\n";
+            if (minInterval != output.getInterval()) {            
+                code += insIndent() + "nextSendTimes[" + output.getSockIndex()
+                    + "] = now.getTime() + " + output.getInterval() + ";\n";
+                code += decInsIndent() + "}\n";
+            }
         }
         code += decInsIndent() + "} catch (Exception ex) {\n";
         code += incInsIndent() + "ex.printStackTrace();\n";
@@ -473,7 +477,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         boolean requireOutputsComputation = false;
         for (OutputStream output : outputs) {
             // Get the minimum interval
-            if (output.getInterval() < minInterval) {
+            if (output.getInterval() < minInterval)
                 minInterval = output.getInterval();
             if (!output.getExp().equals("null")) {
                 requireOutputsComputation = true;
@@ -509,7 +513,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += insIndent() + "\n";
         }
 
-        code += insIndent() + "final int interval = " + minFrequency + ";\n"; 
+        code += insIndent() + "final int interval = " + minInterval + ";\n";
         code += insIndent() + "Map<String, Double> data = new HashMap<>();\n";
         if (opts.get("sim"))
             code += insIndent() + "while (!isEndTime()) {\n";
