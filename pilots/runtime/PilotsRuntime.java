@@ -41,6 +41,8 @@ public class PilotsRuntime {
     private double timeSpeed;
     private Calendar prevDate;
 
+    private String namespace;
+
     public PilotsRuntime(String[] args) {
         ArgumentParser parser = ArgumentParsers.newFor("PilotsRuntime").build()
             .defaultHelp(true)
@@ -69,6 +71,9 @@ public class PilotsRuntime {
         parser.addArgument("-e", "--errordebug")
             .action(Arguments.storeTrue())
             .help("Debug flag for erorr signature");
+        parser.addArgument("-n", "--namespace")
+            .setDefault("none")
+            .help("Namespace for outputs");
 
         try {
             opts = parser.parseArgs(args);
@@ -114,6 +119,11 @@ public class PilotsRuntime {
                 connectionManager.create(connId++, hostport);
         }
 
+        if (opts.get("namespace") == null || opts.get("namespace").equals("none"))
+            namespace = "";
+        else
+            namespace = opts.get("namespace") + ".";
+
         LOGGER.info("PILOTS Runtime v" + Version.ver + " initialized.");
     }
 
@@ -138,13 +148,13 @@ public class PilotsRuntime {
         
         PrintWriter writer = connectionManager.open(connId);
 
-        writer.print("#");
+        String header = "#";
         for (int i = 0; i < vars.length; i++) {
-            if (i == vars.length - 1)
-                writer.println(vars[i]);
-            else
-                writer.print(vars[i] + ",");
+            header += namespace + vars[i];
+            if (i < vars.length - 1)
+                header += ",";
         }
+        writer.println(header);
         writer.flush();
     }
 
