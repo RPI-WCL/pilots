@@ -227,7 +227,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         // Replace all variables in exp using entires in map
         // E.g. exp: "a + b" ==> "data.get("a") + data.get("b")"
         String newExp = "";
-        StringTokenizer tokenizer = new StringTokenizer(exp, "()/*+-", true);
+        StringTokenizer tokenizer = new StringTokenizer(exp, "()/*+-<>= &|", true);
 
         while (tokenizer.hasMoreElements()) {
             String var = (String)tokenizer.nextElement();
@@ -360,13 +360,15 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code += insIndent() + "// Error detection\n";
         code += insIndent() + "int mode = -1;\n";
 
+        LOGGER.finest("varsMap.get(e1): " + varsMap.get("e1") + ", varsMap.get(e2): " + varsMap.get("e2"));
+
         for (int i = 0; i < modes.size(); i++) {
             Mode mode = modes.get(i);
             if (i == 0)
                 code += insIndent() + "if (";
             else
                 code += insIndent() + "} else if (";
-            code += replaceVar(mode.getCondition(), varsMap) + ") {\n";
+            code += replaceVar(replaceMathFuncs(mode.getCondition()), varsMap) + ") {\n";
             code += incInsIndent() + "mode = " + mode.getId() + ";\t// " + mode.getDesc() + "\n";
             decIndent();
         }
