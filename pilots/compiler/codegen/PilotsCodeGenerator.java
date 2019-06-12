@@ -360,8 +360,6 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code += insIndent() + "// Error detection\n";
         code += insIndent() + "int mode = -1;\n";
 
-        LOGGER.finest("varsMap.get(e1): " + varsMap.get("e1") + ", varsMap.get(e2): " + varsMap.get("e2"));
-
         for (int i = 0; i < modes.size(); i++) {
             Mode mode = modes.get(i);
             if (i == 0)
