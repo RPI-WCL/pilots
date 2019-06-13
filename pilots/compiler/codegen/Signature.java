@@ -2,18 +2,24 @@ package pilots.compiler.codegen;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.logging.*;
 import java.util.regex.*;
+
 import pilots.compiler.codegen.Constraint;
 import pilots.runtime.Value;
 
 public class Signature {
+    private static Logger LOGGER = Logger.getLogger(Signature.class.getName());
+
+    private static String RESERVED_ARGS = "kKtT";
+    
     public static final int CONST = 0;
     public static final int LINEAR = 1;
 
     private int id;
     private String name;
     private int type;          // LINEAR or CONSTANT
-    private String arg;        // K
+    private String arg;        // Must be none or one of the RESERVED_ARGS
     private double value;
     private List<Constraint> constraints;
     private String desc;
@@ -28,11 +34,16 @@ public class Signature {
     }
 
     public Signature(int id, String arg, String exps, String desc) {
+        LOGGER.finest("id: " + id + ", arg: " + arg + ", exps: " + exps + ", desc: " + desc);
+        
         this.id = id;
         this.name = name;
-        this.arg = arg;
 
         try {
+            if (arg != null && 0 < arg.length() && RESERVED_ARGS.indexOf(arg) < 0) {
+                throw new ParseException("The argument in error signature must be one of k, K, t, T", 0);
+            }
+            this.arg = arg; // In case of empty argument, it is inferred from exps in parseExp
             parseExps(exps);
         } catch (ParseException ex) {
             ex.printStackTrace();
@@ -109,7 +120,7 @@ public class Signature {
         String[] splitExps = exps.split(",");
 
         if (splitExps.length == 0) {
-            throw new ParseException("no expression found in the signature", 0);
+            throw new ParseException("No expression found in the signature", 0);
         }
 
         // check the first exp
@@ -118,33 +129,44 @@ public class Signature {
         String delimiter = "+/*"; // parentheses are not supported
         while (i < splitExps[0].length()) {
             if (0 <= delimiter.indexOf(splitExps[0].charAt(i))) {
-                // if one of "+/*" is found, splitExps[0] must be linear
+                // if one of "+/*" is found, splitExps[0] must be LINEAR, otherwise it is CONST
                 type = LINEAR;
                 break;
             }
             i++;
         }
-        if (type == LINEAR)
+        if (type == LINEAR) {
             this.value = extractValue(splitExps[0]);
-        else {
-            Pattern pattern = Pattern.compile("[A-Za-z]+");
-            Matcher matcher = pattern.matcher(splitExps[0]);
+        } else {
+            // type == CONSTANT
+            // Here we assume splitExp[0] is one of the following:
+            //  k, K, t, T, <numeric value>
+            // as used in e = k, e = K,.. 
 
-            // constant value or 'K'
-            if (this.arg.equals("null") && matcher.matches()) {
-                throw new ParseException("constant must be defined on the left side", 0);
-            }
+            // constant value or 'k'
+            Pattern p = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
+            Matcher m = p.matcher(splitExps[0]);
 
-            if (!this.arg.equalsIgnoreCase(splitExps[0]))
+            if (m.find()) {
+                // Set double in value
                 this.value = Double.parseDouble(splitExps[0]);
+            } else if ((this.arg == null || this.arg.length() == 0)
+                && 0 <= RESERVED_ARGS.indexOf(splitExps[0])) {
+                // If arg is not defined, but one of "kKtT" is used in splitExps[], set it in arg
+                this.arg = splitExps[0];
+            } else if (this.arg != null && 0 < this.arg.length()
+                       && RESERVED_ARGS.indexOf(splitExps[0]) < 0) {
+                throw new ParseException("Parameter used in exp must be one of k, K, t, and T", 0);
+            } 
         }
 
         // check the following exps
         this.constraints = null;
         if (1 < splitExps.length) {
-            // there must be a constraint
+            // there must be constraint(s)
 
             for (i = 1; i < splitExps.length; i++) {
+                LOGGER.finest("splitExps[" + i + "]: " + splitExps[i]);
                 List<Constraint> constraints = extractConstraints(splitExps[i]);
                 if (constraints != null) {
                     if (this.constraints == null) 
