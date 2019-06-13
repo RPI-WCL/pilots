@@ -143,7 +143,6 @@ public class Signature {
             //  k, K, t, T, <numeric value>
             // as used in e = k, e = K,.. 
 
-            // constant value or 'k'
             Pattern p = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
             Matcher m = p.matcher(splitExps[0]);
 
@@ -154,8 +153,7 @@ public class Signature {
                 && 0 <= RESERVED_ARGS.indexOf(splitExps[0])) {
                 // If arg is not defined, but one of "kKtT" is used in splitExps[], set it in arg
                 this.arg = splitExps[0];
-            } else if (this.arg != null && 0 < this.arg.length()
-                       && RESERVED_ARGS.indexOf(splitExps[0]) < 0) {
+            } else if (RESERVED_ARGS.indexOf(splitExps[0]) < 0) {
                 throw new ParseException("Parameter used in exp must be one of k, K, t, and T", 0);
             } 
         }
