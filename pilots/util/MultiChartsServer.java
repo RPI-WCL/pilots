@@ -150,11 +150,38 @@ public class MultiChartsServer {
             xyPlot.setDomainGridlinePaint(Color.lightGray);
             xyPlot.setRangeGridlinePaint(Color.lightGray);
 
-            // TODO: configure ranges
+            // cofiguring X-Axis
             ValueAxis xAxis = xyPlot.getDomainAxis();
-            xAxis.setAutoRange(true);
+            if (map.get("xRange") != null) {
+                String[] xRange = map.get("xRange").split("~");
+                String datePattern = "yyyy-MM-dd HHmmssZ";
+                DateFormat dateFormat = new SimpleDateFormat(datePattern);
+                Date[] dates = new Date[2];
+                try {            
+                    for (int i = 0; i < 2; i++) {
+                        dates[i] = dateFormat.parse(xRange[i]);
+                    }
+                    xAxis.setRange(dates[0].getTime(), dates[1].getTime());
+                } catch (Exception ex) {
+                    xAxis.setAutoRange(true);
+                }
+            } else {
+                xAxis.setAutoRange(true);            
+            }
+
+            // cofiguring Y-Axis            
             ValueAxis yAxis = xyPlot.getRangeAxis();
-            yAxis.setAutoRange(true);
+            if (map.get("yRange") != null) {
+                try {
+                    String[] yRange = map.get("yRange").split("~");
+                    yAxis.setRange(Double.parseDouble(yRange[0]),
+                                   Double.parseDouble(yRange[1]));
+                } catch (Exception ex) {
+                    yAxis.setAutoRange(true);                    
+                }
+            } else {
+                yAxis.setAutoRange(true);
+            }
             
             xyPlot.setRenderer(new XYLineAndShapeRenderer());
             xyPlot.setForegroundAlpha(0.50f);
@@ -192,21 +219,21 @@ public class MultiChartsServer {
             Map<Integer, JFreeChart> indexChartMap = new HashMap<>();            
 
             while (true) {
-                System.out.println("Started listening to port:" + port);
+                LOGGER.info("Started listening to port:" + port);
                 Socket newSock = serverSock.accept();
                 BufferedReader in = new BufferedReader(new InputStreamReader(newSock.getInputStream()));
                 String str = null;
                 
-                System.out.println("Connection accepted");
+                LOGGER.info("Connection accepted");
                 
                 try {
 	                while ((str = in.readLine()) != null) {
 	                    if (str.length() == 0) {
-	                        System.out.println("EOS marker received");
+	                        LOGGER.info("EOS marker received");
 	                        break;
 	                    }
 	                    else if (str.charAt(0) == '#') {
-	                        System.out.println("first line received: " + str);
+	                        LOGGER.info("first line received: " + str);
 	                        String[] vars = str.substring(1).split(",");
                             for (int i = 0; i < vars.length; i++) {
                                 // i -> var -> series
@@ -230,14 +257,13 @@ public class MultiChartsServer {
                                 indexChartMap.get(i).fireChartChanged();
                             }
                             
-	                        // just print the value
-	                        System.out.println(str);
+	                        LOGGER.finer(str);
 	                    }
 	                }
 	            } catch (SocketException ex) {
-	                System.out.println("Connectin reset by peer");
+	                LOGGER.info("Connectin reset by peer");
 				} finally {
-	                System.out.println("Finished receiving time series");
+	                LOGGER.info("Finished receiving time series");
 		            in.close();
 	                newSock.close();	
                 }
