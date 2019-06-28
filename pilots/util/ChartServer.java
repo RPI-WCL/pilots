@@ -143,7 +143,7 @@ public class ChartServer {
 	                    }
 	                }
 	            } catch (SocketException ex) {
-	                System.out.println("Connectin reset by peer");
+	                System.out.println("Connection reset by peer");
 				} finally {
 	                System.out.println("Finished receiving time series");
 	                currSeries += varNames.length - 1;
