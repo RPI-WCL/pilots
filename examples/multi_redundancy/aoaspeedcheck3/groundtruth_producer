@@ -1,0 +1,5 @@
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+     pilots.util.ColumnSelectableFileInputProducer \
+        $PILOTS_HOME/data/XPlane_AoaCheck/aoaspeed.txt \
+        true_va,failed_va,true_vg,failed_vg,true_aoa,failed_aoa,true_mode \
+        localhost:9999
