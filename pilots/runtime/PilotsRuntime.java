@@ -177,7 +177,7 @@ public class PilotsRuntime {
             long waitTime = (long)((currTime - prevTime) / timeSpeed);
             LOGGER.finer("sendData, curr=" + (currTime - prevTime) + ", " + waitTime);
             try {
-                Thread.sleep(waitTime );
+                Thread.sleep(waitTime);
             } catch (InterruptedException ex) {
                 LOGGER.severe(ex.toString());
             }

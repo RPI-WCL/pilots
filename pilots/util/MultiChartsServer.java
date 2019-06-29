@@ -72,21 +72,19 @@ public class MultiChartsServer {
     private JFrame frame;
     
     class TimeSeriesPanel extends JPanel {
-
-        // Use maximumItemAge for history effect
-//     /**
-//      * Sets the number of time units in the 'history' for the series.  This
-//      * provides one mechanism for automatically dropping old data from the
-//      * time series. For example, if a series contains daily data, you might set
-//      * the history count to 30.  Then, when you add a new data item, all data
-//      * items more than 30 days older than the latest value are automatically
-//      * dropped from the series.
-//      *
-//      * @param periods  the number of time periods.
-//      *
-//      * @see #getMaximumItemAge()
-//      */
-// public void setMaximumItemAge(long periods) {
+        // TODO: Use maximumItemAge for history effect
+        /**
+         * Sets the number of time units in the 'history' for the series.  This
+         * provides one mechanism for automatically dropping old data from the
+         * time series. For example, if a series contains daily data, you might set
+         * the history count to 30.  Then, when you add a new data item, all data
+         * items more than 30 days older than the latest value are automatically
+         * dropped from the series.
+         *
+         * @param periods  the number of time periods.
+         *
+         * @see #getMaximumItemAge()
+         */
         
         // TimeSeries timeSeries;
         TimeSeriesCollection timeSeriesCollection;
@@ -142,15 +140,19 @@ public class MultiChartsServer {
 
         // configurations for each panel
         for (Map<String, String> map : configList) {
-            TimeSeriesPanel panel = new TimeSeriesPanel(map.get("title"),
-                                                        map.get("xAxis"),
-                                                        map.get("yAxis"));
-            XYPlot xyPlot = panel.chart.getXYPlot();
-            xyPlot.setBackgroundPaint(Color.white);
-            xyPlot.setDomainGridlinePaint(Color.lightGray);
-            xyPlot.setRangeGridlinePaint(Color.lightGray);
+            String title = map.get("title") == null ? "title"   : map.get("title");
+            String xAxisLabel = map.get("xAxis") == null ? "X-axis"  : map.get("xAxis");
+            String yAxisLabel = map.get("yAxis") == null ? "Y-axis"  : map.get("yAxis");            
+            
+            TimeSeriesPanel panel = new TimeSeriesPanel(title, xAxisLabel, yAxisLabel);
 
-            // cofiguring X-Axis
+            XYPlot xyPlot = panel.chart.getXYPlot();
+            // configure color for plot
+            xyPlot.setBackgroundPaint(Color.white);
+            xyPlot.setDomainGridlinePaint(Color.darkGray);
+            xyPlot.setRangeGridlinePaint(Color.darkGray);
+
+            // cofigure X-Axis
             ValueAxis xAxis = xyPlot.getDomainAxis();
             if (map.get("xRange") != null) {
                 String[] xRange = map.get("xRange").split("~");
@@ -169,7 +171,7 @@ public class MultiChartsServer {
                 xAxis.setAutoRange(true);            
             }
 
-            // cofiguring Y-Axis            
+            // cofigure Y-Axis            
             ValueAxis yAxis = xyPlot.getRangeAxis();
             if (map.get("yRange") != null) {
                 try {
