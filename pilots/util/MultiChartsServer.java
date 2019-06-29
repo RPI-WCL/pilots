@@ -62,7 +62,7 @@ public class MultiChartsServer {
     private final static int DEFAULT_INPUT_PORT = 9999;
     private final static String DEFAULT_CONFIG_FILE = "./config.yaml";
     private final static int PANELS_LAYOUT_ROWS = 3;
-    private final static int H = 250;
+    private final static int H = 230;
     private final static int W = 500;
 
     private int port;
@@ -199,6 +199,7 @@ public class MultiChartsServer {
             for (int i = 0; i < vars.length; i++) {
                 TimeSeries series = new TimeSeries(legends == null ? vars[i] : legends[i], null, null);
                 varSeriesMap.put(vars[i], series);
+                LOGGER.finer(series + " created for "  + vars[i]);
                 varChartMap.put(vars[i], panel.chart);
                 panel.timeSeriesCollection.addSeries(series);
                 renderer.setSeriesPaint(i, colorMap.get(colors[i]));
@@ -240,6 +241,9 @@ public class MultiChartsServer {
                             for (int i = 0; i < vars.length; i++) {
                                 // i -> var -> series
                                 indexSeriesMap.put(i, varSeriesMap.get(vars[i]));
+                                LOGGER.finer(varSeriesMap.get(vars[i])
+                                             + " found for " + vars[i]
+                                             + ", i = " + i);
                                 // i -> var -> chart
                                 indexChartMap.put(i, varChartMap.get(vars[i]));
                             }
@@ -251,6 +255,7 @@ public class MultiChartsServer {
 	                        java.util.List<Double> values = stData.getValues();
                             for (int i = 0; i < values.size(); i++) {
                                 TimeSeries series = indexSeriesMap.get(i);
+                                LOGGER.finest(series + " is updated for i = " + i);
                                 try {
                                     series.add(new Millisecond(times[0]), values.get(i));
                                 } catch(SeriesException ex) {
