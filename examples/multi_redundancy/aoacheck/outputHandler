@@ -1,6 +1,0 @@
-java -classpath .:$PILOTS_HOME/lib/* \
-    -DseriesColors=magenta,green \
-    -DchartTitle="Mode and Estimated AoA" \
-    -DxAxisLegend="Time" -DyAxisLegend="Mode / AoA [degree]" \
-    -DvalueRange=-1~100 \
-    pilots.util.ChartServer 9999
