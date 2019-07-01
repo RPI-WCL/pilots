@@ -1,7 +1,7 @@
 ---
 title: "Angle of Attack"
 vars: "aoa"
-legends: "angle of attack"
+legends: "estimated aoa"
 colors: "blue"
 xAxis: "Time"
 yAxis: "Angle of Attack [degree]"
@@ -10,7 +10,7 @@ yRange: "-10~100"
 ---
 title: "Estimated Mode"
 vars: "mode"
-legends: "estimated"
+legends: "estimated mode"
 colors: "blue"
 xAxis: "Time"
 yAxis: "Mode"

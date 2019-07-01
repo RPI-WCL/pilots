@@ -5,6 +5,6 @@ java -classpath .:$PILOTS_HOME/lib/* \
     --timerange "2019-06-07 000603-0400~2019-06-07 001003-0400" \
     --timespeed x10 \
     --inputport 8888 \
-    $(: --outputs 127.0.0.1:9999 \ )\
+    --outputs 127.0.0.1:9999 \
     --omega 1 \
     --tau 0.95
