@@ -62,8 +62,8 @@ public class MultiChartsServer {
     private final static int DEFAULT_INPUT_PORT = 9999;
     private final static String DEFAULT_CONFIG_FILE = "./config.yaml";
     private final static int PANELS_LAYOUT_ROWS = 3;
-    private final static int H = 230;
-    private final static int W = 500;
+    private final static int H = 250;
+    private final static int W = 550;
 
     private int port;
     private java.util.List<Map<String, String>> configList;
