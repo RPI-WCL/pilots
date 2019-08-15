@@ -22,6 +22,8 @@ public class ColumnSelectableFileInputProducer
 
     private String filename;
     private Set<String> selectedVars;
+    private Map<String, String> varAliases;
+    private boolean passThroughFirstLine;
     private Socket sock;
     private OutputStream outputStream;
     private PrintWriter writer;
@@ -57,8 +59,27 @@ public class ColumnSelectableFileInputProducer
     public ColumnSelectableFileInputProducer(String filename, String selectedVars, String host, int port) {
         this.filename = filename;
         this.selectedVars = new HashSet<>();
-        for (String var : selectedVars.split(","))
-            this.selectedVars.add(var);
+        this.varAliases = new HashMap<>();
+
+        if (selectedVars.equals("all")) {
+            // In case of "*", we pass through first line of the input file            
+            this.passThroughFirstLine = true;
+        } else {
+            // Otherwise, we parse the selected variables list
+            this.passThroughFirstLine = false;            
+            for (String var : selectedVars.split(",")) {
+                int colonIndex = 0;
+                if (0 < (colonIndex = var.indexOf(':'))) {
+                    // An alias can be specified for a variable in the format "var:alias"
+                    String varWithAlias = var.substring(0, colonIndex);
+                    String alias = var.substring(colonIndex + 1);
+                    this.varAliases.put(varWithAlias, alias);
+                    var = varWithAlias;
+                }
+                this.selectedVars.add(var);
+            }
+        }
+        
         TimeZone.setDefault(TimeZone.getTimeZone(TIME_ZONE_ID));
         this.dateFormat = new SimpleDateFormat(DATE_PATTERN);
         this.selectedColumnIndices = new ArrayList<>();
@@ -116,9 +137,10 @@ public class ColumnSelectableFileInputProducer
             String[] vars = line.substring(1).split(","); // skip the first '#'
             List<String> selectedVarsList = new ArrayList<>();
             for (int i = 0; i < vars.length; i++) {
-                if (selectedVars.contains(vars[i])) {
+                if (passThroughFirstLine || selectedVars.contains(vars[i])) {
                     selectedColumnIndices.add(i);
-                    selectedVarsList.add(vars[i]);
+                    String var = varAliases.getOrDefault(vars[i], vars[i]);
+                    selectedVarsList.add(var);
                 }
             }
             sendData("#" + String.join(",", selectedVarsList));

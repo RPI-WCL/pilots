@@ -203,9 +203,11 @@ public class MultiChartsServer {
                 varChartMap.put(vars[i], panel.chart);
                 panel.timeSeriesCollection.addSeries(series);
                 renderer.setSeriesPaint(i, colorMap.get(colors[i]));
-                renderer.setSeriesStroke(i, new BasicStroke(2.0f)); // stroke size
+                renderer.setSeriesStroke(i, new BasicStroke(3.0f)); // stroke size
                 // renderer.setSeriesShape(1, new Ellipse2D.Double(-1.0, -1.0, 2.0, 2.0)); // marker size
+                renderer.setSeriesShapesVisible(i, false);
             }
+            renderer.setUseOutlinePaint(true);
 
             frame.add(panel);            
         }

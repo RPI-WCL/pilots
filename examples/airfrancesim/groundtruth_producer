@@ -1,5 +1,0 @@
-java -Dsim -classpath .:$PILOTS_HOME/lib/* \
-     pilots.util.ColumnSelectableFileInputProducer \
-        $PILOTS_HOME/data/01-Jun-2009-AF447/speed_data.txt \
-        failed_va \
-        localhost:9999

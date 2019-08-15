@@ -1,0 +1,38 @@
+# directly go to chartserver
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+    pilots.util.ColumnSelectableFileInputProducer \
+    $PILOTS_HOME/data/03-Apr-2012-KALB-KFME/va_fail-aa.txt \
+    va:va_fail \
+    localhost:9999
+
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+    pilots.util.ColumnSelectableFileInputProducer \
+    $PILOTS_HOME/data/03-Apr-2012-KALB-KFME/va-aa.txt \
+    va:va_true \
+    localhost:9999
+
+# go to SpeedCheck
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+    pilots.util.ColumnSelectableFileInputProducer \
+    $PILOTS_HOME/data/03-Apr-2012-KALB-KFME/vg-ag.txt \
+    all \
+    localhost:8888
+
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+    pilots.util.ColumnSelectableFileInputProducer \
+    $PILOTS_HOME/data/03-Apr-2012-KALB-KFME/va_fail-aa.txt \
+    all \
+    localhost:8888
+
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+    pilots.util.ColumnSelectableFileInputProducer \
+    $PILOTS_HOME/data/03-Apr-2012-KALB-KFME/vw-aw.txt \
+    all \
+    localhost:8888
+
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+    pilots.util.ColumnSelectableFileInputProducer \
+    $PILOTS_HOME/data/03-Apr-2012-KALB-KFME/x-y-z.txt \
+    all \
+    localhost:8888
+

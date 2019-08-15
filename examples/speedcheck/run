@@ -1,9 +1,8 @@
 java -classpath .:$PILOTS_HOME/lib/* \
     -Djava.util.logging.config.file="$PILOTS_HOME/logging.properties" \
-    AirFrance \
+    SpeedCheck \
     --currloctime pilots.runtime.SimTimeService \
-    --timerange "2009-06-01 020930-0500~2009-06-01 021130-0500" \
-    --timespeed x10 \
+    --timerange "2012-04-03 140400-0500~2012-04-03 154500-0500" \
     --inputport 8888 \
     --outputs 127.0.0.1:9999 \
     --omega 1 \

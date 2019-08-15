@@ -1,7 +1,7 @@
 ---
 title: "Airspeed & Error"
 vars: "va,failed_va,e1"
-legends: "estimated airspeed,failed airspeed,error"
+legends: "airspeed (estimated),airspeed (observed),error"
 colors: "green,red,blue"
 xAxis: "Time"
 yAxis: "Airspeed & Error [knot]"
