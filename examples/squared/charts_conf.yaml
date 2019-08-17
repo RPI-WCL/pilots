@@ -1,0 +1,7 @@
+---
+title: "Squared"
+vars: "o"
+legends: "squared output"
+colors: "blue"
+xAxis: "Time"
+yAxis: "Value"
