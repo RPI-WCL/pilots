@@ -218,9 +218,13 @@ public class PilotsRuntime {
         if (store != null) {
             for (int i = 0; i < methods.length; i++)
                 LOGGER.finest("methods[" + i + "]=" + methods[i]);
-            LOGGER.finest("store=" + store + ",var=" + var + ",methods=" + methods);
-            synchronized (this) {
-                d = store.getData(var, methods);
+            LOGGER.finest("store=" + store + ", var=" + var + ", methods=" + methods);
+            try {
+                synchronized (this) {
+                    d = store.getData(var, methods);
+                }
+            } catch (NullPointerException ex) {
+                LOGGER.warning("Caught NullPointerException: store=" + store);
             }
         }
         else {

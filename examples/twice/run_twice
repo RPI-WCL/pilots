@@ -1,0 +1,5 @@
+java -classpath .:$PILOTS_HOME/lib/* \
+    -Djava.util.logging.config.file="$PILOTS_HOME/logging.properties" \
+    Twice \
+    --inputport 8888 \
+    --outputs 127.0.0.1:9999

@@ -3,7 +3,7 @@ program TwiceCorrect;
         a(t) using closest(t);
         b(t) using closest(t);
     outputs
-        o: b - 2 * a at every 1 sec;
+        e, mode at every 1 sec;
     errors
         e: b - 2 * a;
     signatures
