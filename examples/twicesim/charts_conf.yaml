@@ -1,0 +1,19 @@
+---
+title: "Error"
+vars: "e"
+legends: "error: b - 2 * a"
+colors: "blue"
+xAxis: "Time"
+yAxis: "Value"
+xRange: "2013-05-11 140001-0500~2013-05-11 140800-0500"
+yRange: "-150~150"
+---
+title: "Mode"
+vars: "mode"
+legends: "estimated mode"
+colors: "blue"
+xAxis: "Time"
+yAxis: "Mode"
+xRange: "2013-05-11 140001-0500~2013-05-11 140800-0500"
+yRnage: "-1~3"
+

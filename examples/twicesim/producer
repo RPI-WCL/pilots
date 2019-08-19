@@ -1,0 +1,6 @@
+java -cp .:$PILOTS_HOME/lib/* \
+    pilots.util.FileInputProducer ../../data/Twice/a.txt
+
+java -cp .:$PILOTS_HOME/lib/* \
+    pilots.util.FileInputProducer ../../data/Twice/b.txt
+

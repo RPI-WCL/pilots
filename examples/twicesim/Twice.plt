@@ -3,5 +3,5 @@ program Twice;
         a(t) using closest(t);
         b(t) using closest(t);
     outputs
-        o: b - 2 * a at every 1 sec;
+        e: b - 2 * a at every 1 sec;
 end;
