@@ -1,0 +1,4 @@
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+    pilots.util.FileInputProducer \
+    $PILOTS_HOME/data/06-Aug-2005-TUI1153/airspeed,false-weight.txt \
+    localhost:8888

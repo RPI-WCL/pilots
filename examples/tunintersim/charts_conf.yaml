@@ -1,0 +1,19 @@
+---
+title: "Weight"
+vars: "weight_true,weight_fail,weight,e"
+legends: "weight (no error), weight (failed), weight (estimated), error"
+colors: "blue,purple,green,magenta"
+xAxis: "Time"
+yAxis: "Weight [kg]"
+xRange: "2014-03-28 010430-0400~2014-03-28 010545-0400"
+yRange: "-2000~25000"
+---
+title: "Mode"
+vars: "mode"
+legends: "estimated mode"
+colors: "blue"
+xAxis: "Time"
+yAxis: "Mode"
+xRange: "2014-03-28 010430-0400~2014-03-28 010545-0400"
+yRange: "-1~3"
+
