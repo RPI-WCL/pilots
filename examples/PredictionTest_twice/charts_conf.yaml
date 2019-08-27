@@ -1,0 +1,7 @@
+---
+title: "Weight"
+vars: "o"
+legends: "c - b value"
+colors: "green"
+xAxis: "Time"
+yAxis: "c - b value"
