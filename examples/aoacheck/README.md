@@ -1,4 +1,6 @@
-To start the demo, run the following commands on separate terminals in order:
+# AoaCheck (real-time mode)
+
+To start the demo, run the following commands separately on three terminals in order:
 
 ```
 $ ./chartserver
