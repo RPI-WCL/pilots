@@ -233,7 +233,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             String var = (String)tokenizer.nextElement();
 
             // Special case for the mode keyword
-            if (var.equals("mode")) {
+            // Use the raw mode variable unless it is explicity defined by the user
+            if (map.get("mode") == null && var.equals("mode")) {
                 newExp += var;
                 continue;
             }
@@ -424,6 +425,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         code += insIndent() + "// Outputs computation\n";
         for (OutputStream output : outputs) {
             for (String outputVarName : output.getVarNames()) {
+                // special case for "mode" keyword
                 if (!output.getExp().equals("null")) {
                     code += insIndent() + "data.put(\"" + outputVarName + "\", "
                         + replaceVar(replaceMathFuncs(output.getExp()), varsMap) + ");\n";
@@ -447,7 +449,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             String[] outputVarNames = output.getVarNames();
             String info = "";
             for (int i = 0; i < outputVarNames.length; i++) {
-                if (outputVarNames[i].equals("mode")) {
+                if (varsMap.get("mode") == null && outputVarNames[i].equals("mode")) {
                     code += "mode"; // special variable
                     info += "\"mode=\" + mode + \" \"";
                 } else {

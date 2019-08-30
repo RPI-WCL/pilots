@@ -1,1 +1,4 @@
-java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar -DchartTitle="Prediction Test Mode" -DxAxisLegend="Time" -DyAxisLegend="Mode" -DvalueRange=0~4 pilots.util.ChartServer 9999
+java -cp .:$PILOTS_HOME/lib/* \
+    -Djava.util.logging.config.file="$PILOTS_HOME/logging.properties" \
+    pilots.util.MultiChartsServer \
+    --config_file charts_conf.yaml

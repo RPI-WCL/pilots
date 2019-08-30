@@ -1,0 +1,8 @@
+---
+title: "Prediction Test Mode"
+vars: "mode"
+legends: "mode"
+colors: "green"
+xAxis: "Time"
+yAxis: "Mode"
+yRange: "-1~4"

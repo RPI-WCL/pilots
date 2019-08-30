@@ -3,5 +3,5 @@ program PredictionTest_mode;
 		a, b (t) using closest (t);
 		mode (t) using predict(bayes_prediction_test, a, b);
 	outputs
-		Mode: mode at every 1 sec;
+		mode at every 1 sec;
 end
