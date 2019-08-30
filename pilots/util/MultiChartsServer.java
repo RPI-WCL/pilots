@@ -66,6 +66,7 @@ public class MultiChartsServer {
     private final static int W = 550;
 
     private int port;
+    private boolean verbose;
     private java.util.List<Map<String, String>> configList;
     private Map<String, TimeSeries> varSeriesMap;
     private Map<String, JFreeChart> varChartMap;    
@@ -101,11 +102,12 @@ public class MultiChartsServer {
         }
     }
 
-    public MultiChartsServer(int port, String configFile) {
+    public MultiChartsServer(int port, String configFile, boolean verbose) {
         this.port = port;
         this.configList = new ArrayList<>();
         this.varSeriesMap = new HashMap<>();
-        this.varChartMap = new HashMap<>();        
+        this.varChartMap = new HashMap<>();
+        this.verbose = verbose;
 
         Yaml yaml = new Yaml();
         InputStream inputStream = this.getClass()
@@ -233,6 +235,9 @@ public class MultiChartsServer {
                 
                 try {
 	                while ((str = in.readLine()) != null) {
+                        if (verbose)
+                            System.out.println(str);
+                        
 	                    if (str.length() == 0) {
 	                        LOGGER.info("EOS marker received");
 	                        break;
@@ -294,6 +299,10 @@ public class MultiChartsServer {
         parser.addArgument("-c", "--config_file")
             .setDefault(DEFAULT_CONFIG_FILE)
             .help("Configuration file in yaml format");
+        parser.addArgument("-v", "--verbose")
+            .action(Arguments.storeTrue())
+            .setDefault(false)
+            .help("Display all received data in stdout");
 
         Namespace opts = null;  
         try {
@@ -304,7 +313,8 @@ public class MultiChartsServer {
         }
 
         MultiChartsServer server = new MultiChartsServer(opts.get("port"),
-                                                         opts.get("config_file"));
+                                                         opts.get("config_file"),
+                                                         opts.get("verbose"));
         server.startServer();        
     }
 }
