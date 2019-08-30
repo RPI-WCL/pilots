@@ -1,4 +1,4 @@
-# Instructions for running the example
+# AoaSpeedCheck2
 
 To run this example, we use two child PILOTS applications, [SpeedCheck](../speedcheck) and [AoaCheck](../AoaCheck), and one parent PILOTS application [AoaSpeedCheck2](./AoaSpeedCheck2.plt) over five terminals.
 

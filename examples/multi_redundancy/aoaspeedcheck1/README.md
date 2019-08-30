@@ -1,4 +1,4 @@
-# Instructions for running the example
+# AoaSpeedCheck1
 
 To run this example, we use three separate terminals.
 
