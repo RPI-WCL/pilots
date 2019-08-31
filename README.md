@@ -1,5 +1,4 @@
-README for PILOTS ver 0.5
-===============================================
+# README for PILOTS ver 0.5
 
 PILOTS (**P**rogramm**I**ng **L**anguage for spati**O**-**T**emporal data **S**treaming applications) is a highly declarative programming language for spatio-temporal streaming applications.
 It is capable of detecting and correcting data errors through user-defined *error signatures*.
@@ -27,14 +26,14 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 *Note: The following commands shown for the command line are assumed to be implemented in the bash shell* 
 
 
-1. Software Requirements
-----------------------------------------------------------------------------------------------
+## 1. Software Requirements
+
 * Java JDK 1.8 or newer.
 * (Optional) [JFreeChart](http://www.jfree.org/jfreechart/download.html) 1.0.19 or newer to visualize outputs from PILOTS applications.
 * (Optional) [JavaCC](http://javacc.java.net/) if you want to modify the PILOTS grammar.
   
-2. Downloading PILOTS library and its dependencies
-----------------------------------------------------------------------------------------------
+## 2. Downloading PILOTS library and its dependencies
+
 * Download a PILOTS release either from [the PILOTS web site](http:/wcl.cs.rpi.edu/pilots/) or [the PILOTS github page](https://github.com/RPI-WCL/pilots).
 
 * Note that the directory containing this README is referred to as `$PILOTS_HOME`.
@@ -45,8 +44,8 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
  - Json operations require `json-java.jar` ( The Json License, see `$PILOTS_HOME/lib/The JSON License.html` )
 
 
-3. Getting Started with PILOTS
-----------------------------------------------------------------------------------------------
+## 3. Getting Started with PILOTS
+
 * **Building a PILOTS jar file**
 
   In `$PILOTS_HOME`, run
@@ -72,8 +71,8 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 * **Running examples with learning model**: Refer to the [Detailed Overview of Implementing Learning Model](https://github.com/RPI-WCL/pilots/wiki/Detailed-Overview-of-Implementing-Learning-Model)
 
 
-4. Limitations
-----------------------------------------------------------------------------------------------
+## 4. Limitations
+
 * Language only supports error signatures that are a constant, or a linear function. Examples are:
   - S: e = 100;
   - S(K): e = K, abs(K) > 25;
@@ -83,8 +82,8 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 per error signature.
 
 
-5. Future Work
-----------------------------------------------------------------------------------------------
+## 5. Future Work
+
 * Types of error signatures we would like to support eventually:
     -   S(K): e = K
     -   S(K): e = K*t^2
@@ -103,4 +102,4 @@ per error signature.
     - Different interpolation methods
     - More types of error signatures
 
-* Resolve the limitation for the `when` clause described in Limitations
+* Resolve the limitation for the `when` clause described in [Limitations](#limitations)
