@@ -21,7 +21,7 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 * Arguments to PILOTS programs are handled by argparse4j.
 * Log messages are managed by Java Logging APIs. Logging levels are configurable through
   [`logging.properties`](logging.properties).
-* ['MultipleChartServer`](./pilots/util/MultipleChartServer.java) to show multiple plots in one windows. Settings for each plot can be configured through a yaml file ([example](./examples/airfrancesim/charts_conf.yaml)). Due to this functionality, JFreeChart and JCommon must be updated to v1.0.19 and v1.0.23 respectively.
+* ['MultipleChartServer`](./pilots/util/MultipleChartServer.java) to show multiple plots in one window. Settings for each plot can be configured through a yaml file ([example](./examples/airfrancesim/charts_conf.yaml)). Due to this functionality, JFreeChart and JCommon must be updated to v1.0.19 and v1.0.23 respectively.
 
 *Note: The following commands shown for the command line are assumed to be implemented in the bash shell* 
 
