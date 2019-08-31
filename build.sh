@@ -1,9 +1,9 @@
 #!/bin/bash
 
-export CLASSPATH=./classes:./lib/jcommon-1.0.17.jar:./lib/jfreechart-1.0.14.jar:./lib/json-java.jar:$CLASSPATH 
+export CLASSPATH=./classes:./lib/*:$CLASSPATH 
 DIST=./classes
 ROOT=$(pwd)
-VERSION=0.4.2
+VERSION=0.5
 
 echo "PILOTS Build Script (v$VERSION)"
 echo "Please make sure the current directory is in your CLASSPATH"
@@ -20,7 +20,6 @@ echo "public class Version { public static final String ver = \"$VERSION\"; }" >
 
 echo "Compiling pilots..."
 javac -Xlint:deprecation -d $DIST `find . -name "*.java" | egrep -v 'test|example'`
-# 
 
 echo "Generating jar file..."
 cd $DIST
