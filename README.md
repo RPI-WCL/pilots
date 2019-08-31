@@ -102,4 +102,4 @@ per error signature.
     - Different interpolation methods
     - More types of error signatures
 
-* Resolve the limitation for the `when` clause described in [Limitations](#4._limitations)
+* Resolve the limitation for the `when` clause described in [Limitations](#4-limitations)
