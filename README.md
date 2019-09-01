@@ -13,15 +13,15 @@ In version 0.5, we added the following new features to the PILOTS grammar:
   - Enhancement of the `modes` section to support general boolean expressions.
   - Scoped naming for output variables using the `namespace` command line option (e.g., output variable `x`   from a child program with `--namespace A` option can be referred to as `A.x` in the parent program).
     Example is available [here](./examples/multi_redundancy/aoaspeedcheck3/run_speedcheck).
-  - Reserved `mode` variable to store the estimated mode.
+* Reserved `mode` variable to store the estimated mode.
 * Introduction of `constants` section to declare constant values.
-* Support for x^n expression to denote the n-th power of x.
+* Support for `x^n` expression to denote the n-th power of x.
 
 In version 0.5, there are some new features to the PILOTS runtime system and its utilities:
-* Arguments to PILOTS programs are handled by argparse4j.
-* Log messages are managed by Java Logging APIs. Logging levels are configurable through
+* Arguments to PILOTS programs are now handled by argparse4j.
+* Log messaging with Java Logging APIs. Logging levels are configurable through
   [`logging.properties`](logging.properties).
-* ['MultiChartsServer`](./pilots/util/MultiChartsServer.java) to show multiple plots in one window. Settings for multiple plots can be configured through a single yaml file ([example yaml file](./examples/airfrancesim/charts_conf.yaml)). Due to this functionality, JFreeChart and JCommon must be updated to v1.0.19 and v1.0.23 respectively.
+* [`MultiChartsServer`](./pilots/util/MultiChartsServer.java) to show multiple plots in one window. Settings for multiple plots can be configured through a single yaml file ([example yaml file](./examples/airfrancesim/charts_conf.yaml)). Due to this functionality, JFreeChart and JCommon must be updated to v1.0.19 and v1.0.23 respectively.
 
 *Note: The following commands shown for the command line are assumed to be implemented in the bash shell* 
 
@@ -29,10 +29,10 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 ## 1. Software Requirements
 
 * Java JDK 1.8 or newer.
-* (Optional) [JFreeChart](http://www.jfree.org/jfreechart/download.html) 1.0.19 or newer to visualize outputs from PILOTS applications.
+* [JFreeChart](http://www.jfree.org/jfreechart/download.html) 1.0.19 or newer and [JCommon](http://www.jfree.org/jcommon/) 1.0.23 or newer to visualize outputs from PILOTS applications.
 * (Optional) [JavaCC](http://javacc.java.net/) if you want to modify the PILOTS grammar.
   
-## 2. Downloading PILOTS library and its dependencies
+## 2. Downloading PILOTS Library and Its Dependencies
 
 * Download a PILOTS release either from [the PILOTS web site](http:/wcl.cs.rpi.edu/pilots/) or [the PILOTS github page](https://github.com/RPI-WCL/pilots).
 
@@ -56,7 +56,7 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 
 * **Configure aliases**
 
-  In order to make sure that aliases for the `plc` and `plcsim` compiler commands are correctly figured as well as the definition of $PILOTS_HOME, make sure that you are in the [root directory](https://github.com/RPI-WCL/pilots) of the project and then use the following command:
+  In order to make sure that aliases for the `plc` and `plcsim` compiler commands are correctly figured as well as the definition of `$PILOTS_HOME`, make sure that you are in the [root directory](https://github.com/RPI-WCL/pilots) of the project and then use the following command:
 
   ~~~
   source setenv
@@ -68,7 +68,7 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 
 * **Running example PILOTS programs**: See [PILOTS tutorial](https://wcl.cs.rpi.edu/pilots/tutorial/index.html).
 
-* **Running examples with learning model**: Refer to the [Detailed Overview of Implementing Learning Model](https://github.com/RPI-WCL/pilots/wiki/Detailed-Overview-of-Implementing-Learning-Model)
+* **Running examples with learning model**: Refer to the [Detailed Overview of Implementing Learning Model](https://github.com/RPI-WCL/pilots/wiki/Detailed-Overview-of-Implementing-Learning-Model).
 
 
 ## 4. Limitations
