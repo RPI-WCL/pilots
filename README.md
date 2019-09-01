@@ -6,10 +6,10 @@ It is capable of detecting and correcting data errors through user-defined *erro
 PILOTS has been successfully applied to avionics applications. Most notably, we have shown that PILOTS can fix data errors due to pitot tube sensor failures which occurred in [Air France Flight 447 accident](http://wcl.cs.rpi.edu/papers/bdse2013.pdf). For more information, visit [the PILOTS web site](http://wcl.cs.rpi.edu/pilots/) and look at [related papers](https://wcl.cs.rpi.edu/bib/Keyword/DATA-STREAMING.html).
 
 In version 0.5, we added the following new features to the PILOTS grammar:
-* Support for multiple models of analytical redundancy (for details, see our [DASC2019 paper](http://wcl.cs.rpi.edu/papers/DASC2019_imai.pdf). Example programs to support this feature are available under [examples/multi_redundancy](./examples/multi_rendundancy) directory.
+* Support for multiple models of analytical redundancy (for details, see our [DASC2019 paper](http://wcl.cs.rpi.edu/papers/DASC2019_imai.pdf)). Example programs to support this feature are available under [examples/multi_redundancy](./examples/multi_redundancy) directory.
   - Support for multiple error values under the `errors` section.
-  - Support for multiple `estimate` clauses under the `signatures` section (as a side effect of this new
-  feature, the `when` clause is now deprecated).
+  - Support for multiple `estimate` clauses under the `signatures`and `modes` sections
+  (as a side effect of this new feature, the `when` clause is now deprecated).
   - Enhancement of the `modes` section to support general boolean expressions.
   - Scoped naming for output variables from child programs (e.g., variable `x` from program `A`
     can be referred to as `A.x` in the parent program).
@@ -21,7 +21,7 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 * Arguments to PILOTS programs are handled by argparse4j.
 * Log messages are managed by Java Logging APIs. Logging levels are configurable through
   [`logging.properties`](logging.properties).
-* ['MultipleChartServer`](./pilots/util/MultipleChartServer.java) to show multiple plots in one window. Settings for each plot can be configured through a yaml file ([example](./examples/airfrancesim/charts_conf.yaml)). Due to this functionality, JFreeChart and JCommon must be updated to v1.0.19 and v1.0.23 respectively.
+* ['MultiChartsServer`](./pilots/util/MultiChartsServer.java) to show multiple plots in one window. Settings for multiple plots can be configured through a single yaml file ([example yaml file](./examples/airfrancesim/charts_conf.yaml)). Due to this functionality, JFreeChart and JCommon must be updated to v1.0.19 and v1.0.23 respectively.
 
 *Note: The following commands shown for the command line are assumed to be implemented in the bash shell* 
 
@@ -41,7 +41,7 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 * Dependencies of the PILOTS library are included in `$PILOTS_HOME/lib`:
 
  - JFreeChart requires `jfreechart-1.0.19.jar` and `jcommon-1.0.23.jar` (GNU LGPL, see `$PILOTS_HOME/lib/lgpl.html`)
- - Json operations require `json-java.jar` ( The Json License, see `$PILOTS_HOME/lib/The JSON License.html` )
+ - JSON operations require `json-java.jar` ( The JSON License, see `$PILOTS_HOME/lib/The JSON License.html` )
 
 
 ## 3. Getting Started with PILOTS
@@ -56,7 +56,7 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 
 * **Configure aliases**
 
-  In order to make sure that aliases for the `plc` and `plcsimM` compiler commands are correctly figured as well as the definition of $PILOTS_HOME, make sure that you are in the [*root directory*](https://github.com/RPI-WCL/pilots) of the project and then use the following command:
+  In order to make sure that aliases for the `plc` and `plcsim` compiler commands are correctly figured as well as the definition of $PILOTS_HOME, make sure that you are in the [root directory](https://github.com/RPI-WCL/pilots) of the project and then use the following command:
 
   ~~~
   source setenv
@@ -78,8 +78,7 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
   - S(K): e = K, abs(K) > 25;
   - S(K): e = 2*t + K, K < 0, k > -100;
 
-* The `when` clause introduced in our [Cluster Computing article](http://wcl.cs.rpi.edu/papers/pilots-cluster.pdf) was deprecated in v0.5 because the previous implementation assumed only one `estimate` clause
-per error signature.
+* The `when` clause introduced in our [Cluster Computing journal article](http://wcl.cs.rpi.edu/papers/pilots-cluster.pdf) is deprecated due to the support for multiple `estimate` clauses under the `signatures` and `modes` sections in v0.5. The previous implementation of the `when` clause assumed that there is only one `estimate` clause per signature, but we decided to give priority to the support for multiple `estimate` clauses in v0.5. 
 
 
 ## 5. Future Work
