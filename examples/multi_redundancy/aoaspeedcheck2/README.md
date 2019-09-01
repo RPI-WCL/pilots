@@ -31,11 +31,11 @@ In **Terminal 4**, go to [speedcheck](../speedcheck) directory and compile [Spee
 ```
 $ cd ../speedcheck
 $ plcsim SpeedCheck.plt
-$ java SpeedCheck.java
+$ javac SpeedCheck.java
 ```
 Come back to this directory and run the compiled [SpeedCheck.plt](../speedcheck/SpeedCheck.plt) program:
 ```
-$ cd aoaspeedcheck2
+$ cd ../aoaspeedcheck2
 $ ./run_speedcheck
 ```
 
@@ -43,11 +43,11 @@ In **Terminal 5**, go to [aoacheck](../aoacheck) directory and compile [AoaCheck
 ```
 $ cd ../aoacheck
 $ plcsim AoaCheck.plt
-$ java AoaCheck.java
+$ javac AoaCheck.java
 ```
 Come back to this directory and run the compiled [AoaCheck.plt](../aoacheck/AoaCheck.plt) program:
 ```
-$ cd aoaspeedcheck2
+$ cd ../aoaspeedcheck2
 $ ./run_aoacheck
 ```
 
