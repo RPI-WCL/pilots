@@ -29,7 +29,7 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 ## 1. Software Requirements
 
 * Java JDK 1.8 or newer.
-* [JFreeChart](http://www.jfree.org/jfreechart/download.html) 1.0.19 or newer and [JCommon](http://www.jfree.org/jcommon/) 1.0.23 or newer to visualize outputs from PILOTS applications.
+* [JFreeChart](http://www.jfree.org/jfreechart/) 1.0.19 or newer and [JCommon](http://www.jfree.org/jcommon/) 1.0.23 or newer to visualize outputs from PILOTS applications.
 * (Optional) [JavaCC](http://javacc.java.net/) if you want to modify the PILOTS grammar.
   
 ## 2. Downloading PILOTS Library and Its Dependencies
@@ -41,7 +41,7 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 * Dependencies of the PILOTS library are included in `$PILOTS_HOME/lib`:
 
  - JFreeChart requires `jfreechart-1.0.19.jar` and `jcommon-1.0.23.jar` (GNU LGPL, see `$PILOTS_HOME/lib/lgpl.html`)
- - JSON operations require `json-java.jar` ( The JSON License, see `$PILOTS_HOME/lib/The JSON License.html` )
+ - JSON operations require `json-java.jar` (The JSON License, see `$PILOTS_HOME/lib/The JSON License.html`)
 
 
 ## 3. Getting Started with PILOTS
