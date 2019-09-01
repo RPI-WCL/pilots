@@ -21,7 +21,7 @@ In **Terminal 3**, in order to show the ground truth data, execute [groundtruth_
 $ ./groundtruth_producer
 ```
 
-In **Terminal 1**, run the compiled [AoaSpeedCheck2.plt](./AoaSpeedCheck2.plt) program using the command:
+In **Terminal 1**, run the compiled [AoaSpeedCheck3.plt](./AoaSpeedCheck3.plt) program using the command:
 ```
 $ ./run_parent
 ```
@@ -32,11 +32,11 @@ In **Terminal 4**, go to [speedcheck](../speedcheck) directory and compile [Spee
 ```
 $ cd ../speedcheck
 $ plcsim SpeedCheck.plt
-$ java SpeedCheck.java
+$ javac SpeedCheck.java
 ```
 Come back to this directory and run the compiled [SpeedCheck.plt](../speedcheck/SpeedCheck.plt) program:
 ```
-$ cd aoaspeedcheck2
+$ cd ../aoaspeedcheck3
 $ ./run_speedcheck
 ```
 
