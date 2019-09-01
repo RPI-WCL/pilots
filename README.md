@@ -11,10 +11,10 @@ In version 0.5, we added the following new features to the PILOTS grammar:
   - Support for multiple `estimate` clauses under the `signatures`and `modes` sections
   (as a side effect of this new feature, the `when` clause is now deprecated).
   - Enhancement of the `modes` section to support general boolean expressions.
-  - Scoped naming for output variables from child programs (e.g., variable `x` from program `A`
-    can be referred to as `A.x` in the parent program).
+  - Scoped naming for output variables using the `namespace` command line option (e.g., output variable `x`   from a child program with `--namespace A` option can be referred to as `A.x` in the parent program).
+    Example is available [here](./examples/multi_redundancy/aoaspeedcheck3/run_speedcheck).
   - Reserved `mode` variable to store the estimated mode.
-* Introduction of constants` section to declare constant values.
+* Introduction of `constants` section to declare constant values.
 * Support for x^n expression to denote the n-th power of x.
 
 In version 0.5, there are some new features to the PILOTS runtime system and its utilities:
