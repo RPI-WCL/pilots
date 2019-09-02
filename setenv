@@ -1,5 +1,5 @@
 export PILOTS_HOME=$PWD
+export CLASSPATH=.:$PILOTS_HOME/lib/*
 
-alias plc='java -Djava.util.logging.config.file="$PILOTS_HOME/logging.properties" pilots.compiler.PilotsCompiler'
-
-alias plcsim='java -Djava.util.logging.config.file="$PILOTS_HOME/logging.properties" pilots.compiler.PilotsCompiler --sim'
+alias plc='java -cp ".:$PILOTS_HOME/lib/*" -Djava.util.logging.config.file="$PILOTS_HOME/logging.properties" pilots.compiler.PilotsCompiler'
+alias plcsim='java -cp ".:$PILOTS_HOME/lib/*" -Djava.util.logging.config.file="$PILOTS_HOME/logging.properties" pilots.compiler.PilotsCompiler --sim'
