@@ -1,1 +1,0 @@
-java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar -DseriesColors=blue -DchartTitle="AF447 AirSpeed Sensor Failure" -DxAxisLegend="Time" -DyAxisLegend="Mode" -DtimeRange="2009-06-01 020900-0500~2009-06-01 021140-0500" -DvalueRange=-1~4 pilots.util.ChartServer 9998

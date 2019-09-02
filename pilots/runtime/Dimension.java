@@ -12,18 +12,18 @@ public class Dimension {
     public static final int TIME = 3;
     public static final int UNKNOWN = 4;
 
-    int dim_;
+    private int dim;
 
     public Dimension( int dim ) {
         if (MAX_SPATIAL_DIMENSION < dim) {
             System.err.println( "Dimension exceeded limit: " + dim );
             return;
         }
-        dim_ = dim;
+        this.dim = dim;
     }
 
     public int getDim() {
-        return dim_;
+        return dim;
     }
 
     public static int parseCoord( String str ) {
@@ -45,10 +45,6 @@ public class Dimension {
             System.err.println( "Coordinate not defined: " + str );
             coord = UNKNOWN;
         }
-
-        // if (coord <= dim_) {
-        //     System.err.println( "Invalid coordinate: " + str + ", dimension: " + dim_ );
-        // }
 
         return coord;
     }

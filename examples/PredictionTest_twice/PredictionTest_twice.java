@@ -1,76 +1,74 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
+import java.util.logging.*;
+import java.text.*;
 import java.net.Socket;
 import pilots.runtime.*;
 import pilots.runtime.errsig.*;
 
 public class PredictionTest_twice extends PilotsRuntime {
-    private int time_; // msec
-    private SlidingWindow win_o_;
-    private Vector<ErrorSignature> errorSigs_;
-    private ErrorAnalyzer errorAnalyzer_;
+    private static Logger LOGGER = Logger.getLogger(PredictionTest_twice.class.getName());
+    private int currentMode;
+    private int currentModeCount;
+    private int time; // msec
+    private long[] nextSendTimes;
 
-    public PredictionTest_twice( String args[] ) {
-        try {
-            parseArgs( args );
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        };
 
-        time_ = 0;
+    public PredictionTest_twice(String args[]) {
+        super(args);
 
-        win_o_ = new SlidingWindow( getOmega() );
-
-        errorSigs_ = new Vector<ErrorSignature>();
-
-        errorAnalyzer_ = new ErrorAnalyzer( errorSigs_, getTau() );
+        time = 0;
+        nextSendTimes = new long[1];
+        Arrays.fill(nextSendTimes, 0L);
     }
 
-    public void startOutput_o() {
+    public void produceOutputs() {
         try {
-            openSocket( OutputType.Output, 0, "o" );
-        } catch ( Exception ex ) {
+            openOutput(0, "o");
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         
-        final int frequency = 1000;
+        final int interval = 1000;
+        Map<String, Double> data = new HashMap<>();
         while (!isEndTime()) {
-            Value a = new Value();
-            Value c = new Value();
-            Value b = new Value();
+            // Inputs
+            data.put("a", getData("a", new Method(Method.CLOSEST, "t")));
+            data.put("c", getData("c", new Method(Method.CLOSEST, "t")));
+            data.put("b", getData("b", new Method(Method.PREDICT, "linear_regression_twice", "a")));
+            LOGGER.fine("Inputs: " + "a=" + data.get("a") + ", " + "c=" + data.get("c") + ", " + "b=" + data.get("b"));
 
-            a.setValue( getData( "a", new Method( Method.Closest, "t" ) ) );
-            c.setValue( getData( "c", new Method( Method.Closest, "t" ) ) );
-            b.setValue( getData( "b", new Method( Method.Predict, "linear_regression_twice", "a" ) ) );
-            double o = c.getValue()-b.getValue();
+            // Outputs computation
+            data.put("o", data.get("c")-data.get("b"));
 
-            dbgPrint( "o=" + o + " at " + getTime() );
+            // Data transfer
+            Date now = getTime();
             try {
-                sendData( OutputType.Output, 0, o );
-            } catch ( Exception ex ) {
+                sendData(0, data.get("o"));
+                LOGGER.info("Outputs: " + now + " " + "o=" + data.get("o") + " ");
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
 
-            time_ += frequency;
-            progressTime( frequency );
+            time += interval;
+            progressTime(interval);
         }
 
-        dbgPrint( "Finished at " + getTime() );
+        LOGGER.info("Finished at " + getTime());
     }
 
-    public static void main( String[] args ) {
-        PredictionTest_twice app = new PredictionTest_twice( args );
+    public static void main(String[] args) {
+        PredictionTest_twice app = new PredictionTest_twice(args);
         app.startServer();
 
-        BufferedReader reader = new BufferedReader( new InputStreamReader( System.in ) );
-        System.out.println( "Hit ENTER key after running input producer(s)." );
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("Hit ENTER key after running input producer(s).");
         try {
             reader.readLine();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-        app.startOutput_o();
+        app.produceOutputs();
     }
 }

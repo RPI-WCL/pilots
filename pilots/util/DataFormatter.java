@@ -8,67 +8,67 @@ import pilots.runtime.*;
 public class DataFormatter {
     // assuming '[time]\SP[data]' input
 
-    private String varName_;
-    private String inputFile_;
-    private DateFormat dateFormat_;
-    private Date now_;
-    private long baseTime_;
-    // private int outputFrequencyMsec_;
+    private String varName;
+    private String inputFile;
+    private DateFormat dateFormat;
+    private Date now;
+    private long baseTime;
+    // private int outputFrequencyMsec;
 
-    public DataFormatter( String varName, String inputFile, String baseDateStr ) {
-        varName_ = varName;
-        inputFile_ = inputFile;
-        dateFormat_ = new SimpleDateFormat( SpatioTempoData.datePattern );
+    public DataFormatter(String varName, String inputFile, String baseDateStr) {
+        this.varName = varName;
+        this.inputFile = inputFile;
+        this.dateFormat = new SimpleDateFormat(SpatioTempoData.datePattern);
         try {
-            now_ = dateFormat_.parse( baseDateStr );
+            this.now = this.dateFormat.parse(baseDateStr);
         } catch (Exception ex) {
-            System.err.println( ex );
+            System.err.println(ex);
         }
-        baseTime_ = now_.getTime();
-        // outputFrequencyMsec_ = outputFrequencyMsec;
+        baseTime = this.now.getTime();
+        // outputFrequencyMsec = outputFrequencyMsec;
     } 
 
 
     public void format() {
-        String outputFile = varName_ + ".txt";
+        String outputFile = varName + ".txt";
 
 		try {
-			BufferedReader in = new BufferedReader( new FileReader( inputFile_ ) );
-            PrintWriter out = new PrintWriter( new BufferedWriter( new FileWriter( outputFile ) ) );
-            out.println( "#" + varName_ );
+			BufferedReader in = new BufferedReader(new FileReader(inputFile));
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(outputFile)));
+            out.println("#" + varName);
             
             String str = null;
             while ((str = in.readLine()) != null) {
-                String[] data = str.split( "," );
-                double timeSec = Double.parseDouble( data[0] );  // assuming data[0] is time
+                String[] data = str.split(",");
+                double timeSec = Double.parseDouble(data[0]);  // assuming data[0] is time
                 long timeMsec = (long)(timeSec * 1000);
-                now_.setTime( baseTime_ + timeMsec );
+                now.setTime(baseTime + timeMsec);
 
-                String timeStr = dateFormat_.format( now_ );
-                out.print( ":" + timeStr + ":" );
+                String timeStr = dateFormat.format(now);
+                out.print(":" + timeStr + ":");
                 for (int i = 1; i < data.length; i++) {
                     if (i == data.length - 1)
-                        out.println( data[i] );
+                        out.println(data[i]);
                     else
-                        out.print( data[i] + "," );
+                        out.print(data[i] + ",");
                 }
             }
 
             out.close();
             in.close();
         } catch (Exception ex) {
-            System.err.println( ex );
+            System.err.println(ex);
         }
     }
 
 
-    public static void main( String[] args ) {
+    public static void main(String[] args) {
         if (args.length != 3) {
-            System.err.println( "Usage: java DataFormatter <var name> <input file> <base date>" );
+            System.err.println("Usage: java DataFormatter <var name> <input file> <base date>");
             return;
         }
 
-        DataFormatter starter = new DataFormatter( args[0], args[1], args[2] );
+        DataFormatter starter = new DataFormatter(args[0], args[1], args[2]);
         starter.format();
     }
 }

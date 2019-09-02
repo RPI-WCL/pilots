@@ -1,0 +1,11 @@
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+    pilots.util.ColumnSelectableFileInputProducer \
+    $PILOTS_HOME/data/06-Aug-2005-TUI1153/airspeed,true-weight.txt \
+    weight:weight_true \
+    localhost:9999
+
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+    pilots.util.ColumnSelectableFileInputProducer \
+    $PILOTS_HOME/data/06-Aug-2005-TUI1153/airspeed,false-weight.txt \
+    weight:weight_fail \
+    localhost:9999    

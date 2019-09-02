@@ -1,22 +1,31 @@
 program SpeedCheck;
-	inputs
-		wind_speed, wind_angle (x,y,z) using euclidean(x,y), interpolate(z,2);
-		air_speed, air_angle (x,y,t) using closest(t);
-		ground_speed, ground_angle (x,y,t) using closest(t);
-	outputs
-		o: ground_speed - sqrt(air_speed*air_speed + wind_speed*wind_speed + 
-		   				  		2*air_speed*wind_speed*cos((PI/180)*(wind_angle-air_angle))) at every 1 sec;
-	errors
-		e: ground_speed - sqrt(air_speed*air_speed + wind_speed*wind_speed +
-		   				  		2*air_speed*wind_speed*cos((PI/180)*(wind_angle-air_angle)));
-	signatures
-        /* v_a=162 */
-        S0(k): e = k,  -16.2 <= k, k <=   16.2  "No error";
-        S1(k): e = k,   91.8 <= k, k <=  145.8  "Pitot tube failure"
-		estimate air_speed = sqrt( ground_speed*ground_speed + wind_speed*wind_speed -
-                                2*ground_speed*wind_speed*cos((PI/180)*(ground_angle-wind_angle)));
-        S2(k): e = k, -178.2 <= k, k <= -145.8  "GPS failure"
-		estimate ground_speed = sqrt( air_speed*air_speed + wind_speed*wind_speed +
-		   				  		2*air_speed*wind_speed*cos((PI/180)*(wind_angle-air_angle)));
-        S3(k): e = k,  -70.2 <= k, k <=  -16.2  "Pitot tube + GPS failure";
+  /* va: airspeed,     aa: airspeed angle,
+     vw: wind speed,   aw: wind speed angle,
+     vg: ground speed, ag: ground angle */
+  inputs
+    va, vg, vw (t) using closest(t);
+    aa, ag, aw (t) using closest(t);
+  constants
+    V_CRUISE    =   162;
+    NORMAL_L    =  -0.1 * V_CRUISE; 
+    NORMAL_H    =   0.1 * V_CRUISE;
+    PITOT_L     =  0.57 * V_CRUISE;
+    PITOT_H     =   0.9 * V_CRUISE;
+    GPS_L       =  -1.1 * V_CRUISE;
+    GPS_H       =  -0.9 * V_CRUISE;
+    GPS_PITOT_L = -0.43 * V_CRUISE;
+    GPS_PITOT_H =  -0.1 * V_CRUISE;
+    PI          = 3.141592;
+  outputs
+    vg, va, e, mode at every 1 sec;
+  errors
+    e: vg - sqrt(va^2 + vw^2 + 2*va*vw*cos((PI/180)*abs(aw-aa)));
+  signatures
+    s0: e = k, NORMAL_L < k, k < NORMAL_H  "Normal";
+    s1: e = k, PITOT_L  < k, k < PITOT_H   "Pitot tube failure"
+        estimate va = sqrt(vg^2 + vw^2 - 2*vg*vw*cos((PI/180)*abs(ag-aw)));
+    s2: e = k, GPS_L    < k, k < GPS_H     "GPS failure"
+        estimate vg = sqrt(va^2 + vw^2 + 2*va*vw*cos((PI/180)*abs(aw-aa)));
+    s3: e = k, GPS_PITOT_L < k, k < GPS_PITOT_H
+        "GPS + Pitot tube failure";
 end;

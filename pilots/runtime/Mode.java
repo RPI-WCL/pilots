@@ -1,27 +1,27 @@
 package pilots.runtime;
 
 public class Mode {
-    int mode_;
+    private int mode;
 
     public Mode() {
-        mode_ = 0;
+        mode = 0;
     }
 
-    public Mode( int mode ) {
-        mode_ = mode;
+    public Mode(int mode) {
+        this.mode = mode;
     }
 
-    public void setMode( int mode ) {
-        mode_ = mode;
+    public void setMode(int mode) {
+        this.mode = mode;
     }
 
     public int getMode() {
-        return mode_;
+        return mode;
     }
 
     public String toString() {
         String str = "";
-        str += mode_;
+        str += mode;
         return str;
     }
 }

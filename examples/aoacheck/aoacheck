@@ -1,1 +1,0 @@
-java -classpath .:$PILOTS_HOME/lib/pilots.jar:$PILOTS_HOME/lib/jcommon-1.0.17.jar:$PILOTS_HOME/lib/jfreechart-1.0.14.jar:$PILOTS_HOME/lib/json-java.jar AoaCheck -input=8888 -outputs=127.0.0.1:9999 -omega=1 -tau=0.8

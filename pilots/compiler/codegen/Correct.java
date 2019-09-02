@@ -1,67 +1,68 @@
 package pilots.compiler.codegen;
 
 public class Correct {
-    private int mode_;
-    private String name_;
-    private String constant_; 
-    private String var_;
-    private String exp_;
-    public boolean saveState_;
-    public int saveStateTriggerModeCount_;
+    private int mode;
+    private String name;
+    private String constant; 
+    private String var;
+    private String exp;
+
+    public boolean saveState;
+    public int saveStateTriggerModeCount;
 
     public Correct() {
-        mode_ = -1;
-        name_ = null;
-        constant_ = null;
-        var_ = null;
-        exp_ = null;
+        mode = -1;
+        name = null;
+        constant = null;
+        var = null;
+        exp = null;
     }
 
-    public Correct( int mode, String name, String constant, String var, String exp ) {
-        mode_ = mode;
-        name_ = name;
-        constant_ = constant;
-        var_ = var;
-        exp_ = exp;
+    public Correct(int mode, String name, String constant, String var, String exp) {
+        this.mode = mode;
+        this.name = name;
+        this.constant = constant;
+        this.var = var;
+        this.exp = exp;
     }        
 
-    public void setMode( int mode ) {
-        mode_ = mode;
-    }
-
-    public void setName( String name ) {
-        name_ = name;
-    }
-
-    public void setConstant( String constant ) {
-        constant_ = constant;
-    }
-
-    public void setVar( String var ) {
-        var_ = var;
-    }
-
-    public void setExp( String exp ) {
-        exp_ = exp;
+    public void setMode(int mode) {
+        mode = mode;
     }
 
     public int getMode() {
-        return mode_;
+        return mode;
+    }    
+
+    public void setName(String name) {
+        name = name;
+    }
+    
+    public String getName() {
+        return name;
     }
 
-    public String getName() {
-        return name_;
+    public void setConstant(String constant) {
+        constant = constant;
     }
 
     public String getConstant() {
-        return constant_;
+        return constant;
+    }
+
+    public void setVar(String var) {
+        var = var;
     }
 
     public String getVar() {
-        return var_;
+        return var;
+    }
+
+    public void setExp(String exp) {
+        exp = exp;
     }
 
     public String getExp() {
-        return exp_;
+        return exp;
     }
 }

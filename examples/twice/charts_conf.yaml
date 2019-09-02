@@ -1,0 +1,14 @@
+---
+title: "Error"
+vars: "e"
+legends: "error: b - 2 * a"
+colors: "blue"
+xAxis: "Time"
+yAxis: "Value"
+---
+title: "Mode"
+vars: "mode"
+legends: "estimated mode"
+colors: "blue"
+xAxis: "Time"
+yAxis: "Mode"

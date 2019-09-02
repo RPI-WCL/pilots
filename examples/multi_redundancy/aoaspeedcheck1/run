@@ -1,0 +1,8 @@
+java -classpath .:$PILOTS_HOME/lib/* \
+    -Djava.util.logging.config.file="$PILOTS_HOME/logging.properties" \
+    AoaSpeedCheck1 \
+    --currloctime pilots.runtime.SimTimeService \
+    --timerange "2019-06-07 000603-0400~2019-06-07 001003-0400" \
+    --timespeed x10 \
+    --inputport 8888 \
+    --outputs 127.0.0.1:9999

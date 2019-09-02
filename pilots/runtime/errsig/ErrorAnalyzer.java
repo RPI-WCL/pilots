@@ -1,32 +1,37 @@
 package pilots.runtime.errsig;
 
-import java.util.Vector;
-import java.util.Arrays;
+import java.util.*;
+import java.util.logging.Logger;
 import pilots.runtime.errsig.ErrorSignature;
 import pilots.runtime.errsig.SlidingWindow;
-import pilots.runtime.DebugPrint;
-
-public class ErrorAnalyzer extends DebugPrint {
-    private Vector<ErrorSignature> errorSigs_;
-    private double tau_;
+import net.sourceforge.argparse4j.inf.Namespace;
 
 
-    public ErrorAnalyzer( Vector<ErrorSignature> errorSigs, double tau ) {
-        errorSigs_ = errorSigs;
-        tau_ = tau;
+public class ErrorAnalyzer {
+    private static Logger LOGGER = Logger.getLogger(ErrorAnalyzer.class.getName());
+    
+    private List<ErrorSignature> errorSigs;
+    private double tau;
+    private Namespace opts;
+
+
+    public ErrorAnalyzer(List<ErrorSignature> errorSigs, Namespace opts) {
+        this.errorSigs = errorSigs;
+        this.tau = opts.get("tau");
+        this.opts = opts;
     }
 
-    public int analyze( SlidingWindow win, int frequency ) {
-        int numSignatures = errorSigs_.size();
+    public int analyze(SlidingWindow win, int interval) {
+        int numSignatures = errorSigs.size();
         int winSize = win.getSize();
 
         double[] deltas = new double[numSignatures];
-        Arrays.fill( deltas, 0.0 );
+        Arrays.fill(deltas, 0.0);
 
         // calculate deltas array & find min delta
         double minDelta = Double.MAX_VALUE;
         for (int i = 0; i < numSignatures; i++) {
-            ErrorSignature errorSig = errorSigs_.get( i );
+            ErrorSignature errorSig = errorSigs.get(i);
 
             switch (errorSig.getType()) {
             case ErrorSignature.CONST:
@@ -35,11 +40,11 @@ public class ErrorAnalyzer extends DebugPrint {
                     double closestFail = Double.MAX_VALUE;
                     for (int j = 0; j < winSize; j++) {
                         // find a reference point
-                        double ref = errorSig.getClosestEndPoint( win.at( j ) );
-                        // System.out.println( "win.at(" + j + ")=" + win.at( j ) + " --> ref=" + ref );
+                        double ref = errorSig.getClosestEndPoint(win.at(j));
+                        // System.out.println("win.at(" + j + ")=" + win.at(j) + " --> ref=" + ref);
                         double thisFail = 0.0;
                         for (int k = 0; k < winSize; k++) 
-                            thisFail += calcDiff( win.at( k ), ref );
+                            thisFail += calcDiff(win.at(k), ref);
 
                         closestFail = (thisFail < closestFail) ? thisFail : closestFail;
                     }
@@ -48,7 +53,7 @@ public class ErrorAnalyzer extends DebugPrint {
                 else {
                     // no constraints
                     for (int j = 0; j < winSize; j++)
-                        deltas[i] += calcDiff( win.at(j), errorSig.getValue() );
+                        deltas[i] += calcDiff(win.at(j), errorSig.getValue());
                 }
                 break;
 
@@ -58,10 +63,10 @@ public class ErrorAnalyzer extends DebugPrint {
                 for (int j = 0; j < winSize; j++) {
                     // use win.at(j) as a reference point
                     double thisFail = 0.0;
-                    double ref = win.at( j );
+                    double ref = win.at(j);
                     for (int k = 0; k < winSize; k++) {
-                        double anticipated = ref + ((k - j) * ((double)frequency / 1000) * errorSig.getValue());
-                        thisFail += calcDiff( win.at( k ), anticipated );
+                        double anticipated = ref + ((k - j) * ((double)interval / 1000) * errorSig.getValue());
+                        thisFail += calcDiff(win.at(k), anticipated);
                     }
                     closestFail = (thisFail < closestFail) ? thisFail : closestFail;
                 }
@@ -88,38 +93,35 @@ public class ErrorAnalyzer extends DebugPrint {
 
         // debug info
         String dbgInfo = "d = { ";
-        if (System.getProperty( "debug" ) != null) {
+        if (opts.get("errordebug")) {
             for (int i = 0; i < numSignatures; i++)
                 dbgInfo += deltas[i] + " ";
             dbgInfo += "}, l = { ";
             for (int i = 0; i < numSignatures; i++)
                 dbgInfo += likelihood[i] + " ";
             dbgInfo += "}, mode = " + mode;
-            dbgPrint( dbgInfo );
+            LOGGER.info(dbgInfo);
         }
 
         // sort the likelihood vector in asceding order (i.e., likelihood[numSignatures - 1] is the largest)
-        Arrays.sort( likelihood );
-        if (tau_ <= likelihood[numSignatures - 2])
+        Arrays.sort(likelihood);
+        if (tau <= likelihood[numSignatures - 2])
             mode = -1;  // unknown
 
         return mode;
     }
 
-
-    private double calcDiff( double a, double b ) {
+    private double calcDiff(double a, double b) {
         // we can try other delta calculation methods
         double diff = Math.abs(a - b);
         return diff;
     }
 
-            
-
-    public String getDesc( int mode ) {
+    public String getDesc(int mode) {
         if (mode == -1)
             return "Unknown";
 
-        ErrorSignature errorSig = errorSigs_.get( mode );
+        ErrorSignature errorSig = errorSigs.get(mode);
         return errorSig.getDesc();
     }
 }

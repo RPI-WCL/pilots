@@ -1,0 +1,11 @@
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+     pilots.util.ColumnSelectableFileInputProducer \
+        $PILOTS_HOME/data/XPlane_AoaCheck/aoaspeed.txt \
+        aoa,va \
+        localhost:8000
+
+java -Dsim -classpath .:$PILOTS_HOME/lib/* \
+     pilots.util.ColumnSelectableFileInputProducer \
+        $PILOTS_HOME/data/XPlane_AoaCheck/aoaspeed.txt \
+        va,vg,vw,aa,ag,aw \
+        localhost:8001

@@ -1,0 +1,18 @@
+---
+title: "Airspeed & Error"
+vars: "va,failed_va,e1"
+legends: "airspeed (estimated),airspeed (observed),error"
+colors: "green,red,blue"
+xAxis: "Time"
+yAxis: "Airspeed & Error [knot]"
+xRange: "2009-06-01 020930-0500~2009-06-01 021130-0500"
+yRange: "-100~600"
+---
+title: "Estimated Mode"
+vars: "mode"
+legends: "estimated mode"
+colors: "blue"
+xAxis: "Time"
+yAxis: "Mode"
+xRange: "2009-06-01 020930-0500~2009-06-01 021130-0500"
+yRange: "-1~4"

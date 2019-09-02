@@ -1,33 +1,46 @@
 package pilots.runtime;
 
+import java.util.Date;
+import java.util.logging.Logger;
+
 
 public class ServiceFactory {
-	// Service implementations
-    private static CurrentLocationTimeService currLocTime_ = null;
+    private static Logger LOGGER = Logger.getLogger(ServiceFactory.class.getName());
     
+	// Service implementations
+    private static CurrentLocationTimeService currLocTime = null;
+
     // Default service classes
-    private static String currLocTimeClass_ = "pilots.runtime.SimpleTimeService";
+    private static String currLocTimeClass = "pilots.runtime.SimpleTimeService";    
 
     // Modify settings for ServiceFactory
-    public synchronized static void setCurrClass( String currLocTimeClass ) {
-        ServiceFactory.currLocTimeClass_ = currLocTimeClass;
+    public synchronized static void setCurrClass(String currLocTimeClass) {
+        ServiceFactory.currLocTimeClass = currLocTimeClass;
     }
 
     public synchronized static CurrentLocationTimeService getCurrentLocationTime() {
-        if (currLocTime_ == null) {
+        if (currLocTime == null) {
             String className = null;
-            className = System.getProperty( "currLocTime" );
-            if (className == null) className = currLocTimeClass_;
+            className = System.getProperty("currLocTime");
+
+            if (className == null)
+                className = currLocTimeClass;
 
             try {
-                currLocTime_ = (CurrentLocationTimeService)Class.forName( className ).newInstance();
+                currLocTime = (CurrentLocationTimeService)Class
+                    .forName(className)
+                    .getDeclaredConstructor()
+                    .newInstance();
             } 
-            catch (Exception e) {
-                System.err.println( e );
+            catch (Exception ex) {
+                System.err.println(ex);
             }
+
+            Date currTime = currLocTime.getTime();
+            LOGGER.finest("currTime=" + currTime + ", className=" + className);
         }
 
-        return currLocTime_;
+        return currLocTime;
     }
 }
     

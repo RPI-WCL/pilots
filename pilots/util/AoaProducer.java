@@ -128,7 +128,7 @@ public class AoaProducer
         Socket cmdSock = null;
         boolean loop = true, error = false;
 
-        sendData("#aoa,v");
+        sendData("#aoa,va");
 
         while (loop) {
             ValuePair pair = aoaAirspeedList.get(dataIndex);
