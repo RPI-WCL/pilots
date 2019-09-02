@@ -5,5 +5,5 @@
 - [json-java.jar](./json-java.jar) is under [the JSON License](./The_JSON_License.html)
 
 - [argparse4j-0.8.1.jar](./argparse4j-0.8.1.jar) has [its own license](./Argparse4j-LICENSE.txt)
-g
+
 - [snakeyaml-1.24.jar](./snakeyaml-1.24.jar) is under [Apache License 2.0](./Apache-License-2.0.txt)
