@@ -48,17 +48,19 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 
 * **Setting environment variables / aliases**
 
-  In `.bashrc`, set the following environment variables and compiler command aliases:
+  In `.bashrc`, set the `PILOTS_HOME` environment variable to store the directory containing this README (i.e., root directory of the PILOTS installation).
+  For example, if this README is installed in **/home/user/software/pilots**, an export command to set `PILOTS_HOME` looks as follows:
   ```
-  export PILOTS_HOME=[Directory containing this README]
+  export PILOTS_HOME=/home/user/software/pilots
+  ```
+
+  Followed by `PILOTS_HOME`, set the following `CLASSPATH` environment variable and compiler command aliases in `.bashrc`:
+  ```
   export CLASSPATH=.:$PILOTS_HOME/lib/*
   alias plc='java pilots.compiler.PilotsCompiler'
   alias plcsim='java pilots.compiler.PilotsCompiler --sim'
   ```
-  If this README is installed in **/home/user/software/pilots** directory, the export command to set `PILOTS_HOME` is as follows:
-  ```
-  export PILOTS_HOME=/home/user/software/pilots
-  ```
+
 
 * **Building a PILOTS jar file**
 
