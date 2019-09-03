@@ -29,39 +29,35 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 ## 1. Software Requirements
 
 * Java JDK 1.8 or newer.
-* [JFreeChart](http://www.jfree.org/jfreechart/) 1.0.19 or newer and [JCommon](http://www.jfree.org/jcommon/) 1.0.23 or newer to visualize outputs from PILOTS applications.
-* (Optional) [JavaCC](http://javacc.java.net/) if you want to modify the PILOTS grammar.
+* Bash shell to run [example PILOTS programs](./examples).
+* (Optional) [JavaCC](http://javacc.org/) if you want to modify the PILOTS grammar.
   
-## 2. Downloading PILOTS Library and Its Dependencies
+## 2. Downloading PILOTS Library
 
 * Download a PILOTS release either from [the PILOTS web site](http:/wcl.cs.rpi.edu/pilots/) or [the PILOTS github page](https://github.com/RPI-WCL/pilots).
 
-* Note that the directory containing this README is referred to as `$PILOTS_HOME`.
-
-* Dependencies of the PILOTS library are included in `$PILOTS_HOME/lib`:
-
- - JFreeChart requires `jfreechart-1.0.19.jar` and `jcommon-1.0.23.jar` (GNU LGPL, see `$PILOTS_HOME/lib/lgpl.html`)
- - JSON operations require `json-java.jar` (The JSON License, see `$PILOTS_HOME/lib/The JSON License.html`)
+* Dependencies of the PILOTS library are included in [`lib`](./lib) directory.
 
 
 ## 3. Getting Started with PILOTS
 
 * **Setting environment variables / aliases**
 
-  In `.bashrc`, set the `PILOTS_HOME` environment variable to store the directory containing this README (i.e., root directory of the PILOTS installation).
+  - In `.bashrc`, set the `PILOTS_HOME` environment variable to store the directory containing this README (i.e., root directory of the PILOTS installation).
   For example, if this README is installed in **/home/user/software/pilots**, an export command to set `PILOTS_HOME` looks as follows:
   ```
   export PILOTS_HOME=/home/user/software/pilots
   ```
+  Note that the directory containing this README is referred to as `$PILOTS_HOME` hereafter.
 
-  Followed by `PILOTS_HOME`, set the following `CLASSPATH` environment variable and compiler command aliases in `.bashrc`:
+
+  - Followed by the above export command for `PILOTS_HOME`, set the following `CLASSPATH` environment variable and compiler command aliases in `.bashrc`:
   ```
   export CLASSPATH=.:$PILOTS_HOME/lib/*
   alias plc='java pilots.compiler.PilotsCompiler'
   alias plcsim='java pilots.compiler.PilotsCompiler --sim'
   ```
-
-
+  
 * **Building a PILOTS jar file**
 
   In `$PILOTS_HOME`, run
