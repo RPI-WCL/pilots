@@ -3,7 +3,7 @@
 PILOTS (**P**rogramm**I**ng **L**anguage for spati**O**-**T**emporal data **S**treaming applications) is a highly declarative programming language for spatio-temporal streaming applications.
 It is capable of detecting and correcting data errors through user-defined *error signatures*.
 
-PILOTS has been successfully applied to avionics applications. Most notably, we have shown that PILOTS can fix data errors due to pitot tube sensor failures which occurred in [Air France Flight 447 accident](http://wcl.cs.rpi.edu/papers/bdse2013.pdf). For more information, visit [the PILOTS web site](http://wcl.cs.rpi.edu/pilots/) and look at [related papers](https://wcl.cs.rpi.edu/bib/Keyword/DATA-STREAMING.html).
+PILOTS has been successfully applied to avionics applications. Most notably, we have shown that PILOTS can fix data errors caused by pitot tube sensor failures which occurred in [Air France Flight 447 accident](http://wcl.cs.rpi.edu/papers/bdse2013.pdf). For more information, visit [the PILOTS web site](http://wcl.cs.rpi.edu/pilots/) and look at [related papers](https://wcl.cs.rpi.edu/bib/Keyword/DATA-STREAMING.html).
 
 In version 0.5, we added the following new features to the PILOTS grammar:
 * Support for multiple models of analytical redundancy (for details, see our [DASC2019 paper](http://wcl.cs.rpi.edu/papers/DASC2019_imai.pdf)). Example programs to support this feature are available under [examples/multi_redundancy](./examples/multi_redundancy) directory.
@@ -46,21 +46,28 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 
 ## 3. Getting Started with PILOTS
 
+* **Setting environment variables / aliases**
+
+  In `.bashrc`, set the following environment variables and compiler command aliases:
+  ```
+  export PILOTS_HOME=[Directory containing this README]
+  export CLASSPATH=.:$PILOTS_HOME/lib/*
+  alias plc='java pilots.compiler.PilotsCompiler'
+  alias plcsim='java pilots.compiler.PilotsCompiler --sim'
+  ```
+  If this README is installed in **/home/user/software/pilots** directory, the export command to set `PILOTS_HOME` is as follows:
+  ```
+  export PILOTS_HOME=/home/user/software/pilots
+  ```
+
 * **Building a PILOTS jar file**
 
   In `$PILOTS_HOME`, run
   ~~~
-  $ ./build.sh    // (for Windows, use build.bat instead)
+  $ ./build.sh
   ~~~
   pilots.jar will be created under the `$PILOTS_HOME/lib` directory.
 
-* **Configure aliases**
-
-  In order to make sure that aliases for the `plc` and `plcsim` compiler commands are correctly figured as well as the definition of `$PILOTS_HOME`, make sure that you are in the [root directory](https://github.com/RPI-WCL/pilots) of the project and then use the following command:
-
-  ~~~
-  source setenv
-  ~~~
 
 * **(Optional) Predictive Function setup**
 
