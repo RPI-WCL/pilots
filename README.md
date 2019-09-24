@@ -69,11 +69,11 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 
 * **(Optional) Predictive Function setup**
 
-	In PILOTS, the predictive function is a function which uses a learning model to generate predicted output based on given input. If you decide to use the predictive function in PILOTS, please see [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/learn_dev/pilots/util/learningmodel) for instruction.
+	In PILOTS, the predictive function is a function which uses a learning model to generate predicted output based on given input. If you decide to use the predictive function in PILOTS, please see [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) for instruction.
 
 * **Running example PILOTS programs**: See [PILOTS tutorial](https://wcl.cs.rpi.edu/pilots/tutorial/index.html).
 
-* **Running examples with learning model**: Refer to the [Detailed Overview of Implementing Learning Model](https://github.com/RPI-WCL/pilots/wiki/Detailed-Overview-of-Implementing-Learning-Model).
+* **Running examples with learning model**: Refer to the [Detailed Overview of Implementing Learning Model](https://wcl.cs.rpi.edu/pilots/tutorial/learning_model_overview.html).
 
 
 ## 4. Limitations
