@@ -31,7 +31,7 @@ public class DataStore {
             currLocTime = ServiceFactory.getCurrentLocationTime();
 
         if (distComparator == null) {
-            distComparator = new Comparator<> () {
+            distComparator = new Comparator<SpatioTempoData> () {
                 public int compare(SpatioTempoData stData1, SpatioTempoData stData2) {
                     double dist1 = stData1.getDist();
                     double dist2 = stData2.getDist();
