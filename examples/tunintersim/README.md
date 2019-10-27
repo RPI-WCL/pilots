@@ -2,7 +2,7 @@
 
 To run this example, we use three separate terminals.
 
-In **Terminal 1**, compile [Tuninter.plt](./Tunintere.plt) using the commands:
+In **Terminal 1**, compile [Tuninter.plt](./Tuninter.plt) using the commands:
 ```
 $ plcsim Tuninter.plt
 $ javac Tuninter.java

@@ -24,7 +24,7 @@ virtualenv .
 source bin/activate
 ~~~
 
-Finally run the following in the [*pilots/util/learningmodel/*](https://github.com/RPI-WCL/pilots/tree/learn_dev/pilots/util/learningmodel) directory:
+Finally run the following in the [*pilots/util/learningmodel/*](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) directory:
 
 ~~~
 pip install -r requirements.txt

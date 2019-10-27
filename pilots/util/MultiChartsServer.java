@@ -42,7 +42,7 @@ public class MultiChartsServer {
     private final static Color TURQOISE = new Color(0, 162, 232);
     private final static Color[] defaultColors = new Color[]{
         BLUE, RED, GREEN, YELLOW, ORANGE, PURPLE, TEAL, PINK, TURQOISE};
-    private final static Map<String, Color> colorMap = new HashMap<>() {{
+    private final static Map<String, Color> colorMap = new HashMap<String, Color>() {{
             put("blue", BLUE);
             put("red", RED);            
             put("green", GREEN);
