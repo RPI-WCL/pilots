@@ -1,0 +1,299 @@
+options{
+    MULTI=true;
+    VISITOR=true;
+    STATIC=false;
+}
+
+PARSER_BEGIN(TrainerParser)
+
+package pilots.compiler.trainer.parser;
+
+public class TrainerParser {
+/*
+    public static void main(String args[]) {
+	System.out.println("Reading from standard input...");
+	TrainerParser t = new TrainerParser(System.in);
+	try {
+	    ASTTrainer n = t.Trainer();
+	    n.dump("");
+	    System.out.println("Thank you.");
+	} catch (Exception e) {
+	    System.out.println("Oops.");
+	    System.out.println(e.getMessage());
+	    e.printStackTrace();
+	}
+    }
+    */
+}
+
+PARSER_END(TrainerParser)
+
+/***************************************/
+/********** TOKEN DEFINITIONS **********/
+/***************************************/
+
+/* Terminals */
+
+TOKEN_MGR_DECLS :
+{
+  static int commentNesting; // Current level of nesting
+}
+
+/*** Skip whitespace and comments ***/
+SKIP : {
+" "
+| "\t"
+| "\n"
+| "\r"
+| "\r\n"
+| "/*" { commentNesting=1; } : IN_COMMENT
+}
+
+<IN_COMMENT> MORE:
+{
+  < ~[] >
+}
+<IN_COMMENT> SKIP:
+{
+  < "/*" > { commentNesting++; } 
+| < "*/" > { commentNesting--; if (commentNesting==0) SwitchTo(DEFAULT); }
+}
+
+
+/*** The keywords ***/
+TOKEN : /* RESERVED TOKENS */
+{
+<PROGRAM_START : "trainer">
+| <CONSTANTS: "constants">
+| <DATA: "data">
+| <SCHEMA: "schema">
+| <MODEL: "model">
+| <FEATURES: "features">
+| <LABELS: "labels">
+| <ALGORITHM: "algorithm">
+| <USING: "using">
+| <FILE: "file">
+| <PROGRAM_END: "end">
+| <SQRT: "sqrt">
+| <SIN: "sin">
+| <COS: "cos">
+| <TAN: "tan">
+| <ARCSIN: "asin">
+| <ARCCOS: "acos">
+| <ARCTAN: "atan">
+| <ABS: "abs">
+| <AND: "and">
+| <OR: "or">
+| <XOR: "xor">
+| <NOT: "not">
+}
+
+TOKEN : /* Normal Tokens */
+{
+<#DIGIT : ["0"-"9"]>
+| <LPAR: "(">
+| <RPAR: ")">
+| <COMMA: ",">
+| <INTEGER : ("+" | "-")? (<DIGIT>)+>
+| <#SCALEFACTOR : ("E" | "e") ("+" | "-")? (<DIGIT>)+>
+| <REAL : ("+" | "-")? (<DIGIT>)+ "." (<DIGIT>)* (<SCALEFACTOR>)?>
+| <#LETTER : ["A"-"Z","a"-"z","_","."]>
+| <VAR : <LETTER> (<LETTER> | <DIGIT>)*>
+| <STRING : "\"" (~["\""])* "\"" >
+}
+
+/**************************************/
+/********** START OF GRAMMAR **********/
+/**************************************/
+/* Non-terminals */
+ASTTrainer Trainer(): 
+{
+    Token t;
+}
+{
+    <PROGRAM_START> t = <VAR> { jjtThis.jjtSetValue( t.image ); } ";"
+        (<CONSTANTS> (";" | (Constant())*))?
+	<DATA> (";" | (Data())*)
+	<MODEL>
+	  <FEATURES> ":" (";" | Feature()) ";"
+	  <LABELS> ":" (";" | Label()) ";"
+	  <ALGORITHM> ":" Algorithm() ";"
+    <PROGRAM_END> (";")?
+    { return jjtThis; }
+}
+
+void Constant() :
+{
+    String str, exp;
+}
+{
+    str = Vars() "=" exp = Exp() ";"
+    { jjtThis.jjtSetValue( str + ":" + exp); }
+}
+
+void Data() :
+{
+    String str, str2;
+}
+{
+    str = Vars()
+    { jjtThis.jjtSetValue(str); }
+    <USING> ( str2 = File() | str2 = ModelUser() ) ";"
+    { jjtThis.jjtSetValue( str2 + ":" + str ); }
+}
+
+String File() :
+{
+    Token f;
+}
+{
+    <FILE> "(" f = <STRING> ")"
+    { return "file:" + f.image; }
+}
+
+String ModelUser() :
+{
+    String vars;
+}
+{
+    <MODEL> "(" vars = Vars() ")"
+    { return "model:" + vars; }
+}
+
+void Feature() :
+{
+    String s;
+}
+{
+    s = Exps()
+    { jjtThis.jjtSetValue( s ); }
+}
+
+void Label() :
+{
+    String s;
+}
+{
+    s = Exps()
+    { jjtThis.jjtSetValue( s ); }
+}
+
+void Algorithm() :
+{
+    Token t;
+}
+{
+    t = <VAR> ("(" Map() ")")?
+    { jjtThis.jjtSetValue( t.image ); }
+}
+
+void Map() : {}
+{
+    MapItem() ("," MapItem())*
+}
+
+void MapItem() :
+{
+    Token t1, t2 = null;
+    String str = null;
+}
+{
+    t1 = <VAR> ":"
+    (LOOKAHEAD(2) str = Number() |
+     LOOKAHEAD(2) t2 = <VAR> | str = Exp())
+    {
+        if ( t2 != null ) {
+            jjtThis.jjtSetValue( t1.image + ":" + t2.image );
+        } else {
+            jjtThis.jjtSetValue( t1.image + ":" + str );
+        }
+    }
+}
+
+String Vars():
+{
+    Token t;
+    String str;
+}
+{
+    t = <VAR> { str = t.image; }
+    ("," t = <VAR> { str += "," + t.image; })*
+    { return str; }
+}
+
+String Exps(): 
+{
+    String exp, temp;
+}
+{
+    exp = Exp() ("," temp = Exp() { exp += "," + temp; } )*
+    { return exp; }
+}
+
+String Exp():
+{
+    String func, exps, exp, exp2, value, temp;
+}
+{
+    func = Func() "(" exps = Exps() ")" exp2 = Exp2() { return func + "(" + exps + ")" + exp2; } 
+    | "(" temp = Exp() ")" exp2 = Exp2() { return "(" + temp + ")" + exp2; } 
+    | value = Value() exp2 = Exp2() { return value + exp2; }
+}
+
+String Exp2(): 
+{
+    String func, exp, exp2;
+}
+{
+    func = Func() exp = Exp() exp2 = Exp2() { return func + exp + exp2; } 
+    | {} { return ""; }
+}
+
+String Func(): 
+{
+    Token t;
+}
+{
+    t = "+" { return t.image; }
+    | t = "-" { return t.image; }
+    | t = "*" { return t.image; }
+    | t = "/" { return t.image; }
+    | t = "^" { return t.image; }
+    | t = ">" { return t.image; }
+    | t = ">=" { return t.image; }
+    | t = "<" { return t.image; }
+    | t = "<=" { return t.image; }
+    | t = "!=" { return t.image; }
+    | t = "==" { return t.image; }
+    | t = <AND> { return t.image; }
+    | t = <OR> { return t.image; }
+    | t = <XOR> { return t.image; }
+    | t = <NOT> { return t.image; }       
+    | t = <SQRT> { return t.image; }
+    | t = <SIN> { return t.image; }
+    | t = <COS> { return t.image; }
+    | t = <TAN> { return t.image; }
+    | t = <ARCSIN> { return t.image; }
+    | t = <ARCCOS> { return t.image; }
+    | t = <ARCTAN> { return t.image; }
+    | t = <ABS> { return t.image; }
+}
+
+String Number(): 
+{
+    Token t;
+}
+{
+    t = <INTEGER> { return t.image; }
+    | t = <REAL> { return t.image; }
+}
+
+String Value(): 
+{
+    Token t;
+    String number;
+}
+{
+    number = Number() { return number; }
+    | t = <VAR> { jjtThis.jjtSetValue(t.image); } { return t.image; }
+}

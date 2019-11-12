@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.logging.Logger;
 
-import pilots.util.learningmodel.Client;
+import pilots.util.model.Client;
 
 
 public class DataStore {
@@ -452,7 +452,8 @@ public class DataStore {
                 String model = args[0];
             	Map<String, Double> result = getDatas(Arrays.copyOfRange(args,1,args.length));
                 predicted = true;
-            	d = pilots.util.learningmodel.Client.predict(model, result)[0][0]; // currently support only one number prediction
+            	d = pilots.util.model.Client.predict(model, result)[0][0];
+		// currently support only one number prediction
             default:
                 break;
             }
