@@ -245,8 +245,10 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
     public Object visit( ASTFeature node, Object data ) {
 	goDown("Feature");
 
-	String feat = parseExp( (String)node.jjtGetValue() );
-	features.add( feat );
+	String feats = parseExps( (String)node.jjtGetValue() );
+	for ( String f : feats.split(";") ) {
+	    features.add( f );
+	}
 	
 	goUp();
 	return null;
@@ -255,7 +257,7 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
     public Object visit( ASTLabel node, Object data ) {
 	goDown("Label");
 
-	String lab = parseExp( (String)node.jjtGetValue() );
+	String lab = parseExps( (String)node.jjtGetValue() );
 	labels.add( lab );
 	
 	goUp();
@@ -297,21 +299,24 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 
     public Object visit( ASTExp2 node, Object data ) {
 	goDown("Exps");
-	acceptChildren( node, data );
 	goUp();
 	return null;
     }
 
     public Object visit( ASTExp node, Object data ) {
 	goDown("Exps");
-	acceptChildren( node, data );
 	goUp();
 	return null;
     }
 
     public Object visit( ASTExps node, Object data ) {
 	goDown("Exps");
-	acceptChildren( node, data );
+	goUp();
+	return null;
+    }
+
+    public Object visit( ASTExps2 node, Object data ) {
+	goDown("Exps");
 	goUp();
 	return null;
     }
@@ -330,15 +335,54 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 
     // =====================================================
 
+    // For DataVector operations
     private String replaceOperation( String op ) {
 	if ( op.equals( "+" ) ) { return "add"; }
 	else if ( op.equals( "-" ) ) { return "sub"; }
 	else if ( op.equals( "*" ) ) { return "mult"; }
 	else if ( op.equals( "/" ) ) { return "div"; }
 	else if ( op.equals( "^" ) ) { return "pow"; }
+	else if ( op.equals( "sqrt" ) ) { return "DataVector.sqrt"; }
+	else if ( op.equals( "sin" ) ) { return "DataVector.sin"; }
+	else if ( op.equals( "cos" ) ) { return "DataVector.cos"; }
+	else if ( op.equals( "tan" ) ) { return "DataVector.tan"; }
+	else if ( op.equals( "arcsin" ) ) { return "DataVector.arcsin"; }
+	else if ( op.equals( "arccos" ) ) { return "DataVector.arccos"; }
+	else if ( op.equals( "arctan" ) ) { return "DataVector.arctan"; }
+	else if ( op.equals( "abs" ) ) { return "DataVector.abs"; }
 	return "";
     }
-    
+
+    // For Double operations
+    private String replaceOperation2( String op ) {
+	if ( op.equals( "+" ) ) { return "+"; }
+	else if ( op.equals( "-" ) ) { return "-"; }
+	else if ( op.equals( "*" ) ) { return "*"; }
+	else if ( op.equals( "/" ) ) { return "/"; }
+	else if ( op.equals( "^" ) ) { return "^"; }
+	else if ( op.equals( ">" ) ) { return ">"; }
+	else if ( op.equals( ">=" ) ) { return ">="; }
+	else if ( op.equals( "<" ) ) { return "<"; }
+	else if ( op.equals( "<=" ) ) { return "<="; }
+	else if ( op.equals( "!=" ) ) { return "!="; }
+	else if ( op.equals( "==" ) ) { return "=="; }
+	else if ( op.equals( "and" ) ) { return "and"; }
+	else if ( op.equals( "or" ) ) { return "or"; }
+	else if ( op.equals( "xor" ) ) { return "xor"; }
+	else if ( op.equals( "not" ) ) { return "not"; }
+	else if ( op.equals( "sqrt" ) ) { return "Math.sqrt"; }
+	else if ( op.equals( "sin" ) ) { return "Math.sin"; }
+	else if ( op.equals( "cos" ) ) { return "Math.cos"; }
+	else if ( op.equals( "tan" ) ) { return "Math.tan"; }
+	else if ( op.equals( "arcsin" ) ) { return "Math.arcsin"; }
+	else if ( op.equals( "arccos" ) ) { return "Math.arccos"; }
+	else if ( op.equals( "arctan" ) ) { return "Math.arctan"; }
+	else if ( op.equals( "abs" ) ) { return "Math.abs"; }
+	return "";
+    }
+
+    // parse DataVector Operations
+    /*
     private String parseExp( String exp ) {
 
 	System.out.println( "Parsing expression: " + exp );
@@ -362,7 +406,6 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	    String newOp = replaceOperation( String.valueOf( exp.charAt(pos) ) );
 
 	    return front + "." + newOp + "( " + back + " )";
-	    
 	} else {
 	    if ( exp.matches("^\\w[\\w\\d]*$") ) {
 		return "data.get( \"" + exp + "\")";
@@ -370,6 +413,66 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 		return "(new DataVector( " + exp + "))";
 	    }
 	}
+	return exp;
+	}*/
+
+    private String parseExps( String exps ) {
+	String[] all_exp = exps.split(";");
+	String result = new String();
+	for ( int i = 0; i < all_exp.length; ++i ) {
+	    if ( i > 0 ) { result += ";"; }
+	    result += parseExp( all_exp[i] );
+	}
+	return result;
+    }
+
+    private String parseExp( String exp ) {
+	System.out.println( "pE:" + exp );
+	// Exps: exp,exp,...
+	// Exp:
+	// Case 1: {func} (exps) exp2
+	// Case 2: (exp) exp2
+	// Case 3: [value] exp2
+	// Exp2:
+	// Case 1: {func} exp exp2
+	// Case 2: nothing
+
+	// === Replace func(exps) ===
+	String rfunc = "\\|[^\\(\\[]+\\|";
+	Pattern p = Pattern.compile( rfunc );
+	Matcher m = p.matcher( exp );
+	if ( m.find() ) {
+	    String front = exp.substring( 0, m.start() );
+	    String back = exp.substring( m.end() );
+	    String oldFunc = exp.substring( m.start()+1, m.end()-1 );
+	    String newFunc = replaceOperation( oldFunc );
+	    return parseExp( front ) + newFunc + "" + parseExp( back ) + "";
+	}
+
+	// === Replace func
+	String rfunc2 = "\\{[^\\(\\[]+\\}";
+	Pattern p2 = Pattern.compile( rfunc2 );
+	Matcher m2 = p2.matcher( exp );
+	if ( m2.find() ) {
+	    String front = exp.substring( 0, m2.start() );
+	    String back = exp.substring( m2.end() );
+	    String oldFunc = exp.substring( m2.start()+1, m2.end()-1 );
+	    String newFunc = replaceOperation( oldFunc );
+	    return parseExp( front ) + "." + newFunc + "( " + parseExp( back ) + " )";
+	}
+	
+	// === Replace value ===
+	String rval = "\\[[^\\(\\[]+\\]";
+	Pattern p3 = Pattern.compile( rval );
+	Matcher m3 = p3.matcher( exp );
+	if ( m3.find() ) {
+	    String front = exp.substring( 0, m3.start() );
+	    String back = exp.substring( m3.end() );
+	    String oldVal = exp.substring( m3.start()+1, m3.end()-1 );
+	    String newVal = "data.get(\"" + oldVal + "\")";
+	    return front + newVal + parseExp( back );
+	}
+	
 	return exp;
     }
 

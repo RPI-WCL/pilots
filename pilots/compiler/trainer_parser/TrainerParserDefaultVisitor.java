@@ -45,6 +45,9 @@ public class TrainerParserDefaultVisitor implements TrainerParserVisitor{
   public Object visit(ASTExps node, Object data){
     return defaultVisit(node, data);
   }
+  public Object visit(ASTExps2 node, Object data){
+    return defaultVisit(node, data);
+  }
   public Object visit(ASTExp node, Object data){
     return defaultVisit(node, data);
   }
@@ -61,4 +64,4 @@ public class TrainerParserDefaultVisitor implements TrainerParserVisitor{
     return defaultVisit(node, data);
   }
 }
-/* JavaCC - OriginalChecksum=ecf294742ce00ae5a5bca28db4f3d6b7 (do not edit this line) */
+/* JavaCC - OriginalChecksum=562f025230c1def1c86662f2dff3d609 (do not edit this line) */

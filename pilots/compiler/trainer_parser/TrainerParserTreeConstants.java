@@ -15,11 +15,12 @@ public interface TrainerParserTreeConstants
   public int JJTMAPITEM = 9;
   public int JJTVARS = 10;
   public int JJTEXPS = 11;
-  public int JJTEXP = 12;
-  public int JJTEXP2 = 13;
-  public int JJTFUNC = 14;
-  public int JJTNUMBER = 15;
-  public int JJTVALUE = 16;
+  public int JJTEXPS2 = 12;
+  public int JJTEXP = 13;
+  public int JJTEXP2 = 14;
+  public int JJTFUNC = 15;
+  public int JJTNUMBER = 16;
+  public int JJTVALUE = 17;
 
 
   public String[] jjtNodeName = {
@@ -35,6 +36,7 @@ public interface TrainerParserTreeConstants
     "MapItem",
     "Vars",
     "Exps",
+    "Exps2",
     "Exp",
     "Exp2",
     "Func",
@@ -42,4 +44,4 @@ public interface TrainerParserTreeConstants
     "Value",
   };
 }
-/* JavaCC - OriginalChecksum=0b2cba337941f7b7f6e60625a2813065 (do not edit this line) */
+/* JavaCC - OriginalChecksum=c6e79da82527d540b7aeaaa11f154814 (do not edit this line) */

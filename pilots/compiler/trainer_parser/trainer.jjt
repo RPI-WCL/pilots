@@ -226,18 +226,27 @@ String Exps():
     String exp, temp;
 }
 {
+    exp = Exp() ("," temp = Exp() { exp += ";" + temp; } )*
+    { return exp; }
+}
+
+String Exps2():
+{
+    String exp, temp;
+}
+{
     exp = Exp() ("," temp = Exp() { exp += "," + temp; } )*
     { return exp; }
 }
 
-String Exp():
+String Exp(): 
 {
-    String func, exps, exp, exp2, value, temp;
+    String func, exps, exp2, value, temp;
 }
 {
-    func = Func() "(" exps = Exps() ")" exp2 = Exp2() { return func + "(" + exps + ")" + exp2; } 
+    func = Func() "(" exps = Exps2() ")" exp2 = Exp2() { return "|" + func + "|(" + exps + ")" + exp2; } 
     | "(" temp = Exp() ")" exp2 = Exp2() { return "(" + temp + ")" + exp2; } 
-    | value = Value() exp2 = Exp2() { return value + exp2; }
+    | value = Value() exp2 = Exp2() { return "[" + value + "]" + exp2; }
 }
 
 String Exp2(): 
@@ -245,7 +254,7 @@ String Exp2():
     String func, exp, exp2;
 }
 {
-    func = Func() exp = Exp() exp2 = Exp2() { return func + exp + exp2; } 
+    func = Func() exp = Exp() exp2 = Exp2() { return "{" + func + "}(" + exp + exp2 + ")"; } 
     | {} { return ""; }
 }
 

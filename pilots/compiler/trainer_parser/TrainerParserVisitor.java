@@ -16,10 +16,11 @@ public interface TrainerParserVisitor
   public Object visit(ASTMapItem node, Object data);
   public Object visit(ASTVars node, Object data);
   public Object visit(ASTExps node, Object data);
+  public Object visit(ASTExps2 node, Object data);
   public Object visit(ASTExp node, Object data);
   public Object visit(ASTExp2 node, Object data);
   public Object visit(ASTFunc node, Object data);
   public Object visit(ASTNumber node, Object data);
   public Object visit(ASTValue node, Object data);
 }
-/* JavaCC - OriginalChecksum=6e0be7b6bb5efb27fc12d7dba4512e90 (do not edit this line) */
+/* JavaCC - OriginalChecksum=0705f8bb6c42757bf0e38ca969c455cf (do not edit this line) */

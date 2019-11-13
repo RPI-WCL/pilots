@@ -544,6 +544,46 @@ String Exps():
 {/*@bgen(jjtree) Exps */
     try {
 /*@egen*/
+    exp = Exp() ("," temp = Exp() { exp += ";" + temp; } )*/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    { return exp; }/*@bgen(jjtree)*/
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        throw (RuntimeException)jjte000;
+      }
+      if (jjte000 instanceof ParseException) {
+        throw (ParseException)jjte000;
+      }
+      throw (Error)jjte000;
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+      }
+    }
+/*@egen*/
+}
+
+String Exps2():
+{/*@bgen(jjtree) Exps2 */
+    ASTExps2 jjtn000 = new ASTExps2(JJTEXPS2);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    String exp, temp;
+}
+{/*@bgen(jjtree) Exps2 */
+    try {
+/*@egen*/
     exp = Exp() ("," temp = Exp() { exp += "," + temp; } )*/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
@@ -573,23 +613,23 @@ String Exps():
 /*@egen*/
 }
 
-String Exp():
+String Exp(): 
 {/*@bgen(jjtree) Exp */
     ASTExp jjtn000 = new ASTExp(JJTEXP);
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
 /*@egen*/
-    String func, exps, exp, exp2, value, temp;
+    String func, exps, exp2, value, temp;
 }
 {/*@bgen(jjtree) Exp */
     try {
 /*@egen*/
-    func = Func() "(" exps = Exps() ")" exp2 = Exp2()/*@bgen(jjtree)*/
-                                                      {
-                                                        jjtree.closeNodeScope(jjtn000, true);
-                                                        jjtc000 = false;
-                                                      }
-/*@egen*/ { return func + "(" + exps + ")" + exp2; } 
+    func = Func() "(" exps = Exps2() ")" exp2 = Exp2()/*@bgen(jjtree)*/
+                                                       {
+                                                         jjtree.closeNodeScope(jjtn000, true);
+                                                         jjtc000 = false;
+                                                       }
+/*@egen*/ { return "|" + func + "|(" + exps + ")" + exp2; } 
     | "(" temp = Exp() ")" exp2 = Exp2()/*@bgen(jjtree)*/
                                          {
                                            jjtree.closeNodeScope(jjtn000, true);
@@ -601,7 +641,7 @@ String Exp():
                                       jjtree.closeNodeScope(jjtn000, true);
                                       jjtc000 = false;
                                     }
-/*@egen*/ { return value + exp2; }/*@bgen(jjtree)*/
+/*@egen*/ { return "[" + value + "]" + exp2; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -640,7 +680,7 @@ String Exp2():
                                               jjtree.closeNodeScope(jjtn000, true);
                                               jjtc000 = false;
                                             }
-/*@egen*/ { return func + exp + exp2; } 
+/*@egen*/ { return "{" + func + "}(" + exp + exp2 + ")"; } 
     | {}/*@bgen(jjtree)*/
          {
            jjtree.closeNodeScope(jjtn000, true);
