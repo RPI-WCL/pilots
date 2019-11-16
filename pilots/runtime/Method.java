@@ -4,18 +4,18 @@ public class Method {
     public static final int CLOSEST = 0;
     public static final int EUCLIDEAN = 1;
     public static final int INTERPOLATE = 2;
-    public static final int PREDICT = 3;
+    public static final int MODEL = 3;
     public static final String[] methodNames = {"Method.CLOSEST",
                                                 "Method.EUCLIDEAN",
                                                 "Method.INTERPOLATE",
-                                                "Method.PREDICT"};
+                                                "Method.MODEL"};
 
     private int id;
     private String args[];
 
     
     public Method(int id) {
-        if ((id < CLOSEST) || (PREDICT < id)) {
+        if ((id < CLOSEST) || (MODEL < id)) {
             System.err.println("Invalid id: " + id);
             return;
         }
@@ -31,6 +31,11 @@ public class Method {
         for (int i = 0; i < args.length; i++) {
             this.args[i] = args[i];
         }
+
+	// === Load model ===
+	if ( id == MODEL ) {
+	    pilots.util.model.Client.load( this.args[0] );
+	}
     }
 
     public int getId() {

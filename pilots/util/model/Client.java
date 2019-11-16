@@ -1,106 +1,192 @@
 package pilots.util.model;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.*;
+import java.net.*;
 import java.util.*;
 import org.json.*;
 
+import pilots.util.trainer.*;
 
 public class Client {
 
-    public static final String server_url = "http://127.0.0.1:5000/";
+    public static final String server_url = "http://127.0.0.1:5000";
 
-    public static String get_values_req( Map<String, Double> values ) {
-	StringBuilder result = new StringBuilder();
-	StringBuilder nameString = new StringBuilder("&name=");
-	StringBuilder valueString = new StringBuilder("&value=");
-	int index = 0;
-	int last_one = values.size() - 1;
-	for (Map.Entry<String,Double> i : values.entrySet()){
-	    nameString.append(i.getKey());
-	    valueString.append(i.getValue());
-	    if (index != last_one){
-		nameString.append(',');
-		valueString.append(',');
+    private static String getURL( String engine, String operation ) {
+	return server_url + "/" + operation + "/" + engine;
+    }
+
+    // ===== JSON Creation functions =====
+
+    private static String mapToJSONEntries( String name, Map<String, Double> m ) {
+	// Also return ":\"<all keys>\",
+	String keys = "\"" + name + "\":\"";
+	String result = new String();
+	int count = 0;
+	for ( Map.Entry<String, Double> en : m.entrySet() ) {
+	    result += "\"" + en.getKey() + "\":" + String.valueOf(en.getValue());
+	    keys += en.getKey();
+	    if ( count < m.size() - 1 ) { result += ","; keys += ","; }
+	    count++;
+	}
+
+	return keys + "\"," + result;
+    }
+
+    private static JSONObject dataToJSON( String name, List<DataVector> data ) {
+	JSONObject ret = new JSONObject();
+
+	List<String> data_col_names = new ArrayList<>();
+	int count = 0;
+	for ( DataVector col : data ) {
+	    String col_name = name + String.valueOf( count );
+	    data_col_names.add( col_name );
+	    JSONArray arr = new JSONArray();
+	    for ( int i = 0; i < col.size(); ++i ) {
+		arr.put( col.get(i) );
 	    }
-	    index += 1;
+	    ret.put( col_name, arr );
+	    ++count;
 	}
-	result.append(nameString.toString());
-	result.append(valueString.toString());
-	return result.toString(); 
+	ret.put( name, String.join(",", data_col_names) );
+	return ret;
     }
 
-    public static String get_request_url(String engine, String cmd, Map<String, Double> values){
-	StringBuilder builder = new StringBuilder();
-	builder.append( Client.server_url + cmd );
-	builder.append( "?model=" + engine );
-	
-	if ( values != null ) {
-	    builder.append( get_values_req( values ) );
-	}
-	return builder.toString();
+    // ===== JSON Parsing functions =====
+
+    private static boolean parseJSONLoad( JSONObject obj ) {
+	return (boolean)obj.get("success");
     }
 
-    public static String getHTML( String req_url ) {
-	URL server_url;
-	try {
-	    server_url = new URL(req_url);
-	    URLConnection con = server_url.openConnection();
-	    InputStreamReader con_isr = new InputStreamReader( con.getInputStream() );
-	    BufferedReader con_br = new BufferedReader( con_isr );
-	    
-	    String inputLine;
-	    StringBuilder builder = new StringBuilder();
-	    
-	    while ( (inputLine = con_br.readLine()) != null ) {
-		builder.append(inputLine);
-	    }
-	    
-	    con_br.close();
-	    return builder.toString();
-	} catch ( IOException e ) {
-	    e.printStackTrace();
-	}
-	return null;
-    }
-
-    public static double[][] parseJSON( JSONObject obj ) {
+    private static List<DataVector> parseJSONPredict( JSONObject obj ) {
 	JSONArray arr = obj.getJSONArray("value");
-
-	int rows = arr.length();
-	if ( rows == 0 ){ return null; } // Error
-	int columns = arr.getJSONArray(0).length();
+	if ( arr.length()  == 0){
+	    return null; // exception
+	}
 	
-	double[][] r_values = new double[rows][columns];
-	// Copy from JSON object into r_values
-	for ( int i = 0; i < arr.length(); ++i ) {
-	    JSONArray item = arr.getJSONArray( i );
-	    for ( int j = 0; j < item.length(); ++j ) {
-		double current_number = item.getDouble( j );
-		r_values[i][j] = current_number;
+	List<DataVector> r_values = new ArrayList<>();       
+	for (int i = 0; i < arr.length(); i++){
+	    JSONArray item = arr.getJSONArray(i);
+	    DataVector col = new DataVector();
+	    for (int j = 0; j < item.length(); j++){
+		col.add( item.getDouble(j) );
 	    }
+	    r_values.add( col );
 	}
 	return r_values;
     }
+
+    private static double parseJSONTrain( JSONObject obj ) {
+	return 0.0;
+    }
     
-    public static double[][] predict(String engine, Map<String, Double> values) {
-	String req = get_request_url( engine, "", values );
-	JSONObject result = new JSONObject( getHTML( req ) );
-	return parseJSON( result );
+    // ===== HTTP JSON functions =====
+
+    private static void writeJSON( HttpURLConnection con, String req ) {
+	try ( OutputStream os = con.getOutputStream() ) {
+	    byte[] input = req.getBytes();
+	    os.write( input, 0, input.length );
+	} catch ( Exception e ) {
+	    System.err.println( "Error while writing JSON:" );
+	    e.printStackTrace();
+	    return;
+	}
+    }
+    
+    private static JSONObject readJSON( HttpURLConnection con ) {
+	try ( BufferedReader br =
+	      new BufferedReader( new InputStreamReader( con.getInputStream() ) ) ) {
+	    StringBuilder response = new StringBuilder();
+	    String responseLine = null;
+	    while ( (responseLine = br.readLine()) != null ) {
+		response.append( responseLine.trim() );
+	    }
+	    return new JSONObject( response.toString() );
+	} catch ( Exception e ) {
+	    System.err.println( "Error while reading JSON:" );
+	    e.printStackTrace();
+	    return null;
+	}
     }
 
-    public static boolean train( String engine, Map<String, Double> values) {
-	String req = get_request_url( engine, "train", values );
-	String response =  getHTML( req );
-	return true;
+    // ===== HTTP functions =====
+
+    private static HttpURLConnection makePOST( URL url ) {
+	try {
+	    HttpURLConnection con = (HttpURLConnection)url.openConnection();
+	    con.setRequestMethod("POST");
+	    con.setRequestProperty("Content-Type", "application/json" );
+	    con.setRequestProperty("Accept", "application/json" );
+	    con.setDoOutput(true);
+	    return con;
+	} catch ( Exception e ) {
+	    System.err.println( "Error while making POST:" );
+	    e.printStackTrace();
+	    return null;
+	}
     }
 
+    private static HttpURLConnection makeGET( URL url ) {
+	try {
+	    HttpURLConnection con = (HttpURLConnection)url.openConnection();
+	    con.setRequestMethod("GET");
+	    return con;
+	} catch ( Exception e ) {
+	    System.err.println( "Error while making GET:" );
+	    e.printStackTrace();
+	    return null;
+	}
+    }
+
+    // ==================== Public Client Operations ===========================
+
+    
     public static boolean load( String engine ) {
-	String req = get_request_url( engine, "load", null );
-	String response =  getHTML( req );
-	return true;
+	try {
+	    URL url = new URL( getURL( engine, "load" ) );
+	    HttpURLConnection con = makeGET( url );
+	    JSONObject response = readJSON( con );
+	    return parseJSONLoad( response );
+	} catch ( Exception e ) {
+	    System.err.println( "Error during LOAD:" );
+	    e.printStackTrace();
+	    return false;
+	}
+    }
+
+    public static List<DataVector> predict( String engine, List<DataVector> data ) {
+	try {
+	    URL url = new URL( getURL( engine, "run" ) );
+	    HttpURLConnection con = makePOST( url );
+	    
+	    // === Create JSON output ===
+	    JSONObject json_req = dataToJSON( "data", data );
+	    
+	    writeJSON( con, json_req.toString() );
+	    JSONObject response = readJSON( con );
+	    return parseJSONPredict( response );
+	} catch ( Exception e ) {
+	    System.err.println( "Error during PREDICT:" );
+	    e.printStackTrace();
+	    return null;
+	}
+    }
+
+    public static Double train(String engine, Map<String, Double> settings,
+				Map<String, Double> values) {
+	try {
+	    URL url = new URL( getURL( engine, "train" ) );
+	    HttpURLConnection con = makePOST( url );
+	    
+	    // === Create JSON output ===
+	    String json_req = "{}";
+	    
+	    writeJSON( con, json_req );
+	    JSONObject response = readJSON( con );
+	    return parseJSONTrain( response );
+	} catch ( Exception e ) {
+	    System.err.println( "Error during TRAIN:" );
+	    e.printStackTrace();
+	    return null;
+	}
     }
 }

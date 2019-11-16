@@ -3,7 +3,7 @@ package pilots.util.trainer;
 import java.util.function.*;
 import java.util.*;
 
-class DataVector {
+public class DataVector {
 
     private boolean singleton;
     private List<Double> data;
@@ -25,12 +25,23 @@ class DataVector {
 	data.add( value );
     }
 
+    public int size() {
+	return data.size();
+    }
+
     public Double get( int index ) {
 	return data.get( index );
     }
 
     public boolean add( double value ) {
 	return data.add( value );
+    }
+
+    public Double getValue() {
+	if ( singleton ) {
+	    return data.get(0);
+	}
+	return null;
     }
 
 

@@ -2,7 +2,7 @@
 import pickle
 import importlib
 
-def get_model( model_name ):
+def get_model_module( model_name ):
     return importlib.import_module( model_name )
 
 def save_model( model, model_name ):
@@ -18,8 +18,10 @@ def load_model( model_name ):
     m_in_file.close()
     return new_model
 
-def run_model( model, model_name, data ):
-    mm = get_model( model_name )
+def run_model( model_name, model, data ):
+    mm = get_model_module( model_name )
     return mm.run( model, data )
 
-    
+def train_model( model_name, model, settings, dataset ):
+    mm = get_model_module( model_name )
+    return mm.train( model, settings, dataset )

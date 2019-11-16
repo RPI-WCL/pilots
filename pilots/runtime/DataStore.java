@@ -1,9 +1,10 @@
 package pilots.runtime;
 
 import java.text.ParseException;
-import java.util.*;
 import java.util.logging.Logger;
+import java.util.*;
 
+import pilots.util.trainer.DataVector;
 import pilots.util.model.Client;
 
 
@@ -369,10 +370,10 @@ public class DataStore {
         return methodDictionary.get(varName);
     }
 
-    private synchronized Map<String, Double> getDatas(String[] varNames){
-    	Map<String, Double> result = new HashMap<>();
+    private synchronized List<DataVector> getDatas(String[] varNames){
+    	List<DataVector> result = new ArrayList<>();
     	for (String var : varNames){
-    		result.put(var, findStore(var).getData(var, getMethods(var)));
+	    result.add(new DataVector(findStore(var).getData(var, getMethods(var))));
     	}
     	return result;
     }
@@ -448,12 +449,13 @@ public class DataStore {
                     interpolated = true;
                 break;
                 
-            case Method.PREDICT:
+            case Method.MODEL:
                 String model = args[0];
-            	Map<String, Double> result = getDatas(Arrays.copyOfRange(args,1,args.length));
+            	List<DataVector> result = getDatas(Arrays.copyOfRange(args,1,args.length));
                 predicted = true;
-            	d = pilots.util.model.Client.predict(model, result)[0][0];
-		// currently support only one number prediction
+            	List<DataVector> dv_tmp = pilots.util.model.Client.predict(model, result);
+		// currently supports only one number prediction
+		d = dv_tmp.get(0).get(0);
             default:
                 break;
             }

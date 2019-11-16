@@ -8,7 +8,5 @@ def train( model, arg_map ):
     trained_model = True
     return trained_model
 
-def run( model, data_map ):
-    a = data_map['a']
-    b = data_map['b']
-    return [ a+b ]
+def run( model, data ):
+    return [[ 2*data[0][0] ]]

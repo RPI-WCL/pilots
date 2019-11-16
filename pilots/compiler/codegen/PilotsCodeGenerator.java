@@ -931,8 +931,8 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             id = Method.EUCLIDEAN;
         } else if (vals[0].equalsIgnoreCase("interpolate")) {
             id = Method.INTERPOLATE;
-        } else if (vals[0].equalsIgnoreCase("predict")){
-            id = Method.PREDICT;
+        } else if (vals[0].equalsIgnoreCase("model")){
+            id = Method.MODEL;
         } else {
             System.err.println("Invalid method: " + vals[0]);
             return null;
