@@ -17,38 +17,32 @@ public class Client {
 
     // ===== JSON Creation functions =====
 
-    private static String mapToJSONEntries( String name, Map<String, Double> m ) {
-	// Also return ":\"<all keys>\",
-	String keys = "\"" + name + "\":\"";
-	String result = new String();
-	int count = 0;
-	for ( Map.Entry<String, Double> en : m.entrySet() ) {
-	    result += "\"" + en.getKey() + "\":" + String.valueOf(en.getValue());
-	    keys += en.getKey();
-	    if ( count < m.size() - 1 ) { result += ","; keys += ","; }
-	    count++;
-	}
-
-	return keys + "\"," + result;
-    }
-
-    private static JSONObject dataToJSON( String name, List<DataVector> data ) {
-	JSONObject ret = new JSONObject();
-
-	List<String> data_col_names = new ArrayList<>();
-	int count = 0;
+    private static void addDataToJSON( JSONObject obj, String name, List<DataVector> data ) {
+	JSONArray all_data = new JSONArray();
 	for ( DataVector col : data ) {
-	    String col_name = name + String.valueOf( count );
-	    data_col_names.add( col_name );
 	    JSONArray arr = new JSONArray();
 	    for ( int i = 0; i < col.size(); ++i ) {
 		arr.put( col.get(i) );
 	    }
-	    ret.put( col_name, arr );
-	    ++count;
+	    all_data.put( arr );
 	}
-	ret.put( name, String.join(",", data_col_names) );
-	return ret;
+	obj.put( name, all_data );
+    }
+
+    private static void addSettingsToJSON( JSONObject obj, String name,
+					   Map<String, ModelArg> settings ) {
+	JSONObject map = new JSONObject();
+	for ( Map.Entry<String, ModelArg> en : settings.entrySet() ) {
+	    ModelArg.Type t = en.getValue().getType();
+	    if ( t == ModelArg.Type.BOOL ) {
+		map.put( en.getKey(), en.getValue().getBoolean() );
+	    } else if ( t == ModelArg.Type.INT ) {
+		map.put( en.getKey(), en.getValue().getInteger() );
+	    } else {
+		map.put( en.getKey(), en.getValue().getDouble() );
+	    }
+	}
+	obj.put( name, map );
     }
 
     // ===== JSON Parsing functions =====
@@ -75,8 +69,12 @@ public class Client {
 	return r_values;
     }
 
-    private static double parseJSONTrain( JSONObject obj ) {
-	return 0.0;
+    private static Double parseJSONTrain( JSONObject obj ) {
+	boolean success = obj.getBoolean("success");
+	if ( success ) {
+	    return obj.getDouble("accuracy");
+	}
+	return null;
     }
     
     // ===== HTTP JSON functions =====
@@ -159,7 +157,8 @@ public class Client {
 	    HttpURLConnection con = makePOST( url );
 	    
 	    // === Create JSON output ===
-	    JSONObject json_req = dataToJSON( "data", data );
+	    JSONObject json_req = new JSONObject();
+	    addDataToJSON( json_req, "data", data );
 	    
 	    writeJSON( con, json_req.toString() );
 	    JSONObject response = readJSON( con );
@@ -171,16 +170,19 @@ public class Client {
 	}
     }
 
-    public static Double train(String engine, Map<String, Double> settings,
-				Map<String, Double> values) {
+    public static Double train( String engine, Map<String, ModelArg> settings,
+				List<DataVector> features, List<DataVector> labels ) {
 	try {
 	    URL url = new URL( getURL( engine, "train" ) );
 	    HttpURLConnection con = makePOST( url );
 	    
 	    // === Create JSON output ===
-	    String json_req = "{}";
+	    JSONObject json_req = new JSONObject();
+	    addSettingsToJSON( json_req, "settings", settings );
+	    addDataToJSON( json_req, "features", features );
+	    addDataToJSON( json_req, "labels", labels );
 	    
-	    writeJSON( con, json_req );
+	    writeJSON( con, json_req.toString() );
 	    JSONObject response = readJSON( con );
 	    return parseJSONTrain( response );
 	} catch ( Exception e ) {

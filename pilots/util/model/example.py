@@ -1,8 +1,11 @@
 
+def is_live():
+    return False
+
 def make_model():
     return False
 
-def train( model, arg_map ):
+def train( model, arg_map, dataset ):
     model = make_model()
     # do training HERE
     trained_model = True

@@ -1,10 +1,13 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
+def is_live():
+    return False
+
 def make_model():
     return LinearRegression()
 
-def train( model, arg_map ):
+def train( model, arg_map, dataset ):
     X = np.array( [[1,1], [2,2], [3,3], [4,4], [5,5]] )
     y = np.array( [2,4,6,8,10] )
     model = model.fit( X, y )
