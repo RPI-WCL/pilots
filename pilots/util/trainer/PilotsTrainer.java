@@ -25,10 +25,16 @@ public class PilotsTrainer {
     }
 
     // ================== Data =======================
+
+    protected DataVector get( String key ) {
+	return data.get( key );
+    }
     
-    private void pullCSV( String filename, String column_names ) {
+    protected void pullCSV( String filename, String column_names ) {
 	try {
-	    String filepath = "pilots/util/model/data/";
+	    System.out.println( "Path: " + System.getProperty("user.dir") );
+	    String filepath = System.getProperty("user.dir");
+	    filepath += "/../../pilots/util/model/data/";
 	    BufferedReader rd = new BufferedReader( new FileReader( filepath + filename ) );
 	    // === Find which columns to store ===
 	    List<String> cols_to_keep = Arrays.asList(column_names.split(","));
@@ -61,7 +67,8 @@ public class PilotsTrainer {
 
 	    // === Push data into data map ===
 	    for ( int i = 0; i < cols_to_keep.size(); ++i ) {
-		data.put( cols_to_keep.get(i), csv_data.get(i) );
+		System.out.println("Pulled: " + csv_data.get(i).size() );
+		data.put( cols_to_keep.get(i), new DataVector( csv_data.get(i) ) );
 	    }
 	    
 	    rd.close();
@@ -72,7 +79,7 @@ public class PilotsTrainer {
 	
     }
 
-    private void pullModel( String modelname, String output_names, DataVector[] model_args ) {
+    protected void pullModel( String modelname, String output_names, DataVector[] model_args ) {
 	// TODO
     }
 
@@ -119,19 +126,19 @@ public class PilotsTrainer {
 
     // =================== Train ======================
     
-    void train() {
+    public void train() {
 	// === Pull all features out ===
 	List<DataVector> features = new ArrayList<>();
-	for ( int f = 0; f < num_features; ++f ) {
+	for ( int f = 1; f <= num_features; ++f ) {
 	    String feat_name = "feature" + String.valueOf( f );
-	    features.add( data.get( feat_name ) );
+	    features.add( new DataVector( data.get( feat_name ) ) );
 	}
 	
 	// === Pull labels out ===
 	List<DataVector> labels = new ArrayList<>();
-	for ( int l = 0; l < num_labels; ++l ) {
+	for ( int l = 1; l <= num_labels; ++l ) {
 	    String label_name = "label" + String.valueOf( l );
-	    features.add( data.get( label_name ) );
+	    features.add( new DataVector( data.get( label_name ) ) );
 	}
 	
 	Double accuracy = pilots.util.model.Client.train( algorithm, alg_args,

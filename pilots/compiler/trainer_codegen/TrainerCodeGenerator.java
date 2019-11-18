@@ -52,7 +52,6 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
     }
 
     public TrainerCodeGenerator() {
-	System.out.println("Making codegen");
 	code = new String();
 	
 	constants = new ArrayList<>();
@@ -64,6 +63,7 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	algoName = new String();
 	
 	varsMap = new HashMap<>();
+	System.out.println("Finished code generation");
     }
 
     // =====================================================
@@ -118,6 +118,9 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	code += "import java.io.*;\n";
 	code += "import java.util.*;\n";
 	code += "\n";
+	code += "import pilots.util.trainer.*;\n";
+	code += "import pilots.util.model.*;\n";
+	code += "\n";
     }
 
     private void generateClassDeclaration() {
@@ -136,7 +139,7 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
     private void generateData() {
 	code += insIndent() + "// === Data ===\n";
 	for ( String d : data_sources ) {
-	    code += insIndent() + "pullData( " + d + " );\n";
+	    code += insIndent() + "super.pullData( " + d + " );\n";
 	}
         code += "\n";
     }
@@ -162,11 +165,13 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	code += insIndent() + "public " + appName + "() {\n";
 	code += incInsIndent() + "super();\n";
 	code += "\n";
-	code += insIndent() + "algorithm = \"" + algoName + "\";\n";
+	code += insIndent() + "super.algorithm = \"" + algoName + "\";\n";
 	code += "\n";
 	code += insIndent() + "setupTrainer();\n";
 	code += decInsIndent() + "}\n";
         code += "\n";
+	code += insIndent() + "public void train() { super.train(); }\n";
+	code += "\n";
     }
 
     private void generateSetup() {
@@ -225,8 +230,6 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
     public Object visit( ASTData node, Object data ) {
 	goDown("Data");
 
-	System.out.println( "Data >> " + (String)node.jjtGetValue() );
-	
 	String[] vals = ((String)node.jjtGetValue()).split(":");
 	String datum = "";
 	if ( vals[0].equals( "model" ) ) {
@@ -427,7 +430,6 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
     }
 
     private String parseExp( String exp ) {
-	System.out.println( "pE:" + exp );
 	// Exps: exp,exp,...
 	// Exp:
 	// Case 1: {func} (exps) exp2
@@ -469,7 +471,7 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	    String front = exp.substring( 0, m3.start() );
 	    String back = exp.substring( m3.end() );
 	    String oldVal = exp.substring( m3.start()+1, m3.end()-1 );
-	    String newVal = "data.get(\"" + oldVal + "\")";
+	    String newVal = "super.get(\"" + oldVal + "\")";
 	    return front + newVal + parseExp( back );
 	}
 	

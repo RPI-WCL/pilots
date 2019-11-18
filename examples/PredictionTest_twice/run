@@ -1,6 +1,6 @@
 java -cp .:$PILOTS_HOME/lib/* \
     -Djava.util.logging.config.file="$PILOTS_HOME/logging.properties" \
-    PredictionTest_twice \
+    prediction_twice \
     --currloctime pilots.runtime.SimTimeService \
     --timerange "2013-05-11 140001-0500~2013-05-11 140800-0500" \
     --inputport 8888 \

@@ -1,0 +1,9 @@
+trainer twice_trainer;
+  data
+    a, b using file("twice_training.csv");
+  model
+    features: a;
+    labels: b;
+    algorithm:
+      lin_reg;
+end;

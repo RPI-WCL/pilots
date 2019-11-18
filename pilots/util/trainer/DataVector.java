@@ -25,6 +25,14 @@ public class DataVector {
 	data.add( value );
     }
 
+    public DataVector( DataVector d ) {
+	singleton = d.singleton;
+	data = new ArrayList<>();
+	for ( Double val : d.data ) {
+	    data.add( val );
+	}
+    }
+
     public int size() {
 	return data.size();
     }
