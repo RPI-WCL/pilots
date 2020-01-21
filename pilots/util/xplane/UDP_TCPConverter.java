@@ -32,7 +32,7 @@ class Pair<T>
    private T second;
 }
 
-class UDP_TCPConverter
+public class UDP_TCPConverter
 {
    static boolean debug = false;
    private static void debugOut(String output) {if (debug) System.out.println(output);}

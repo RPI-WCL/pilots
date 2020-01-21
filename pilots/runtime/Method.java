@@ -31,11 +31,6 @@ public class Method {
         for (int i = 0; i < args.length; i++) {
             this.args[i] = args[i];
         }
-
-	// === Load model ===
-	if ( id == MODEL ) {
-	    pilots.util.model.Client.load( this.args[0] );
-	}
     }
 
     public int getId() {

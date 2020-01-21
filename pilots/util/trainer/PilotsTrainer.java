@@ -138,7 +138,7 @@ public class PilotsTrainer {
 	List<DataVector> labels = new ArrayList<>();
 	for ( int l = 1; l <= num_labels; ++l ) {
 	    String label_name = "label" + String.valueOf( l );
-	    features.add( new DataVector( data.get( label_name ) ) );
+	    labels.add( new DataVector( data.get( label_name ) ) );
 	}
 	
 	Double accuracy = pilots.util.model.Client.train( algorithm, alg_args,

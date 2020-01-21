@@ -7,14 +7,14 @@ class TCP_server
    {
       String clientSentence;
       String capitalizedSentence;
-      ServerSocket welcomeSocket = new ServerSocket(6789);
+      ServerSocket welcomeSocket = new ServerSocket(9876);
       Socket connectionSocket = welcomeSocket.accept();
       while(true)
       {
          BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
          // DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
          clientSentence = inFromClient.readLine();
-         System.out.println("Received: " + clientSentence);
+         System.out.println(clientSentence);
          // outToClient.writeBytes(clientSentence + '\n');
       }
    }
