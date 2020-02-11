@@ -1,0 +1,1 @@
+java -cp .:$PILOTS_HOME/lib/* pilots.util.FileInputProducer ../../data/WeightTester/Normal.txt

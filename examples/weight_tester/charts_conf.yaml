@@ -1,0 +1,17 @@
+---
+title: "Airspeed"
+vars: "v_a"
+legends: "airspeed (knots)"
+colors: "blue"
+xAxis: "Time"
+yAxis: "Airspeed"
+yRange: "0~70"
+---
+title: "Weight"
+vars: "curr_w,est_w"
+legends: "real weight, estimated weight"
+colors: "green, red"
+xAxis: "Time"
+yAxis: "Weight"
+yRange: "0~4000"
+
