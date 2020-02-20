@@ -24,10 +24,19 @@ public class TrainerParserDefaultVisitor implements TrainerParserVisitor{
   public Object visit(ASTModelUser node, Object data){
     return defaultVisit(node, data);
   }
+  public Object visit(ASTSequence node, Object data){
+    return defaultVisit(node, data);
+  }
   public Object visit(ASTFeature node, Object data){
     return defaultVisit(node, data);
   }
   public Object visit(ASTLabel node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTTest_Feature node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTTest_Label node, Object data){
     return defaultVisit(node, data);
   }
   public Object visit(ASTAlgorithm node, Object data){
@@ -64,4 +73,4 @@ public class TrainerParserDefaultVisitor implements TrainerParserVisitor{
     return defaultVisit(node, data);
   }
 }
-/* JavaCC - OriginalChecksum=562f025230c1def1c86662f2dff3d609 (do not edit this line) */
+/* JavaCC - OriginalChecksum=88d90c50e6643f551a9e7d7c2c03bc2a (do not edit this line) */

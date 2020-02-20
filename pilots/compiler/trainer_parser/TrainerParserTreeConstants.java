@@ -8,19 +8,22 @@ public interface TrainerParserTreeConstants
   public int JJTDATA = 2;
   public int JJTFILE = 3;
   public int JJTMODELUSER = 4;
-  public int JJTFEATURE = 5;
-  public int JJTLABEL = 6;
-  public int JJTALGORITHM = 7;
-  public int JJTMAP = 8;
-  public int JJTMAPITEM = 9;
-  public int JJTVARS = 10;
-  public int JJTEXPS = 11;
-  public int JJTEXPS2 = 12;
-  public int JJTEXP = 13;
-  public int JJTEXP2 = 14;
-  public int JJTFUNC = 15;
-  public int JJTNUMBER = 16;
-  public int JJTVALUE = 17;
+  public int JJTSEQUENCE = 5;
+  public int JJTFEATURE = 6;
+  public int JJTLABEL = 7;
+  public int JJTTEST_FEATURE = 8;
+  public int JJTTEST_LABEL = 9;
+  public int JJTALGORITHM = 10;
+  public int JJTMAP = 11;
+  public int JJTMAPITEM = 12;
+  public int JJTVARS = 13;
+  public int JJTEXPS = 14;
+  public int JJTEXPS2 = 15;
+  public int JJTEXP = 16;
+  public int JJTEXP2 = 17;
+  public int JJTFUNC = 18;
+  public int JJTNUMBER = 19;
+  public int JJTVALUE = 20;
 
 
   public String[] jjtNodeName = {
@@ -29,8 +32,11 @@ public interface TrainerParserTreeConstants
     "Data",
     "File",
     "ModelUser",
+    "Sequence",
     "Feature",
     "Label",
+    "Test_Feature",
+    "Test_Label",
     "Algorithm",
     "Map",
     "MapItem",
@@ -44,4 +50,4 @@ public interface TrainerParserTreeConstants
     "Value",
   };
 }
-/* JavaCC - OriginalChecksum=c6e79da82527d540b7aeaaa11f154814 (do not edit this line) */
+/* JavaCC - OriginalChecksum=88082d84f58fabeeba6f9bac01ada63a (do not edit this line) */

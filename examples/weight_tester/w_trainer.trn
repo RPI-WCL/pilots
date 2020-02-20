@@ -1,8 +1,8 @@
 trainer w_model_trainer;
   data
-    time, v_a, prs, tmp, alt_i, curr_w using file("weight_training.csv");
+    time, v_a, prs, tmp, alt_i, curr_w using file("weight_training_2.csv");
   model
-    features: time, v_a, prs, tmp, alt_i;
+    features: v_a, prs, tmp, alt_i;
     labels: curr_w;
     algorithm:
       weight;

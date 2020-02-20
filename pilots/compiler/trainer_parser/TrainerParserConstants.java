@@ -17,65 +17,69 @@ public interface TrainerParserConstants {
   /** RegularExpression Id. */
   int DATA = 12;
   /** RegularExpression Id. */
-  int SCHEMA = 13;
+  int FILE = 13;
   /** RegularExpression Id. */
   int MODEL = 14;
   /** RegularExpression Id. */
-  int FEATURES = 15;
+  int SEQUENCE = 15;
   /** RegularExpression Id. */
-  int LABELS = 16;
+  int FEATURES = 16;
   /** RegularExpression Id. */
-  int ALGORITHM = 17;
+  int LABELS = 17;
   /** RegularExpression Id. */
-  int USING = 18;
+  int TEST_FEATURES = 18;
   /** RegularExpression Id. */
-  int FILE = 19;
+  int TEST_LABELS = 19;
   /** RegularExpression Id. */
-  int PROGRAM_END = 20;
+  int ALGORITHM = 20;
   /** RegularExpression Id. */
-  int SQRT = 21;
+  int USING = 21;
   /** RegularExpression Id. */
-  int SIN = 22;
+  int PROGRAM_END = 22;
   /** RegularExpression Id. */
-  int COS = 23;
+  int SQRT = 23;
   /** RegularExpression Id. */
-  int TAN = 24;
+  int SIN = 24;
   /** RegularExpression Id. */
-  int ARCSIN = 25;
+  int COS = 25;
   /** RegularExpression Id. */
-  int ARCCOS = 26;
+  int TAN = 26;
   /** RegularExpression Id. */
-  int ARCTAN = 27;
+  int ARCSIN = 27;
   /** RegularExpression Id. */
-  int ABS = 28;
+  int ARCCOS = 28;
   /** RegularExpression Id. */
-  int AND = 29;
+  int ARCTAN = 29;
   /** RegularExpression Id. */
-  int OR = 30;
+  int ABS = 30;
   /** RegularExpression Id. */
-  int XOR = 31;
+  int AND = 31;
   /** RegularExpression Id. */
-  int NOT = 32;
+  int OR = 32;
   /** RegularExpression Id. */
-  int DIGIT = 33;
+  int XOR = 33;
   /** RegularExpression Id. */
-  int LPAR = 34;
+  int NOT = 34;
   /** RegularExpression Id. */
-  int RPAR = 35;
+  int DIGIT = 35;
   /** RegularExpression Id. */
-  int COMMA = 36;
+  int LPAR = 36;
   /** RegularExpression Id. */
-  int INTEGER = 37;
+  int RPAR = 37;
   /** RegularExpression Id. */
-  int SCALEFACTOR = 38;
+  int COMMA = 38;
   /** RegularExpression Id. */
-  int REAL = 39;
+  int INTEGER = 39;
   /** RegularExpression Id. */
-  int LETTER = 40;
+  int SCALEFACTOR = 40;
   /** RegularExpression Id. */
-  int VAR = 41;
+  int REAL = 41;
   /** RegularExpression Id. */
-  int STRING = 42;
+  int LETTER = 42;
+  /** RegularExpression Id. */
+  int VAR = 43;
+  /** RegularExpression Id. */
+  int STRING = 44;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -97,13 +101,15 @@ public interface TrainerParserConstants {
     "\"trainer\"",
     "\"constants\"",
     "\"data\"",
-    "\"schema\"",
+    "\"file\"",
     "\"model\"",
+    "\"sequence\"",
     "\"features\"",
     "\"labels\"",
+    "\"test_features\"",
+    "\"test_labels\"",
     "\"algorithm\"",
     "\"using\"",
-    "\"file\"",
     "\"end\"",
     "\"sqrt\"",
     "\"sin\"",

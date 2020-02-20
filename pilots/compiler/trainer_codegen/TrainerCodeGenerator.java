@@ -21,6 +21,8 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
     private List<String> data_sources = null;
     private List<String> features = null;
     private List<String> labels = null;
+    private List<String> test_features = null;
+    private List<String> test_labels = null;
     private List<String> alg_params = null;
 
     private String algoName = null;
@@ -58,6 +60,8 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	data_sources = new ArrayList<>();
 	features = new ArrayList<>();
 	labels = new ArrayList<>();
+	test_features = new ArrayList<>();
+	test_labels = new ArrayList<>();
 	alg_params = new ArrayList<>();
 
 	algoName = new String();
@@ -155,6 +159,16 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	}
 	code += "\n";
 
+	for ( String ff : test_features ) {
+	    code += insIndent() + "addTestFeature( " + ff + " );\n";
+	}
+	code += "\n";
+	for ( String ll : test_labels ) {
+	    code += insIndent() + "addTestLabel( " + ll + " );\n";
+	}
+	code += "\n";
+
+	
 	for ( String aa : alg_params ) {
 	    code += insIndent() + aa + "\n";
 	}
@@ -220,7 +234,7 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	goDown("Constant");
 
 	String[] vals = ((String)node.jjtGetValue()).split(":");
-	String c = "data.put( \"" + vals[0] + "\", new DataVector( " + vals[1] + " ) );";
+	String c = "data.put( \"" + vals[0] + "\", new DataVector( " + parseConstExp( vals[1] ) + " ) );";
 	constants.add( c );
 
 	goUp();
@@ -233,11 +247,16 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	String[] vals = ((String)node.jjtGetValue()).split(":");
 	String datum = "";
 	if ( vals[0].equals( "model" ) ) {
-	    // TODO
+	    String model_name = vals[1];
+	    datum += "\"model:" + model_name  + "\", ";
+	    datum += "\"" + vals[2] + "\"";
 	} else if ( vals[0].equals( "file" ) ) {
 	    String file_name = vals[1].split("\"")[1];
 	    datum += "\"file:" + file_name  + "\", ";
 	    datum += "\"" + vals[2] + "\"";
+	} else if ( vals[0].equals( "sequence" ) ) {
+	    datum += "\"sequence:" + vals[1] + "," + vals[2] + "," + vals[3] + "\", ";
+	    datum += "\"" + vals[4] + "\"";
 	}
 	data_sources.add( datum );
 	
@@ -261,7 +280,33 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	goDown("Label");
 
 	String lab = parseExps( (String)node.jjtGetValue() );
-	labels.add( lab );
+	for ( String l : lab.split(";") ) {
+	    labels.add( l );
+	}
+	
+	goUp();
+	return null;
+    }
+
+    public Object visit( ASTTest_Feature node, Object data ) {
+	goDown("Test_Feature");
+
+	String feats = parseExps( (String)node.jjtGetValue() );
+	for ( String f : feats.split(";") ) {
+	    test_features.add( f );
+	}
+	
+	goUp();
+	return null;
+    }
+
+    public Object visit( ASTTest_Label node, Object data ) {
+	goDown("Test_Label");
+
+	String lab = parseExps( (String)node.jjtGetValue() );
+	for ( String l : lab.split(";") ) {
+	    test_labels.add( l );
+	}
 	
 	goUp();
 	return null;
@@ -334,6 +379,8 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
     
     public Object visit( ASTFile node, Object data ) { return null; }
 
+    public Object visit( ASTSequence node, Object data ) { return null; }
+
     public Object visit( SimpleNode node, Object data ) { return null; }
 
     // =====================================================
@@ -384,40 +431,65 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	return "";
     }
 
-    // parse DataVector Operations
-    /*
-    private String parseExp( String exp ) {
+    private String parseConstExps( String exps ) {
+    	String[] all_exp = exps.split(";");
+    	String result = new String();
+    	for ( int i = 0; i < all_exp.length; ++i ) {
+    	    if ( i > 0 ) { result += ";"; }
+    	    result += parseConstExp( all_exp[i] );
+    	}
+    	return result;
 
-	System.out.println( "Parsing expression: " + exp );
-	
-	Pattern p = Pattern.compile( "[+]" );
+    }
+
+    private String parseConstExp( String exp ) {
+	// Exps: exp,exp,...
+	// Exp:
+	// Case 1: {func} (exps)n exp2
+	// Case 2: (exp) exp2
+	// Case 3: [value] exp2
+	// Exp2:
+	// Case 1: {func} exp exp2
+	// Case 2: nothing
+
+	// === Replace func(exps) ===
+	String rfunc = "\\|[^\\(\\[]+\\|";
+	Pattern p = Pattern.compile( rfunc );
 	Matcher m = p.matcher( exp );
-	int pos = exp.indexOf( "+" );
-	if ( pos > 0 ) {
-	    String front = exp.substring( 0, pos );
-	    String back = exp.substring( pos+1 );
-
-	    // Parse first half
-	    if ( front.matches("^\\w[\\w\\d]*$") ) {
-		front = "data.get( \"" + front + "\" )";
-	    } else if ( front.matches("^\\d+.?\\d*$") ) {
-		front = "(new DataVector( " + front + "))";
-	    }
-
-	    // Parse second half
-	    back = parseExp( back );
-	    String newOp = replaceOperation( String.valueOf( exp.charAt(pos) ) );
-
-	    return front + "." + newOp + "( " + back + " )";
-	} else {
-	    if ( exp.matches("^\\w[\\w\\d]*$") ) {
-		return "data.get( \"" + exp + "\")";
-	    } else if ( exp.matches("^\\d+.?\\d*$") ) {
-		return "(new DataVector( " + exp + "))";
-	    }
+	if ( m.find() ) {
+	    String front = exp.substring( 0, m.start() );
+	    String back = exp.substring( m.end() );
+	    String oldFunc = exp.substring( m.start()+1, m.end()-1 );
+	    String newFunc = replaceOperation2( oldFunc );
+	    return parseConstExp( front ) + newFunc + parseConstExp( back );
 	}
+
+	// === Replace func
+	String rfunc2 = "\\{[^\\(\\[]+\\}";
+	Pattern p2 = Pattern.compile( rfunc2 );
+	Matcher m2 = p2.matcher( exp );
+	if ( m2.find() ) {
+	    String front = exp.substring( 0, m2.start() );
+	    String back = exp.substring( m2.end() );
+	    String oldFunc = exp.substring( m2.start()+1, m2.end()-1 );
+	    String newFunc = replaceOperation2( oldFunc );
+	    return parseConstExp( front ) + newFunc + parseConstExp( back );
+	}
+	
+	// === Replace value ===
+	String rval = "\\[[^\\(\\[]+\\]";
+	Pattern p3 = Pattern.compile( rval );
+	Matcher m3 = p3.matcher( exp );
+	if ( m3.find() ) {
+	    String front = exp.substring( 0, m3.start() );
+	    String back = exp.substring( m3.end() );
+	    String oldVal = exp.substring( m3.start()+1, m3.end()-1 );
+	    String newVal = "" + oldVal + "";
+	    return front + newVal + parseConstExp( back );
+	}
+	
 	return exp;
-	}*/
+    }
 
     private String parseExps( String exps ) {
 	String[] all_exp = exps.split(";");
@@ -460,7 +532,7 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	    String back = exp.substring( m2.end() );
 	    String oldFunc = exp.substring( m2.start()+1, m2.end()-1 );
 	    String newFunc = replaceOperation( oldFunc );
-	    return parseExp( front ) + "." + newFunc + "( " + parseExp( back ) + " )";
+	    return parseExp( front ) + "." + newFunc + "" + parseExp( back ) + "";
 	}
 	
 	// === Replace value ===

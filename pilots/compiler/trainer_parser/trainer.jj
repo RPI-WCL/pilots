@@ -70,13 +70,15 @@ TOKEN : /* RESERVED TOKENS */
 <PROGRAM_START : "trainer">
 | <CONSTANTS: "constants">
 | <DATA: "data">
-| <SCHEMA: "schema">
+| <FILE: "file">
 | <MODEL: "model">
+| <SEQUENCE: "sequence">
 | <FEATURES: "features">
 | <LABELS: "labels">
+| <TEST_FEATURES: "test_features">
+| <TEST_LABELS: "test_labels">
 | <ALGORITHM: "algorithm">
 | <USING: "using">
-| <FILE: "file">
 | <PROGRAM_END: "end">
 | <SQRT: "sqrt">
 | <SIN: "sin">
@@ -127,6 +129,8 @@ ASTTrainer Trainer():
 	<MODEL>
 	  <FEATURES> ":" (";" | Feature()) ";"
 	  <LABELS> ":" (";" | Label()) ";"
+	  (<TEST_FEATURES> ":" (";" | Test_Feature()) ";")?
+	  (<TEST_LABELS> ":" (";" | Test_Label()) ";")?
 	  <ALGORITHM> ":" Algorithm() ";"
     <PROGRAM_END> (";")?/*@bgen(jjtree)*/
     {
@@ -210,7 +214,7 @@ void Data() :
 /*@egen*/
     str = Vars()
     { jjtn000.jjtSetValue(str); }
-    <USING> ( str2 = File() | str2 = ModelUser() ) ";"/*@bgen(jjtree)*/
+    <USING> ( str2 = File() | str2 = ModelUser() | str2 = Sequence() ) ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
@@ -305,6 +309,46 @@ String ModelUser() :
 /*@egen*/
 }
 
+String Sequence() :
+{/*@bgen(jjtree) Sequence */
+    ASTSequence jjtn000 = new ASTSequence(JJTSEQUENCE);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    String start, step, len;
+}
+{/*@bgen(jjtree) Sequence */
+    try {
+/*@egen*/
+    <SEQUENCE> "(" start = Number() "," step = Number() "," len = Number() ")"/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    { return "sequence:" + start + ":" + step + ":" + len; }/*@bgen(jjtree)*/
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        throw (RuntimeException)jjte000;
+      }
+      if (jjte000 instanceof ParseException) {
+        throw (ParseException)jjte000;
+      }
+      throw (Error)jjte000;
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+      }
+    }
+/*@egen*/
+}
+
 void Feature() :
 {/*@bgen(jjtree) Feature */
     ASTFeature jjtn000 = new ASTFeature(JJTFEATURE);
@@ -354,6 +398,86 @@ void Label() :
     String s;
 }
 {/*@bgen(jjtree) Label */
+    try {
+/*@egen*/
+    s = Exps()/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    { jjtn000.jjtSetValue( s ); }/*@bgen(jjtree)*/
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        throw (RuntimeException)jjte000;
+      }
+      if (jjte000 instanceof ParseException) {
+        throw (ParseException)jjte000;
+      }
+      throw (Error)jjte000;
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+      }
+    }
+/*@egen*/
+}
+
+void Test_Feature() :
+{/*@bgen(jjtree) Test_Feature */
+    ASTTest_Feature jjtn000 = new ASTTest_Feature(JJTTEST_FEATURE);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    String s;
+}
+{/*@bgen(jjtree) Test_Feature */
+    try {
+/*@egen*/
+    s = Exps()/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    { jjtn000.jjtSetValue( s ); }/*@bgen(jjtree)*/
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        throw (RuntimeException)jjte000;
+      }
+      if (jjte000 instanceof ParseException) {
+        throw (ParseException)jjte000;
+      }
+      throw (Error)jjte000;
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+      }
+    }
+/*@egen*/
+}
+
+void Test_Label() :
+{/*@bgen(jjtree) Test_Label */
+    ASTTest_Label jjtn000 = new ASTTest_Label(JJTTEST_LABEL);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    String s;
+}
+{/*@bgen(jjtree) Test_Label */
     try {
 /*@egen*/
     s = Exps()/*@bgen(jjtree)*/

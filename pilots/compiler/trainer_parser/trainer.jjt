@@ -66,13 +66,15 @@ TOKEN : /* RESERVED TOKENS */
 <PROGRAM_START : "trainer">
 | <CONSTANTS: "constants">
 | <DATA: "data">
-| <SCHEMA: "schema">
+| <FILE: "file">
 | <MODEL: "model">
+| <SEQUENCE: "sequence">
 | <FEATURES: "features">
 | <LABELS: "labels">
+| <TEST_FEATURES: "test_features">
+| <TEST_LABELS: "test_labels">
 | <ALGORITHM: "algorithm">
 | <USING: "using">
-| <FILE: "file">
 | <PROGRAM_END: "end">
 | <SQRT: "sqrt">
 | <SIN: "sin">
@@ -117,6 +119,8 @@ ASTTrainer Trainer():
 	<MODEL>
 	  <FEATURES> ":" (";" | Feature()) ";"
 	  <LABELS> ":" (";" | Label()) ";"
+	  (<TEST_FEATURES> ":" (";" | Test_Feature()) ";")?
+	  (<TEST_LABELS> ":" (";" | Test_Label()) ";")?
 	  <ALGORITHM> ":" Algorithm() ";"
     <PROGRAM_END> (";")?
     { return jjtThis; }
@@ -138,7 +142,7 @@ void Data() :
 {
     str = Vars()
     { jjtThis.jjtSetValue(str); }
-    <USING> ( str2 = File() | str2 = ModelUser() ) ";"
+    <USING> ( str2 = File() | str2 = ModelUser() | str2 = Sequence() ) ";"
     { jjtThis.jjtSetValue( str2 + ":" + str ); }
 }
 
@@ -160,6 +164,15 @@ String ModelUser() :
     { return "model:" + vars; }
 }
 
+String Sequence() :
+{
+    String start, step, len;
+}
+{
+    <SEQUENCE> "(" start = Number() "," step = Number() "," len = Number() ")"
+    { return "sequence:" + start + ":" + step + ":" + len; }
+}
+
 void Feature() :
 {
     String s;
@@ -170,6 +183,24 @@ void Feature() :
 }
 
 void Label() :
+{
+    String s;
+}
+{
+    s = Exps()
+    { jjtThis.jjtSetValue( s ); }
+}
+
+void Test_Feature() :
+{
+    String s;
+}
+{
+    s = Exps()
+    { jjtThis.jjtSetValue( s ); }
+}
+
+void Test_Label() :
 {
     String s;
 }

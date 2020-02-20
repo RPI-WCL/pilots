@@ -1,19 +1,65 @@
 import numpy as np
 
+# TODO calculate the change according to 1ft change in density altitude
+# TODO calculate the change according to 1lb change in weight to slope
+
 class WeightModel:
     def __init__(self, settings):
         # Good data has non-zero velocities
         self.is_good_data = False
         # Each data point ((density altitude, [slope, y-intercept]), weight)
         self.current_data = []
-        self.remembered_data = []  
-        
+        self.remembered_data = []
+        # delta
+        self.delta_da = 0.0
+        self.delta_slope = 0.0
+
+    def calc_deltas(self):
+        # Find pair of close weights
+        n = len(self.remembered_data)
+        d_da = []
+        d_sl = []
+        for i in range(n):
+            for j in range(n-i):
+                w1 = self.remembered_data[i]['w']
+                w2 = self.remembered_data[j]['w']
+                da1 = self.remembered_data[i]['da']
+                da2 = self.remembered_data[j]['da']
+                # calculate delta da
+                if abs(w1 - w2) < 50.0:
+                    if (da1 - da2) >= 0.001:
+                        delta = (w1 - w2) / (da1 - da2)
+                        d_da.append(delta)
+                # calculate delta slope
+                if abs(da1 - da2) < 500:
+                    slope1 = self.remembered_data[i]['line'][0]
+                    slope2 = self.remembered_data[j]['line'][0]
+                    if (slope1 - slope2) >= 0.001:
+                        delta = (w1 - w2) / (slope1 - slope2)
+                        d_sl.append(delta)
+        if len(d_da) == 0 or len(d_sl) == 0:
+            print(self.remembered_data)
+            print("BAD DATA: too sparse")
+            self.delta_da = 0.0
+            self.delta_slope = 0.0
+        else:
+            self.delta_da = np.average(d_da)
+            self.delta_slope = np.average(d_sl)
+            print("Calculated deltas:", self.delta_da, self.delta_slope)
+
+    def interpolate(self, unknown, known):
+        e_da = (known['da'] - unknown['da'])
+        e_slope = (known['line'][0] - unknown['line'][0])
+        value = known['w'] + (e_da * self.delta_da) - (e_slope * self.delta_slope)
+        print(":>", e_da, e_slope, value)
+        return value
+
     def run(self, data):
         # Input data: [airspeed, pressure, temp, altitude]
         self.current_data.append( data )
         if len(self.current_data) > 3:
-            result = self.run_all( self.current_data )
-            return result
+            data = np.array( self.current_data ).transpose()[0]
+            return self.run_all( data )
         else:
             return 0.0
         
@@ -24,57 +70,67 @@ class WeightModel:
         avg_alt = np.average(data[3])
         dens_alt = self.density_altitude( avg_prs, avg_tmp, avg_alt )
         # Calculate slope
-        times = range(len(data[1]))
-        velocities = np.array(data[1])
+        times = range(len(data[0]))
+        velocities = np.array(data[0])
+        print("POLYFIT: ", times, velocities)
         z = np.polyfit(times, velocities, 1)
         # Find closest remembered line
         min_error = None
         closest_line = None
         for r_line in self.remembered_data:
-            #print( "RL:", r_line )
             # Calculate error between lines' slopes
-            error = (r_line['line'][0] - z[0]) ** 2
+            error_da = (r_line['da'] - dens_alt) ** 2
+            error_slope = (r_line['line'][0] - z[0]) ** 2
+            error = error_da + error_slope
             if min_error == None or error < min_error:
                 min_error = error
                 closest_line = r_line
         if closest_line == None:
             return 0.0
         else:
-            return r_line['w']
-
+            # Interpolate from closest
+            print(dens_alt, z, "::", closest_line)
+            print()
+            current = {'da': dens_alt, 'line': z}
+            result = self.interpolate( current, closest_line)
+            print( result )
+            return result
         
     def train(self, X, y):
         for i in range(len(X)):
             # Loop over all trials
             trial = np.array(X[i]).transpose()
-            avg_prs = np.average(trial[2])
-            avg_tmp = np.average(trial[3])
-            avg_alt = np.average(trial[4])
+            avg_prs = np.average(trial[1])
+            avg_tmp = np.average(trial[2])
+            avg_alt = np.average(trial[3])
             dens_alt = self.density_altitude( avg_prs, avg_tmp, avg_alt )
             # Calculate slope
-            times = np.array(trial[0]) - trial[0][0]
-            velocities = np.array(trial[1])
+            times = range(len(trial[0]))
+            velocities = np.array(trial[0])
             z = np.polyfit(times, velocities, 1)
             # Calculate average weight
             weight = np.average( y[i] )
             # Store data_point
             datapoint = {'da': dens_alt, 'line': z, 'w': weight}
             self.remembered_data.append( datapoint )
+        self.calc_deltas()
         return self
 
     def score(self, X, y):
         all_acc = []
         for i in range(len(X)):
             # Loop over all trials
-            tmp_result = self.run_all( X[i] )
+            trial = np.array(X[i]).transpose()
+            tmp_result = self.run_all( trial )
             result = np.average( y[i] )
+            print("--->", result)
             all_acc.append( (tmp_result - result) ** 2 )
-        return np.average( all_acc ) / 100
+        return np.average( all_acc )
 
     def density_altitude( self, prs, tmp, alt_i ):
         prs_alt = (29.92 - prs) * 1000 + alt_i
-        isa = 15 - ((2*alt_i) // 1000)
-        dens_alt = prs_alt + (120 * (tmp - isa))
+        isa = 15 - ((1.98*alt_i) // 1000)
+        dens_alt = prs_alt + (118.8 * (tmp - isa))
         return dens_alt
 
 # ============================================================
@@ -93,8 +149,9 @@ def train( model, dataset ):
     X_tmp = []
     y_tmp = []
 
-    for i in range(len(feat)):
-        if feat[i-1][-1] < 0.001:
+    n = len(feat)
+    for i in range(n):
+        if feat[i][-1] < 0.001 or i == n-1:
             # Ran into division between trials
             if len(X_tmp) == 0:
                 continue
@@ -106,13 +163,8 @@ def train( model, dataset ):
         X_tmp.append( feat[i].tolist() )
         y_tmp.append( labels[i].tolist() )
 
-    print("------")
-    #print( "X:", X )
-    print("------")
-    #print( "y:", y )
-        
     model = model.train( X, y )
-    acc = 0 #model.score( X, y )
+    acc = model.score( X, y )
     return acc, model
 
 def run( model, data ):

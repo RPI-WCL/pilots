@@ -1,9 +1,12 @@
 trainer twice_trainer;
+  constants
+    x = 2;
+    c = 0;
   data
     a, b using file("twice_training.csv");
   model
     features: a;
-    labels: b;
+    labels: (x * a) + c;
     algorithm:
-      lin_reg;
+      lin_reg(fit_intercept: true);
 end;

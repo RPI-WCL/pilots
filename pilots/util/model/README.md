@@ -2,18 +2,22 @@
 Specs for a model.py file:
 
 def make_model():
-    returns something that stores all the information about the model
+    Returns something that stores all the information about the model.
+    Can be a class or an sklearn model or many other things.
+    Objects that can not be deserialized using the pickle library
+    can not be used.
 
 def train( model, settings, data ):
-    model is the model object
-    settings is a map of settings to their values
-    data is a map containing features and labels
+    model is the model object.
+    settings is a map of settings to their values.
+    data is a map containing features and labels:
       features is a list of list of input data (X)
       labels is a list of list of correct output data (y)
+    
 
 def run( model, data ):
-    model is the model object
-    data is the list of list of input data
+    model is the model object.
+    data is the list of list of input data.
     
 
 # Custom Model Server

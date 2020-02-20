@@ -170,6 +170,27 @@ public class Client {
 	}
     }
 
+    public static Double test( String engine, List<DataVector> test_features,
+			       List<DataVector> test_labels ) {
+	try {
+	    URL url = new URL( getURL( engine, "test" ) );
+	    HttpURLConnection con = makePOST( url );
+	    
+	    // === Create JSON output ===
+	    JSONObject json_req = new JSONObject();
+	    addDataToJSON( json_req, "test_features", features );
+	    addDataToJSON( json_req, "test_labels", labels );
+	    
+	    writeJSON( con, json_req.toString() );
+	    JSONObject response = readJSON( con );
+	    return parseJSONTrain( response );
+	} catch ( Exception e ) {
+	    System.err.println( "Error during TESTING:" );
+	    e.printStackTrace();
+	    return null;
+	}
+    }
+
     public static Double train( String engine, Map<String, ModelArg> settings,
 				List<DataVector> features, List<DataVector> labels ) {
 	try {

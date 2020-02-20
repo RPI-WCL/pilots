@@ -10,8 +10,7 @@ server_models = {}
 
 @app.route("/load/<model_id>", methods = ["GET"])
 def server_load( model_id ):
-    """
-    """
+    # Load a model
     global server_models
     server_models[model_id] = model_ops.load_model( str( model_id ) )
     return json.dumps( {"success": True} )
@@ -19,13 +18,15 @@ def server_load( model_id ):
 
 @app.route("/train/<model_id>", methods = ["POST"])
 def server_train( model_id ):
-    """
-    """
+    # Create and train a model
     # === Make sure model is NOT loaded ===
     global server_models
     if model_id in server_models.keys():
         print( "ERROR: Model already loaded" )
-        return json.dumps( {"success": False} )
+        x = input( "Would you like to continue? [Y/n]" )
+        x = x.lower()
+        if x == 'n' or x == 'no':
+            return json.dumps( {"success": False} )
 
     print(request.json)
     # === Collect settings ===
@@ -46,8 +47,7 @@ def server_train( model_id ):
 
 @app.route("/run/<model_id>", methods = ["POST"])
 def server_run( model_id ):
-    """
-    """
+    # Run a loaded model
     # === Make sure model is loaded ===
     model_name = str( model_id )
     global server_models
