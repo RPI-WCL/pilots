@@ -1,0 +1,11 @@
+trainer weight_model_exp;
+  data
+    va1, prs1, tmp1, alt1, curr_w1 using
+      file("experiment_training_2.csv", 
+            vind_kias,prs,tmp,alt_msl,curr_w );
+  model
+    features: va1, prs1, tmp1, alt1;
+    labels: curr_w1;
+    algorithm:
+      weight_poly;
+end;

@@ -117,11 +117,11 @@ ASTTrainer Trainer():
         (<CONSTANTS> (";" | (Constant())*))?
 	<DATA> (";" | (Data())*)
 	<MODEL>
-	  <FEATURES> ":" (";" | Feature()) ";"
-	  <LABELS> ":" (";" | Label()) ";"
-	  (<TEST_FEATURES> ":" (";" | Test_Feature()) ";")?
-	  (<TEST_LABELS> ":" (";" | Test_Label()) ";")?
-	  <ALGORITHM> ":" Algorithm() ";"
+	  <FEATURES> ":" (Feature())? ";"
+	  <LABELS> ":" (Label())? ";"
+	  (<TEST_FEATURES> ":" (Test_Feature())? ";")?
+	  (<TEST_LABELS> ":" (Test_Label())? ";")?
+	  <ALGORITHM> ":" (";" | (Algorithm())*)
     <PROGRAM_END> (";")?
     { return jjtThis; }
 }
@@ -141,7 +141,6 @@ void Data() :
 }
 {
     str = Vars()
-    { jjtThis.jjtSetValue(str); }
     <USING> ( str2 = File() | str2 = ModelUser() | str2 = Sequence() ) ";"
     { jjtThis.jjtSetValue( str2 + ":" + str ); }
 }
@@ -149,19 +148,21 @@ void Data() :
 String File() :
 {
     Token f;
+    String args = "";
 }
 {
-    <FILE> "(" f = <STRING> ")"
-    { return "file:" + f.image; }
+    <FILE> "(" f = <STRING> ("," args = Vars())? ")"
+    { return "file:" + f.image + ":" + args; }
 }
 
 String ModelUser() :
 {
+    Token name;
     String vars;
 }
 {
-    <MODEL> "(" vars = Vars() ")"
-    { return "model:" + vars; }
+    <MODEL> "(" name = <VAR> "," vars = Vars() ")"
+    { return "model:" + name.image + ":" + vars; }
 }
 
 String Sequence() :
@@ -170,7 +171,7 @@ String Sequence() :
 }
 {
     <SEQUENCE> "(" start = Number() "," step = Number() "," len = Number() ")"
-    { return "sequence:" + start + ":" + step + ":" + len; }
+    { return "sequence:" + start + "," + step + "," + len; }
 }
 
 void Feature() :
@@ -214,7 +215,7 @@ void Algorithm() :
     Token t;
 }
 {
-    t = <VAR> ("(" Map() ")")?
+    t = <VAR> ("(" Map() ")")? ";"
     { jjtThis.jjtSetValue( t.image ); }
 }
 

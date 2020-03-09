@@ -23,12 +23,13 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
     private List<String> labels = null;
     private List<String> test_features = null;
     private List<String> test_labels = null;
-    private List<String> alg_params = null;
 
-    private String algoName = null;
+    private String modelName = null;
     
-    private Map<String, String> varsMap = null;
-
+    private int num_algos = 0;
+    private List<String> algoNames = null;
+    private List<String> alg_params = null;
+    
     private static int depth = 0;
 
     // =====================================================
@@ -40,16 +41,15 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
             Node node = parser.Trainer();
             TrainerCodeGenerator visitor = new TrainerCodeGenerator();
             node.jjtAccept(visitor, null);
-	    System.out.println("Ending");
         } 
         catch (FileNotFoundException ex) {
-	    System.err.println("NO");
+	    System.err.println("File Not Found");
         }
         catch (TokenMgrError ex) {
-	    System.err.println("NO!");
+	    System.err.println("Token Error");
         }
         catch (ParseException ex) {
-	    System.err.println("NO!!");
+	    System.err.println("Parse Execption");
         }
     }
 
@@ -62,11 +62,13 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	labels = new ArrayList<>();
 	test_features = new ArrayList<>();
 	test_labels = new ArrayList<>();
-	alg_params = new ArrayList<>();
 
-	algoName = new String();
+	modelName = new String();
 	
-	varsMap = new HashMap<>();
+	int num_algos = 0;
+	alg_params = new ArrayList<>();
+	algoNames = new ArrayList<>();
+	
 	System.out.println("Finished code generation");
     }
 
@@ -179,7 +181,10 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	code += insIndent() + "public " + appName + "() {\n";
 	code += incInsIndent() + "super();\n";
 	code += "\n";
-	code += insIndent() + "super.algorithm = \"" + algoName + "\";\n";
+	code += insIndent() + "super.model_name = \"" + modelName + "\";\n";
+	for ( String _alg : algoNames ) {
+	    code += insIndent() + "super.addAlgorithm(\"" + _alg + "\");\n";
+	}
 	code += "\n";
 	code += insIndent() + "setupTrainer();\n";
 	code += decInsIndent() + "}\n";
@@ -219,8 +224,8 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
     public Object visit( ASTTrainer node, Object data ) {
 	goDown("Pilots");
 
-	appName = (String)node.jjtGetValue();
-	appName = appName.substring(0,1).toUpperCase() + appName.substring(1);
+	modelName = (String)node.jjtGetValue();
+	appName = modelName.substring(0,1).toUpperCase() + modelName.substring(1);
 	
 	acceptChildren( node, null );
 	generateCode();
@@ -244,21 +249,22 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
     public Object visit( ASTData node, Object data ) {
 	goDown("Data");
 
-	String[] vals = ((String)node.jjtGetValue()).split(":");
-	String datum = "";
+	String full_datum = (String)node.jjtGetValue();
+	String[] vals = full_datum.split(":");
 	if ( vals[0].equals( "model" ) ) {
-	    String model_name = vals[1];
-	    datum += "\"model:" + model_name  + "\", ";
-	    datum += "\"" + vals[2] + "\"";
+	    data_sources.add( "\"" + full_datum + "\"" );
 	} else if ( vals[0].equals( "file" ) ) {
+	    String datum = "";
 	    String file_name = vals[1].split("\"")[1];
-	    datum += "\"file:" + file_name  + "\", ";
-	    datum += "\"" + vals[2] + "\"";
+	    if ( vals.length == 4 ) {
+		datum += "\"file:" + file_name  + ":" + vals[2] + ":" + vals[3] + "\"";
+	    } else {
+		datum += "\"file:" + file_name  + ":" + vals[2] + ":\""; // No args
+	    }
+	    data_sources.add( datum );
 	} else if ( vals[0].equals( "sequence" ) ) {
-	    datum += "\"sequence:" + vals[1] + "," + vals[2] + "," + vals[3] + "\", ";
-	    datum += "\"" + vals[4] + "\"";
+	    data_sources.add( "\"" + full_datum + "\"" );
 	}
-	data_sources.add( datum );
 	
 	goUp();
 	return null;
@@ -314,7 +320,8 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 
     public Object visit( ASTAlgorithm node, Object data ) {
 	goDown("Algorithm");
-	algoName = (String)node.jjtGetValue();
+	num_algos++;
+	algoNames.add( (String)node.jjtGetValue() );
 	acceptChildren( node, data );
 	goUp();
 	return null;
@@ -332,7 +339,8 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 	goDown("MapItem");
 
 	String[] vals = ((String)node.jjtGetValue()).split(":");
-	String item = "addAlgArg( \"" + vals[0] + "\", " + vals[1] + " );";
+	String item = "addAlgArg( " + Integer.toString(num_algos-1) + "," +
+	    " \"" + vals[0] + "\", " + vals[1] + ");";
 	alg_params.add( item );
 	
 	goUp();

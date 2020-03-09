@@ -127,11 +127,11 @@ ASTTrainer Trainer():
         (<CONSTANTS> (";" | (Constant())*))?
 	<DATA> (";" | (Data())*)
 	<MODEL>
-	  <FEATURES> ":" (";" | Feature()) ";"
-	  <LABELS> ":" (";" | Label()) ";"
-	  (<TEST_FEATURES> ":" (";" | Test_Feature()) ";")?
-	  (<TEST_LABELS> ":" (";" | Test_Label()) ";")?
-	  <ALGORITHM> ":" Algorithm() ";"
+	  <FEATURES> ":" (Feature())? ";"
+	  <LABELS> ":" (Label())? ";"
+	  (<TEST_FEATURES> ":" (Test_Feature())? ";")?
+	  (<TEST_LABELS> ":" (Test_Label())? ";")?
+	  <ALGORITHM> ":" (";" | (Algorithm())*)
     <PROGRAM_END> (";")?/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
@@ -213,7 +213,6 @@ void Data() :
     try {
 /*@egen*/
     str = Vars()
-    { jjtn000.jjtSetValue(str); }
     <USING> ( str2 = File() | str2 = ModelUser() | str2 = Sequence() ) ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
@@ -250,17 +249,32 @@ String File() :
     jjtree.openNodeScope(jjtn000);
 /*@egen*/
     Token f;
+    String args = "";
 }
 {/*@bgen(jjtree) File */
     try {
 /*@egen*/
-    <FILE> "(" f = <STRING> ")"/*@bgen(jjtree)*/
+    <FILE> "(" f = <STRING> ("," args = Vars())? ")"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
 /*@egen*/
-    { return "file:" + f.image; }/*@bgen(jjtree)*/
+    { return "file:" + f.image + ":" + args; }/*@bgen(jjtree)*/
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        throw (RuntimeException)jjte000;
+      }
+      if (jjte000 instanceof ParseException) {
+        throw (ParseException)jjte000;
+      }
+      throw (Error)jjte000;
     } finally {
       if (jjtc000) {
         jjtree.closeNodeScope(jjtn000, true);
@@ -275,18 +289,19 @@ String ModelUser() :
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
 /*@egen*/
+    Token name;
     String vars;
 }
 {/*@bgen(jjtree) ModelUser */
     try {
 /*@egen*/
-    <MODEL> "(" vars = Vars() ")"/*@bgen(jjtree)*/
+    <MODEL> "(" name = <VAR> "," vars = Vars() ")"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
 /*@egen*/
-    { return "model:" + vars; }/*@bgen(jjtree)*/
+    { return "model:" + name.image + ":" + vars; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -326,7 +341,7 @@ String Sequence() :
       jjtc000 = false;
     }
 /*@egen*/
-    { return "sequence:" + start + ":" + step + ":" + len; }/*@bgen(jjtree)*/
+    { return "sequence:" + start + "," + step + "," + len; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -520,7 +535,7 @@ void Algorithm() :
 {/*@bgen(jjtree) Algorithm */
     try {
 /*@egen*/
-    t = <VAR> ("(" Map() ")")?/*@bgen(jjtree)*/
+    t = <VAR> ("(" Map() ")")? ";"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;

@@ -6,16 +6,10 @@ def get_model_module( model_name ):
     # import code of python model
     return importlib.import_module( "model_code." + model_name )
 
-def is_live_model( model_name ):
-    # checks if python model updates while running
-    mm = get_model_module( model_name )
-    return mm.is_live()
-
-def create_model( model_name, settings ):
-    mm = get_model_module( model_name )
-    return mm.make_model( settings )
+# === File I/O ===
 
 def load_model( model_name ):
+    # Unserialize model file
     model_filename = 'trained_models/' + model_name + '.model'
     m_in_file = open( model_filename, 'rb' )
     new_model = pickle.load( m_in_file )
@@ -23,15 +17,33 @@ def load_model( model_name ):
     return new_model
 
 def save_model( model_name, model ):
+    # Serialize model into file
     model_filename = 'trained_models/' + str(model_name) + '.model'
     m_out_file = open( model_filename, 'wb' )
     s = pickle.dump( model, m_out_file )
     m_out_file.close()
 
-def run_model( model_name, model, data ):
-    mm = get_model_module( model_name )
-    return mm.run( model, data )
+# === Model functions ===
 
-def train_model( model_name, model, dataset ):
-    mm = get_model_module( model_name )
+def reset( model ):
+    model.reset()
+
+def is_live_model( model ):
+    # checks if python model updates while running
+    return model.is_live()
+
+def run_model( model_name, model, data ):
+    return model.run( data )
+
+def test_model( model_name, model, data ):
+    return model.test( data )
+
+# === Module functions ===
+
+def create_model( algo_name, settings ):
+    mm = get_model_module( algo_name )
+    return mm.make_model( settings )
+
+def train_model( algo_name, model, dataset ):
+    mm = get_model_module( algo_name )
     return mm.train( model, dataset )

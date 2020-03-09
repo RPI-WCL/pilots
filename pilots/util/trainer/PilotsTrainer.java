@@ -9,8 +9,14 @@ public class PilotsTrainer {
 
     protected int num_features;
     protected int num_labels;
-    protected String algorithm;
-    protected Map<String, ModelArg> alg_args;
+    protected int num_test_features;
+    protected int num_test_labels;
+
+    protected String model_name;
+    
+    protected int num_algos;
+    protected List<String> algorithms;
+    protected List<Map<String, ModelArg>> alg_args;
 
     protected Map<String, DataVector> data;
 
@@ -20,9 +26,12 @@ public class PilotsTrainer {
 
 	num_test_features = 0;
 	num_test_labels = 0;
-	
-	algorithm = null;
-	alg_args = new HashMap<>();
+
+	model_name = null;
+
+	num_algos = 0;
+	algorithms = new ArrayList<>();
+	alg_args = new ArrayList<>();
 	
 	data = new HashMap<>();
     }
@@ -38,16 +47,17 @@ public class PilotsTrainer {
     protected List<DataVector> collect( String type, int number ) {
 	List<DataVector> all = new ArrayList<>();
 	for ( int n = 1; n <= number; ++n ) {
-	    String name = type + String.valueOf( f );
+	    String name = type + String.valueOf( n );
 	    all.add( new DataVector( data.get( name ) ) );
 	}
 	return all;
     }
 
     
-    protected void pullCSV( String filename, String column_names ) {
+    protected void pullCSV( String filename, String column_names, String output_names ) {
 	try {
-	    System.out.println( "Path: " + System.getProperty("user.dir") );
+	    // === Open file ===
+	    //System.out.println( "Path: " + System.getProperty("user.dir") );
 	    String filepath = System.getProperty("user.dir");
 	    filepath += "/../../pilots/util/model/data/";
 	    BufferedReader rd = new BufferedReader( new FileReader( filepath + filename ) );
@@ -56,14 +66,15 @@ public class PilotsTrainer {
 	    List<Integer> col_indices = new ArrayList<>();
 	    String header = rd.readLine();
 	    int index = 0;
+	    //System.out.println(header);
 	    for ( String col : header.split(",") ) {
-		if ( cols_to_keep.contains( col ) ) {
+		if ( cols_to_keep.contains( col ) || column_names.length() == 0 ) {
 		    col_indices.add( index );
 		}
 		++index;
 	    }
 
-	    // ======
+	    // ==== 
 	    List<DataVector> csv_data = new ArrayList<>();
 	    for ( int i = 0; i < col_indices.size(); ++i ) {
 		csv_data.add( new DataVector() );
@@ -72,8 +83,9 @@ public class PilotsTrainer {
 	    // === Save data from csv ===
 	    String row = null;
 	    while ( (row = rd.readLine()) != null ) {
+		if (row.length() == 0) break;
 		String[] tmp = row.split(",");
-		// Add all entries from correct columns into correspoding DataVectors
+		// Add all entries from correct columns into corresponding DataVectors
 		for ( int i = 0; i < col_indices.size(); ++i ) {
 		    Double val = Double.valueOf( tmp[ col_indices.get(i) ] );
 		    csv_data.get(i).add( val );
@@ -81,10 +93,21 @@ public class PilotsTrainer {
 	    }
 
 	    // === Push data into data map ===
-	    for ( int i = 0; i < cols_to_keep.size(); ++i ) {
-		System.out.println("Pulled " + csv_data.get(i).size() +
-				   " rows: " + cols_to_keep.get(i));
-		data.put( cols_to_keep.get(i), new DataVector( csv_data.get(i) ) );
+	    List<String> all_out_names = Arrays.asList( output_names.split(",") );
+
+	    if ( all_out_names.size() != col_indices.size() ) {
+		String sizes = "(" + Integer.toString(all_out_names.size()) + ":" +
+		    Integer.toString(col_indices.size()) + ")";
+		throw new Exception("Model outputs cannot be placed in output data streams,"+
+				    " mismatching size" + sizes );
+	    } else if ( csv_data.size() != col_indices.size() ) {
+		throw new Exception("Could not collect all requested data from csv" );
+	    }
+
+	    for ( int i = 0; i < col_indices.size(); ++i ) {
+		//System.out.println("Pulled " + csv_data.get(i).size() +
+		//		   " rows: " + all_out_names.get(i));
+		data.put( all_out_names.get(i), new DataVector( csv_data.get(i) ) );
 	    }
 	    
 	    rd.close();
@@ -95,9 +118,16 @@ public class PilotsTrainer {
 	
     }
 
-    protected void pullModel( String modelname, String output_names, DataVector[] model_args ) {
+    protected void pullModel( String modelname, String input_names, String output_names ) {
 	try {
-	    List<DataVector> results  = pilots.util.model.Client.predict( modelname,  );
+	    // Collect input DataVectors
+	    List<DataVector> inputs = new ArrayList<>();
+	    
+	    for ( String iname : Arrays.asList( input_names.split(",") ) ) {
+		inputs.add( get( iname ) );
+	    }
+	    
+	    List<DataVector> results  = pilots.util.model.Client.predict( modelname, inputs );
 
 	    List<String> all_out_names = Arrays.asList( output_names.split(",") );
 	    
@@ -108,7 +138,7 @@ public class PilotsTrainer {
 	    }
 
 	    for ( int i = 0; i < all_out_names.size(); ++i ) {
-		data.put( name, new DataVector( results.get(i) );
+		data.put( all_out_names.get(i), new DataVector( results.get(i) ) );
 	    }
 		
 	    
@@ -136,24 +166,29 @@ public class PilotsTrainer {
 	}
     }
 
-    protected void pullData( String source, String outputs, DataVector ... model_args ) {
+    protected void pullData( String source ) {
 	String[] src = source.split(":");
-	if ( src.length > 2 ) {
-	    System.err.println( "Malformed source name" );
-	    return;
-	}
 	if ( src[0].equals( "file" ) ) {
-	    pullCSV( src[1], outputs );
+	    //     file_name, inputs, outputs
+	    pullCSV( src[1], src[2], src[3] );
 	} else if ( src[0].equals( "model" ) ) {
-	    pullModel( src[1], outputs, model_args );
+	    //     model_name, inputs, outputs
+	    pullModel( src[1], src[2], src[3] );
 	} else if ( src[0].equals( "sequence" ) ) {
-	    createSequence( src[1], outputs );
+	    //              start   step    len     outputs
+	    createSequence( src[1], src[2] );
 	} else {
 	    System.err.println( "Unknown source type" );
 	}
     }
 
     // ================= Model =====================
+
+    protected void addAlgorithm( String alg ) {
+	num_algos++;
+	algorithms.add( alg );
+	alg_args.add( new HashMap<String, ModelArg>() );
+    }
 
     protected void addFeature( DataVector f ) {
 	num_features++;
@@ -169,31 +204,39 @@ public class PilotsTrainer {
 
     protected void addTestFeature( DataVector f ) {
 	num_test_features++;
-	String fname = "test_feature" + String.valueOf( num_features );
+	String fname = "test_feature" + String.valueOf( num_test_features );
 	data.put( fname, f );
     }
 
     protected void addTestLabel( DataVector l ) {
 	num_test_labels++;
-	String lname = "test_label" + String.valueOf( num_labels );
+	String lname = "test_label" + String.valueOf( num_test_labels );
 	data.put( lname, l );
     }
 
-    protected void addAlgArg( String arg_name, Double d ) {
-	alg_args.put( arg_name, new ModelArg( d ) );
+    protected void addAlgArg( int model_num, String arg_name, Double d ) {
+	alg_args.get(model_num).put( arg_name, new ModelArg( d ) );
     }
 
-    protected void addAlgArg( String arg_name, int i ) {
-	alg_args.put( arg_name, new ModelArg( i ) );
+    protected void addAlgArg( int model_num, String arg_name, int i ) {
+	alg_args.get(model_num).put( arg_name, new ModelArg( i ) );
     }
 
-    protected void addAlgArg( String arg_name, boolean b ) {
-	alg_args.put( arg_name, new ModelArg( b ) );
+    protected void addAlgArg( int model_num, String arg_name, boolean b ) {
+	alg_args.get(model_num).put( arg_name, new ModelArg( b ) );
     }
 
     // =================== Train ======================
-    
+
     public void train() {
+	boolean multi_train = num_algos > 1;
+	for ( int i = 0; i < num_algos; ++i ) {
+	    _train( i, multi_train );
+	}
+
+    }
+    
+    private void _train( int n, boolean multi_train ) {
 	// === Pull all features out ===
 	List<DataVector> features = collect( "feature", num_features );
 	
@@ -207,21 +250,23 @@ public class PilotsTrainer {
 	List<DataVector> test_labels = collect( "test_label", num_test_labels );
 
 	try {
-	    Double accuracy = pilots.util.model.Client.train( algorithm, alg_args,
-							  features, labels );
+	    String algo = algorithms.get(n);
+	    String model = (multi_train) ? model_name + Integer.toString(n) : model_name;
+	    Double accuracy = pilots.util.model.Client.train( algo, model, alg_args.get(n),
+							      features, labels );
 	    
 	    if ( accuracy != null ) {
-		System.out.println( "Trained model: " + algorithm );
+		System.out.println( "Trained model: " + algo + ":" + model );
 		System.out.println( "Final accuracy: " + String.valueOf( accuracy ) );
 	    } else {
-		System.err.println( "Non-fatal error while training model: " + algorithm );
+		System.err.println( "Non-fatal error while training model: " + algo );
 	    }
 
 
 	    if ( test_features.size() > 0 && test_labels.size() > 0 ) {
-		Double test_accuracy = pilots.util.model.Client.test( algorithm,
-								 test_features,
-								 test_labels );
+		Double test_accuracy = pilots.util.model.Client.test( model,
+								      test_features,
+								      test_labels );
 
 		if ( test_accuracy != null ) {
 		    System.out.println( "Testing dataset accuracy: " + String.valueOf( test_accuracy ) );

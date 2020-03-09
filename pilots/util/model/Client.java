@@ -70,6 +70,7 @@ public class Client {
     }
 
     private static Double parseJSONTrain( JSONObject obj ) {
+	if ( obj == null ) { return null; }
 	boolean success = obj.getBoolean("success");
 	if ( success ) {
 	    return obj.getDouble("accuracy");
@@ -101,7 +102,7 @@ public class Client {
 	    return new JSONObject( response.toString() );
 	} catch ( Exception e ) {
 	    System.err.println( "Error while reading JSON:" );
-	    e.printStackTrace();
+	    //e.printStackTrace();
 	    return null;
 	}
     }
@@ -178,8 +179,8 @@ public class Client {
 	    
 	    // === Create JSON output ===
 	    JSONObject json_req = new JSONObject();
-	    addDataToJSON( json_req, "test_features", features );
-	    addDataToJSON( json_req, "test_labels", labels );
+	    addDataToJSON( json_req, "test_features", test_features );
+	    addDataToJSON( json_req, "test_labels", test_labels );
 	    
 	    writeJSON( con, json_req.toString() );
 	    JSONObject response = readJSON( con );
@@ -191,10 +192,10 @@ public class Client {
 	}
     }
 
-    public static Double train( String engine, Map<String, ModelArg> settings,
+    public static Double train( String algorithm, String engine, Map<String, ModelArg> settings,
 				List<DataVector> features, List<DataVector> labels ) {
 	try {
-	    URL url = new URL( getURL( engine, "train" ) );
+	    URL url = new URL( getURL( algorithm + ":" + engine, "train" ) );
 	    HttpURLConnection con = makePOST( url );
 	    
 	    // === Create JSON output ===

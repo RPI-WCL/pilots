@@ -1,8 +1,5 @@
 import numpy as np
 
-# TODO calculate the change according to 1ft change in density altitude
-# TODO calculate the change according to 1lb change in weight to slope
-
 class WeightModel:
     def __init__(self, settings):
         # Good data has non-zero velocities
@@ -13,6 +10,12 @@ class WeightModel:
         # delta
         self.delta_da = 0.0
         self.delta_slope = 0.0
+
+    def is_live(self):
+        return True
+
+    def reset(self):
+        self.current_data = []
 
     def calc_deltas(self):
         # Find pair of close weights
@@ -25,20 +28,20 @@ class WeightModel:
                 w2 = self.remembered_data[j]['w']
                 da1 = self.remembered_data[i]['da']
                 da2 = self.remembered_data[j]['da']
+                slope1 = self.remembered_data[i]['line'][0]
+                slope2 = self.remembered_data[j]['line'][0]
                 # calculate delta da
-                if abs(w1 - w2) < 50.0:
-                    if (da1 - da2) >= 0.001:
-                        delta = (w1 - w2) / (da1 - da2)
+                if abs(w1 - w2) < 10.0:
+                    if abs(da1 - da2) >= 0.1:
+                        delta = (slope1 - slope2) / (da1 - da2)
                         d_da.append(delta)
                 # calculate delta slope
-                if abs(da1 - da2) < 500:
-                    slope1 = self.remembered_data[i]['line'][0]
-                    slope2 = self.remembered_data[j]['line'][0]
-                    if (slope1 - slope2) >= 0.001:
+                if abs(da1 - da2) < 10:
+                    if abs(slope1 - slope2) >= 0.1:
                         delta = (w1 - w2) / (slope1 - slope2)
                         d_sl.append(delta)
         if len(d_da) == 0 or len(d_sl) == 0:
-            print(self.remembered_data)
+            #print(self.remembered_data)
             print("BAD DATA: too sparse")
             self.delta_da = 0.0
             self.delta_slope = 0.0
@@ -50,18 +53,22 @@ class WeightModel:
     def interpolate(self, unknown, known):
         e_da = (known['da'] - unknown['da'])
         e_slope = (known['line'][0] - unknown['line'][0])
-        value = known['w'] + (e_da * self.delta_da) - (e_slope * self.delta_slope)
+        value = known['w'] - (self.delta_slope * (e_slope - self.delta_da * e_da))
         print(":>", e_da, e_slope, value)
         return value
 
     def run(self, data):
         # Input data: [airspeed, pressure, temp, altitude]
+        if len(self.current_data) > 0 and self.current_data[-1] == data:
+            # Repeated data point
+            data = np.array( self.current_data ).transpose()[0]
+            return [[self.run_all( data )]]
         self.current_data.append( data )
         if len(self.current_data) > 3:
             data = np.array( self.current_data ).transpose()[0]
-            return self.run_all( data )
+            return [[self.run_all( data )]]
         else:
-            return 0.0
+            return [[0.0]]
         
     def run_all(self, data):
         # Input data: [[airspeed, pressure, temp, altitude], ...]
@@ -72,7 +79,7 @@ class WeightModel:
         # Calculate slope
         times = range(len(data[0]))
         velocities = np.array(data[0])
-        print("POLYFIT: ", times, velocities)
+        #print("POLYFIT: ", times, velocities)
         z = np.polyfit(times, velocities, 1)
         # Find closest remembered line
         min_error = None
@@ -95,6 +102,7 @@ class WeightModel:
             result = self.interpolate( current, closest_line)
             print( result )
             return result
+            #return closest_line['w']
         
     def train(self, X, y):
         for i in range(len(X)):
@@ -129,7 +137,7 @@ class WeightModel:
 
     def density_altitude( self, prs, tmp, alt_i ):
         prs_alt = (29.92 - prs) * 1000 + alt_i
-        isa = 15 - ((1.98*alt_i) // 1000)
+        isa = 15 - (1.98 * (alt_i / 1000))
         dens_alt = prs_alt + (118.8 * (tmp - isa))
         return dens_alt
 
