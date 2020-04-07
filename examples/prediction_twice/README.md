@@ -27,7 +27,7 @@ $ java Twice_model
 
 To run this example, we use four separate terminals.
 
-In **Terminal 1**, compile [N4207P.plt](./N4207P.plt) using the commands:
+In **Terminal 1**, compile [prediction_twice.plt](./prediction_twice.plt) using the commands:
 ```
 $ plcsim prediction_twice.plt
 $ javac Prediction_twice.java
