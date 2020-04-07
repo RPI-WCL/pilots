@@ -1,0 +1,14 @@
+trainer fed_model;
+  data:
+    a, b, c, x using file("fed_data.csv");
+  federated
+    rounds: 20
+    nodes: 10
+    selection: random
+    aggregation: FedAvg
+  model
+    features: a, b, c;
+    labels: x;
+    algorithm:
+      NeuralNetwork(hidden_nodes: 50, hidden_layers: 6);
+end;

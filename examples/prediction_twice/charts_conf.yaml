@@ -1,0 +1,7 @@
+---
+title: "Prediction Twice"
+vars: "o"
+legends: "b - b_prime value"
+colors: "green"
+xAxis: "Time"
+yAxis: "b - b_prime value"

@@ -1,0 +1,15 @@
+trainer xor_model;
+  data
+    a, b, c, x using  file("xor_tr_data.csv", A, B, C, Q);
+    i1 , i2 , i3 , o using  file("xor.csv");
+  model
+    features: a, b, c;
+    labels: x;
+    test_features: i1 , i2 , i3;
+    test_labels: o;
+    algorithm:
+      NeuralNetwork(hidden_nodes: 100, hidden_layers: 1);
+      NeuralNetwork(hidden_nodes: 100, hidden_layers: 1, logistic: true);
+      NeuralNetwork(hidden_nodes: 50, hidden_layers: 2);
+      NeuralNetwork(hidden_nodes: 50, hidden_layers: 2, tanh: true);
+end;

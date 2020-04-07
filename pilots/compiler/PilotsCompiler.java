@@ -12,12 +12,17 @@ import net.sourceforge.argparse4j.impl.Arguments;
 import pilots.Version;
 import pilots.compiler.parser.*;
 import pilots.compiler.codegen.*;
-
-
+import pilots.compiler.trainer.parser.*;
+import pilots.compiler.trainer.codegen.*;
 
 public class PilotsCompiler {
+
     private PilotsParser parser;
     private PilotsCodeGenerator codegen;
+    
+    private TrainerParser tr_parser;
+    private TrainerCodeGenerator tr_codegen;
+
     private String file;
     private Namespace opts;
 
@@ -28,6 +33,9 @@ public class PilotsCompiler {
         parser.addArgument("-s", "--sim")
             .action(Arguments.storeTrue())
             .help("Flag to generate simulation code");
+	parser.addArgument("-t", "--trainer")
+	    .action(Arguments.storeTrue())
+	    .help("Flag to compile trainer file");
         parser.addArgument("-o", "--stdout")
             .action(Arguments.storeTrue())
             .help("Flag to print generated code in stdout");
@@ -55,23 +63,38 @@ public class PilotsCompiler {
 
     public void compile() {
         System.out.println("PILOTS Compiler v" + Version.ver + " compiling " + file + "...");
-        
         try {
-            parser = new PilotsParser(new FileReader(file)); // setting a static input stream
-            codegen = new PilotsCodeGenerator();
-            codegen.setOptions(opts);
-            Node node = parser.Pilots(); 
-            node.jjtAccept(codegen, null);
-        } 
+	    if ( opts.get("trainer" ) ) { // Compiler trainer
+		 // setting a static input stream
+		tr_parser = new TrainerParser(new FileReader(file));
+		tr_codegen = new TrainerCodeGenerator();
+		pilots.compiler.trainer.parser.Node node = tr_parser.Trainer();
+		node.jjtAccept(tr_codegen, null);
+	    } else { // Compiler pilots program
+		// setting a static input stream
+		parser = new PilotsParser(new FileReader(file));
+		codegen = new PilotsCodeGenerator();
+		codegen.setOptions(opts);
+		pilots.compiler.parser.Node node = parser.Pilots(); 
+		node.jjtAccept(codegen, null);
+	    }
+	} 
         catch (FileNotFoundException ex) {
             System.err.println("FileNotFoundException: " +  ex.getMessage());
         }
-        catch (TokenMgrError ex) {
+        catch (pilots.compiler.parser.TokenMgrError ex) {
             System.err.println("TokeMgrError: " +  ex.getMessage());
         }
-        catch (ParseException ex) {
+        catch (pilots.compiler.parser.ParseException ex) {
             System.err.println("ParseException: " +  ex.getMessage());
         }
+	catch (pilots.compiler.trainer.parser.TokenMgrError ex) {
+            System.err.println("TokeMgrError: " +  ex.getMessage());
+        }
+        catch (pilots.compiler.trainer.parser.ParseException ex) {
+            System.err.println("ParseException: " +  ex.getMessage());
+        }
+
 
     }
 }

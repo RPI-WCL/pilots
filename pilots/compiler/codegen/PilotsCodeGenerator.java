@@ -23,6 +23,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
     private List<OutputStream> errors = null;
     private List<Signature> sigs = null;
     private List<Mode> modes = null;
+    private List<String> models = null;
     private Map<Integer, List<Correct>> corrects = null;    // key: mode, val: list of corrects
     private String code = null;
     private Map<String, String> varsMap = null;
@@ -56,6 +57,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
         errors = new ArrayList<>();
         sigs = new  ArrayList<>();
         modes = new ArrayList<>();
+	models = new ArrayList<>();
         corrects = new HashMap<>();
         code = new String();
         varsMap = new HashMap<>(); // Store variables in inputs
@@ -218,6 +220,15 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             code += insIndent() + "nextSendTimes = new long[" + outputs.size() + "];\n";
             code += insIndent() + "Arrays.fill(nextSendTimes, 0L);\n";
         }
+
+	// Load models
+	if ( models.size() > 0 ) {
+	    code += "\n";
+	    for ( String model_name : models ) {
+		code += insIndent() + "pilots.util.model.Client.load( \"" + model_name + "\" );\n";
+	    }
+	    code += "\n";
+	}
         
         code += decInsIndent() + "}\n";
         code += "\n";
@@ -540,7 +551,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             }
             else if (requireModes) {
                 // Modes-based error detection
-                if (0 < errors.size()) {
+                if (errors.size() > 0) {
                     // errors are optional for modes
                     generateErrors();
                     code += "\n";
@@ -554,7 +565,15 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 generateEstimation();
                 code += "\n";                
             }
-        }
+        } else {
+	    // Added: 4/5/2020
+	    // Allows Errors without modes or signatures
+	    if (errors.size() > 0) {
+		// errors are optional for modes
+		generateErrors();
+		code += "\n";
+	    }
+	}
 
         if (requireOutputsComputation) {
             generateOutputs();
@@ -931,8 +950,9 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             id = Method.EUCLIDEAN;
         } else if (vals[0].equalsIgnoreCase("interpolate")) {
             id = Method.INTERPOLATE;
-        } else if (vals[0].equalsIgnoreCase("predict")){
-            id = Method.PREDICT;
+        } else if (vals[0].equalsIgnoreCase("model")){
+            id = Method.MODEL;
+	    models.add( vals[1].split(",")[0] );
         } else {
             System.err.println("Invalid method: " + vals[0]);
             return null;

@@ -1,0 +1,9 @@
+trainer twice_model;
+  data
+    a, b using file("twice_training.csv");
+  model
+    features: a;
+    labels: b;
+    algorithm:
+      LinearRegression(fit_intercept: true);
+end;

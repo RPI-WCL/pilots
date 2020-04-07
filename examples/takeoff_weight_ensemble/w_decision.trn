@@ -1,0 +1,9 @@
+trainer w_decision;
+  /* Creates the decision model to switch between KALB and KRNO model */
+  data
+  model
+    features: ;
+    labels: ;
+    algorithm:
+      WeightAggregator(midpoint: 6000.0);
+end;
