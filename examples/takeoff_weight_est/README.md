@@ -17,7 +17,7 @@ $ cd ../../pilots/util/model
 $ ./server.sh
 ```
 
-In **Terminal 1**, run the training program [Weight_model](./Weight_model):
+In **Terminal 1**, run the training program:
 ```
 $ java Weight_model
 ```
@@ -33,9 +33,9 @@ $ plcsim weight_estimator.plt
 $ javac Weight_estimator.java
 ```
 
-In **Terminal 2**, launch [chartserver](./chartserver):
+In **Terminal 2**, launch [outputHandler](./outputHandler):
 ```
-$ ./chartserver
+$ ./outputHandler
 ```
 
 In **Terminal 4**, launch the machine learning server [server.sh](../../pilots/util/model/server.sh):
@@ -53,7 +53,7 @@ In **Terminal 3**, in order to produce the simulated data, execute [producer](./
 ```
 $ ./producer (NAME OF TRIAL)
 ```
-The available trials can be found in the **data/TakeoffWeightEst** folder. 
+The available trials can be found in the [data/TakeoffWeightEst](./data/TakeoffWeightEst) folder. 
 
 
 Finally, in **Terminal 1**, press **enter** to start the simulation.

@@ -5,7 +5,7 @@
 
 To train this model, we use two seperate terminals.
 
-In **Terminal 1**, compile the weight estimation models using the commands:
+In **Terminal 1**, compile the weight estimation model using the commands:
 ```
 $ plc -t weight_exp.trn
 $ javac Weight_model_exp.java
@@ -33,9 +33,9 @@ $ plcsim N4207P.plt
 $ javac N4207P.java
 ```
 
-In **Terminal 2**, launch [chartserver](./chartserver):
+In **Terminal 2**, launch [outputHandler](./outputHandler):
 ```
-$ ./chartserver
+$ ./outputHandler
 ```
 
 In **Terminal 4**, launch the machine learning server [server.sh](../../pilots/util/model/server.sh):
@@ -53,7 +53,7 @@ In **Terminal 3**, in order to produce the simulated data, execute [producer](./
 ```
 $ ./producer (NAME OF TRIAL)
 ```
-The available trials can be found in the **data/TakeoffWeightExperiment** folder: Trial1 and Trial2.
+The available trials can be found in the [data/TakeoffWeightExperiment](./data/TakeoffWeightExperiment) folder: Trial1 and Trial2.
 
 Finally, in **Terminal 1**, press **enter** to start the simulation.
 
