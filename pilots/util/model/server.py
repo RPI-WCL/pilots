@@ -30,7 +30,8 @@ def server_train( algo_model ):
         if x == 'n' or x == 'no':
             return json.dumps( {"success": False} )
 
-    print(request.json)
+    #DEBUG
+    #print(request.json)
     # === Collect settings ===
     settings = request.json["settings"]
     # === Collect inputs ===

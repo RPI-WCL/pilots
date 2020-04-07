@@ -205,7 +205,7 @@ public class TrainerCodeGenerator implements TrainerParserVisitor {
 
     private void generateMain() {
         code += insIndent() + "public static void main(String[] args) {\n";
-	code += incInsIndent() + "System.out.println(\"Hello, World!\");\n";
+	code += incInsIndent() + "System.out.println(\"Training model:\");\n";
 	code += insIndent() + appName + " tr = new " + appName + "();\n";
 	code += insIndent() + "tr.train();\n";
         code += decInsIndent() + "}\n";

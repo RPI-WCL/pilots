@@ -1,0 +1,2 @@
+java -cp .:$PILOTS_HOME/lib/* pilots.util.FileInputProducer ../../data/Prediction_twice/a.txt
+java -cp .:$PILOTS_HOME/lib/* pilots.util.FileInputProducer ../../data/Prediction_twice/b.txt

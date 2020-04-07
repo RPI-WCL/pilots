@@ -551,7 +551,7 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
             }
             else if (requireModes) {
                 // Modes-based error detection
-                if (0 < errors.size()) {
+                if (errors.size() > 0) {
                     // errors are optional for modes
                     generateErrors();
                     code += "\n";
@@ -565,7 +565,15 @@ public class PilotsCodeGenerator implements PilotsParserVisitor {
                 generateEstimation();
                 code += "\n";                
             }
-        }
+        } else {
+	    // Added: 4/5/2020
+	    // Allows Errors without modes or signatures
+	    if (errors.size() > 0) {
+		// errors are optional for modes
+		generateErrors();
+		code += "\n";
+	    }
+	}
 
         if (requireOutputsComputation) {
             generateOutputs();

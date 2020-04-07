@@ -1,2 +1,0 @@
-FILE_NAME=$1
-java -cp .:$PILOTS_HOME/lib/* pilots.util.FileInputProducer ../../data/WeightExp/$FILE_NAME.txt

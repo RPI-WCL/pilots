@@ -1,9 +1,0 @@
-trainer wagg_model;
-  data
-	a using file("abd.txt", x);
-  model
-    features: a;
-    labels: a;
-    algorithm:
-      aggregator(midpoint: 6000.0);
-end;

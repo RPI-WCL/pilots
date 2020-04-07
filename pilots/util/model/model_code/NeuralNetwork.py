@@ -94,7 +94,6 @@ class NeuralNetwork:
                                         validation_fraction=_validation_fraction,
                                         beta_1=_beta_1, beta_2=_beta_2,
                                         epsilon=_epsilon, n_iter_no_change=_n_iter_no_change )
-
             
     # API Functions
     def is_live( self ):

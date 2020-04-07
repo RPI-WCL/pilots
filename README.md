@@ -1,9 +1,15 @@
-# README for PILOTS ver 0.5
+# README for PILOTS ver 0.6
 
 PILOTS (**P**rogramm**I**ng **L**anguage for spati**O**-**T**emporal data **S**treaming applications) is a highly declarative programming language for spatio-temporal streaming applications.
 It is capable of detecting and correcting data errors through user-defined *error signatures*.
 
 PILOTS has been successfully applied to avionics applications. Most notably, we have shown that PILOTS can fix data errors caused by pitot tube sensor failures which occurred in [Air France Flight 447 accident](http://wcl.cs.rpi.edu/papers/bdse2013.pdf). For more information, visit [the PILOTS web site](http://wcl.cs.rpi.edu/pilots/) and look at [related papers](https://wcl.cs.rpi.edu/bib/Keyword/DATA-STREAMING.html).
+
+In version 0.6, we added the following new features to the PILOTS grammar:
+* Support for supervised machine learning with `trainers`.
+* Support for adding new machine learning algorithms.
+* Introduction of a new compiler flag to compile `trainers`.
+* Take-off weight estimation examples.
 
 In version 0.5, we added the following new features to the PILOTS grammar:
 * Support for multiple models of analytical redundancy (for details, see our [DASC2019 paper](http://wcl.cs.rpi.edu/papers/DASC2019_imai.pdf)). Example programs to support this feature are available under [examples/multi_redundancy](./examples/multi_redundancy) directory.
