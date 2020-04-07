@@ -53,7 +53,7 @@ In **Terminal 3**, in order to produce the simulated data, execute [producer](./
 ```
 $ ./producer (NAME OF TRIAL)
 ```
-The available trials can be found in the [data/TakeoffWeightEst](./data/TakeoffWeightEst) folder. 
+The available trials can be found in the [data/TakeoffWeightEst](../../data/TakeoffWeightEst/) folder. 
 
 
 Finally, in **Terminal 1**, press **enter** to start the simulation.
