@@ -97,6 +97,8 @@ For machine learning component of PILOTS:
 
 ## 5. Future Work
 
+* Examples of potential additions for federated learnign and methods to create ensemble models can be seen in the [future work](https://github.com/RPI-WCL/pilots/tree/master/examples/future_work) example
+
 * Types of error signatures we would like to support eventually:
     -   S(K): e = K
     -   S(K): e = K*t^2
