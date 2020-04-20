@@ -6,9 +6,9 @@ It is capable of detecting and correcting data errors through user-defined *erro
 PILOTS has been successfully applied to avionics applications. Most notably, we have shown that PILOTS can fix data errors caused by pitot tube sensor failures which occurred in [Air France Flight 447 accident](http://wcl.cs.rpi.edu/papers/bdse2013.pdf). For more information, visit [the PILOTS web site](http://wcl.cs.rpi.edu/pilots/) and look at [related papers](https://wcl.cs.rpi.edu/bib/Keyword/DATA-STREAMING.html).
 
 In version 0.6, we added the following new features to the PILOTS grammar:
-* Support for supervised machine learning with `trainers`.
+* Support for supervised machine learning with `trainer` grammar.
 * Support for adding new machine learning algorithms.
-* Introduction of a new compiler flag to compile `trainers`.
+* Introduction of a new compiler flag to compile `trainer` (.trn) files.
 * Take-off weight estimation examples.
 
 In version 0.5, we added the following new features to the PILOTS grammar:
@@ -37,6 +37,9 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
 * Java JDK 1.8 or newer.
 * Bash shell to run [example PILOTS programs](./examples).
 * (Optional) [JavaCC](http://javacc.org/) if you want to modify the PILOTS grammar.
+For machine learning component of PILOTS:
+* Python 3
+* Python libraries: numpy, scipy, scikit-learnnumpy, pickle, and flask
   
 ## 2. Downloading PILOTS Library
 
@@ -73,13 +76,13 @@ In version 0.5, there are some new features to the PILOTS runtime system and its
   pilots.jar will be created under the `$PILOTS_HOME/lib` directory.
 
 
-* **(Optional) Predictive Function setup**
+* **(Optional) Model setup**
 
-	In PILOTS, the predictive function is a function which uses a learning model to generate predicted output based on given input. If you decide to use the predictive function in PILOTS, please see [pilots/util/learningmodel/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/learningmodel) for instruction.
+	In PILOTS, the model function is a function which uses a machine learning model to generate an output based on given input. If you decide to use the models in PILOTS, please see [pilots/util/model/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/model) for instruction.
 
 * **Running example PILOTS programs**: See [PILOTS tutorial](https://wcl.cs.rpi.edu/pilots/tutorial/index.html).
 
-* **Running examples with learning model**: Refer to the [Detailed Overview of Implementing Learning Model](https://wcl.cs.rpi.edu/pilots/tutorial/learning_model_overview.html).
+* **Running examples with learning model**: See the READMEs in examples such as [Prediction Twice](https://github.com/RPI-WCL/pilots/tree/master/examples/prediction_twice) or [N4207P Sim](https://github.com/RPI-WCL/pilots/tree/master/examples/N4207P_sim).
 
 
 ## 4. Limitations
