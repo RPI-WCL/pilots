@@ -1,0 +1,9 @@
+java -classpath .:$PILOTS_HOME/lib/* \
+    -Djava.util.logging.config.file="$PILOTS_HOME/logging.properties" \
+    Weight_tester_err \
+    --currloctime pilots.runtime.SimTimeService \
+    --timerange "2020-02-08 133400-0500~2020-02-08 133427-0500" \
+    --inputport 8888 \
+    --outputs 127.0.0.1:9999 \
+    --omega 1 \
+    --tau 0.8

@@ -2,7 +2,7 @@
 title: "Airspeed & Error"
 vars: "va,failed_va,e1"
 legends: "airspeed (estimated),airspeed (observed),error"
-colors: "green,red,blue"
+colors: "green,red,white"
 xAxis: "Time"
 yAxis: "Airspeed & Error [knot]"
 xRange: "2009-06-01 020930-0500~2009-06-01 021130-0500"

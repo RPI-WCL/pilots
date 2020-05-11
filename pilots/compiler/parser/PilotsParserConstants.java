@@ -39,7 +39,7 @@ public interface PilotsParserConstants {
   /** RegularExpression Id. */
   int INTERPOLATE = 23;
   /** RegularExpression Id. */
-  int PREDICT = 24;
+  int MODEL = 24;
   /** RegularExpression Id. */
   int ESTIMATE = 25;
   /** RegularExpression Id. */
@@ -138,7 +138,7 @@ public interface PilotsParserConstants {
     "\"closest\"",
     "\"euclidean\"",
     "\"interpolate\"",
-    "\"predict\"",
+    "\"model\"",
     "\"estimate\"",
     "\"when\"",
     "\"times\"",

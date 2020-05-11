@@ -1,0 +1,4 @@
+java -cp .:$PILOTS_HOME/lib/* \
+    -Djava.util.logging.config.file="$PILOTS_HOME/logging.properties" \
+    pilots.util.MultiChartsServer \
+    --config_file charts_conf.yaml

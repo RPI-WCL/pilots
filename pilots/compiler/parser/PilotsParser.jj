@@ -65,7 +65,7 @@ TOKEN : /* RESERVED TOKENS */
 | <CLOSEST: "closest">
 | <EUCLIDEAN: "euclidean">
 | <INTERPOLATE: "interpolate">
-| <PREDICT: "predict">
+| <MODEL: "model">
 | <ESTIMATE: "estimate">
 | <WHEN: "when">
 | <TIMES: "times">
@@ -601,7 +601,7 @@ void Method():
     (t = <CLOSEST> { id = t.image; } 
      | t = <EUCLIDEAN> { id = t.image; } 
      | t = <INTERPOLATE> { id = t.image; }
-     | t = <PREDICT> { id = t.image; } )
+     | t = <MODEL> { id = t.image; } )
     "(" args = Exps() ")"/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);

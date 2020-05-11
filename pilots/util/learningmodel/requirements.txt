@@ -1,6 +1,0 @@
-pint
-scikit-learn
-scipy
-numpy
-matplotlib
-flask

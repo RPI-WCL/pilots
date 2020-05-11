@@ -13,7 +13,7 @@ program AoaCheck; /* Model 3 */
     RHO      = 1.225;
     G        = 9.80665;
   outputs
-    aoa_estimated, aoa, e, mode at every 1 sec;
+    aoa_estimated, aoa, e, mode, va at every 1 sec;
   errors
     e: va - MPS2KNOT * sqrt((2*L*G) / ((A*aoa + B)*S*RHO));
   signatures

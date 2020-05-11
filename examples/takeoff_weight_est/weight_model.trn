@@ -1,0 +1,15 @@
+trainer weight_model;
+  data
+    /* Other training files: weight_kalb_training.csv,
+    **                       weight_krno_training.csv
+    */
+    v_a, prs, tmp, alt, curr_w using
+      file("weight_training.csv", 
+            vind_kias,prs,tmp,alt_msl,curr_w );
+    
+  model
+    features: v_a, prs, tmp, alt;
+    labels: curr_w;
+    algorithm:
+      WeightEstimator(cutoff: 0.0);
+end;
