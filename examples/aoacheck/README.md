@@ -8,9 +8,9 @@ $ plc AoaCheck.plt
 $ javac AoaCheck.java
 ```
 
-In **Terminal 2**, launch [chartserver](./chartserver):
+In **Terminal 2**, launch [outputHandler](./outputHandler):
 ```
-$ ./chartserver
+$ ./outputHandler
 ```
 
 In **Terminal 1**, run the compiled PILOTS program using the command:

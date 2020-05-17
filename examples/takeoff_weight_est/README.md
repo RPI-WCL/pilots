@@ -13,8 +13,7 @@ $ javac Weight_model.java
 
 In **Terminal 2**, launch the machine learning server [server.sh](../../pilots/util/model/server.sh):
 ```
-$ cd ../../pilots/util/model
-$ ./server.sh
+$ pltserver
 ```
 
 In **Terminal 1**, run the training program:
@@ -40,8 +39,7 @@ $ ./outputHandler
 
 In **Terminal 4**, launch the machine learning server [server.sh](../../pilots/util/model/server.sh):
 ```
-$ cd ../../pilots/util/model
-$ ./server.sh
+$ pltserver
 ```
 
 In **Terminal 1**, run the compiled PILOTS program using the command:

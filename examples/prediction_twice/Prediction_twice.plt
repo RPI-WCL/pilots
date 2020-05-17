@@ -1,4 +1,4 @@
-program prediction_twice;
+program Prediction_twice;
 	inputs
 		a, b (t) using closest (t);
 		b_prime (t) using model(twice_model, a);

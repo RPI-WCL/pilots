@@ -1,4 +1,4 @@
-program weight_tester_err;
+program N4207P;
     inputs
         v_a, prs, tmp, alt, curr_w (t) using closest (t);
 	est_w (t) using model(weight_model_exp, v_a, prs, tmp, alt);

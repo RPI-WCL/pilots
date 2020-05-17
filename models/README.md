@@ -3,6 +3,8 @@
 **Goal:**
 Define a simple extensible interface to allow for custom machine learning algorithms to be trained, tested, and used in PILOTS programs. As well as build a server to handle the interfacing of the models.
 
+Within this directory is where the implementation of each machine learning lagorithms are (model_code) and the serialized trained model (trained_models). All data for training and validation is stored in the [data](../data) folder
+
 Defines APIs for creations, training, execution, and testing of machine learning models.
 
 ## Creation of Machine Learning Algorithms

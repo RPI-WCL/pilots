@@ -58,8 +58,8 @@ public class PilotsTrainer {
 	try {
 	    // === Open file ===
 	    //System.out.println( "Path: " + System.getProperty("user.dir") );
-	    String filepath = System.getProperty("user.dir");
-	    filepath += "/../../pilots/util/model/data/";
+	    String filepath = System.getenv("PILOTS_HOME");
+	    filepath += "/data/";
 	    BufferedReader rd = new BufferedReader( new FileReader( filepath + filename ) );
 	    // === Find which columns to store ===
 	    List<String> cols_to_keep = Arrays.asList(column_names.split(","));

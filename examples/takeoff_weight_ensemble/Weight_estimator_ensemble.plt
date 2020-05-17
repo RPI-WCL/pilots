@@ -1,4 +1,4 @@
-program weight_estimator_ensemble;
+program Weight_estimator_ensemble;
     inputs
         v_a, prs, tmp, alt, curr_w (t) using closest (t);
 	est_w_kalb (t) using model(weight_model_kalb, v_a, prs, tmp, alt);
