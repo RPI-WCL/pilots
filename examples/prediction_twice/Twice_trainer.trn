@@ -1,4 +1,4 @@
-trainer Twice_model;
+trainer twice_model;
   data
     a, b using file("Prediction_twice/twice_training.csv");
   model

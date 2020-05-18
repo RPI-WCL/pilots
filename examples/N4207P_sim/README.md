@@ -7,7 +7,7 @@ To train this model, we use two seperate terminals.
 
 In **Terminal 1**, compile the weight estimation model using the commands:
 ```
-$ plc -t weight_exp.trn
+$ plc -t Weight_exp.trn
 $ javac Weight_model_exp.java
 ```
 

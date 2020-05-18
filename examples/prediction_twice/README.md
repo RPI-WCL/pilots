@@ -7,7 +7,7 @@ To train this model, we use two seperate terminals.
 
 In **Terminal 1**, compile the model using the commands:
 ```
-$ plc -t twice_trainer.trn
+$ plc -t Twice_trainer.trn
 $ javac Twice_model.java
 ```
 Note: The name of the resulting java file from compiling the trainer file is different. This is because the java file is named after the model being trained not the name of the trainer file. The model can be found in the [trained_models folder](../../models/trained_models).
@@ -29,7 +29,7 @@ To run this example, we use four separate terminals.
 
 In **Terminal 1**, compile [prediction_twice.plt](./prediction_twice.plt) using the commands:
 ```
-$ plcsim prediction_twice.plt
+$ plcsim Prediction_twice.plt
 $ javac Prediction_twice.java
 ```
 

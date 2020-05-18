@@ -7,7 +7,7 @@ To train this model, we use two seperate terminals.
 
 In **Terminal 1**, compile [weight_model.trn](./weight_model.trn) using the commands:
 ```
-$ plc -t weight_model.trn
+$ plc -t Weight_model.trn
 $ javac Weight_model.java
 ```
 
@@ -28,7 +28,7 @@ To run this example, we use four separate terminals.
 
 In **Terminal 1**, compile [weight_estimator.plt](./weight_estimator.plt) using the commands:
 ```
-$ plcsim weight_estimator.plt
+$ plcsim Weight_estimator.plt
 $ javac Weight_estimator.java
 ```
 
