@@ -1,6 +1,6 @@
 trainer twice_model;
   data
-    a, b using file("twice_training.csv");
+    a, b using file("Prediction_twice/twice_training.csv");
   model
     features: a;
     labels: b;

@@ -1,0 +1,25 @@
+trainer weight_model;
+  data
+    /* Other training files: weight_kalb_training.csv,
+    **                       weight_krno_training.csv
+    */
+    v_a, prs, tmp, alt, curr_w using
+      file("TakeoffWeightTraining/weight_training.csv", 
+            vind_kias,prs,tmp,alt_msl,curr_w );
+    
+  model
+    features: v_a, prs, tmp, alt;
+    labels: curr_w;
+    algorithm:
+      WeightEstimator(verbose: false, cutoff: 0.0, da_close: 0.1, w_close: 0.1);
+        /* verbose - progress messages (default: false),
+         * cutoff - ignore all datapoints with airspeed less than cutoff (default: 0.0)
+         *          [used to ignore slow starting acceleration]
+         * da_close - percent difference in values to estimate delta_acc (default: 0.1%)
+         *           [used to improve ability to account for changes in weight,
+         *             larger values means dataset is less uniform]
+         * w_close - perfect difference in values to estimate delta_da (default: 0.1%)
+         *           [used to improve ability to account for changes in density altitude
+         *             larger values means dataset is less uniform]
+         */
+end;

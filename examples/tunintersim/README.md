@@ -8,9 +8,9 @@ $ plcsim Tuninter.plt
 $ javac Tuninter.java
 ```
 
-In **Terminal 2**, launch [chartserver](./chartserver):
+In **Terminal 2**, launch [outputHandler](./outputHandler):
 ```
-$ ./chartserver
+$ ./outputHandler
 ```
 
 In **Terminal 1**, run the compiled PILOTS program using the command:
@@ -18,7 +18,7 @@ In **Terminal 1**, run the compiled PILOTS program using the command:
 $ ./run
 ```
 
-In **Terminal 3**, in order to show the ground truth data, execute [groundtruth_producer](./groundtruth_producer) (this will input data directly to chartserver):
+In **Terminal 3**, in order to show the ground truth data, execute [groundtruth_producer](./groundtruth_producer) (this will input data directly to outputHandler):
 ```
 $ ./groundtruth_producer
 ```

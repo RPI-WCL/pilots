@@ -7,14 +7,13 @@ To train this model, we use two seperate terminals.
 
 In **Terminal 1**, compile the weight estimation model using the commands:
 ```
-$ plc -t weight_exp.trn
+$ plc -t Weight_exp.trn
 $ javac Weight_model_exp.java
 ```
 
 In **Terminal 2**, launch the machine learning server [server.sh](../../pilots/util/model/server.sh):
 ```
-$ cd ../../pilots/util/model
-$ ./server.sh
+$ pltserver
 ```
 
 In **Terminal 2**, run the training programs:
@@ -40,8 +39,7 @@ $ ./outputHandler
 
 In **Terminal 4**, launch the machine learning server [server.sh](../../pilots/util/model/server.sh):
 ```
-$ cd ../../pilots/util/model
-$ ./server.sh
+$ pltserver
 ```
 
 In **Terminal 1**, run the compiled PILOTS program using the command:

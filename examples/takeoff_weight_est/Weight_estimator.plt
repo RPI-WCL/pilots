@@ -1,4 +1,4 @@
-program weight_estimator;
+program Weight_estimator;
     inputs
         v_a, prs, tmp, alt, curr_w (t) using closest (t);
 	est_w (t) using model(weight_model, v_a, prs, tmp, alt);

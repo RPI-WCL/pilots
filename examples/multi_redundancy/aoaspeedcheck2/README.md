@@ -10,12 +10,12 @@ $ plcsim AoaSpeedCheck2.plt
 $ javac AoaSpeedCheck2.java
 ```
 
-In **Terminal 2**, launch [chartserver](./chartserver):
+In **Terminal 2**, launch [outputHandler](./outputHandler):
 ```
-$ ./chartserver
+$ ./outputHandler
 ```
 
-In **Terminal 3**, in order to show the ground truth data, execute [groundtruth_producer](./groundtruth_producer) (this will input data directly to chartserver):
+In **Terminal 3**, in order to show the ground truth data, execute [groundtruth_producer](./groundtruth_producer) (this will input data directly to outputHandler):
 ```
 $ ./groundtruth_producer
 ```
@@ -52,9 +52,9 @@ $ ./run_aoacheck
 ```
 
 ### Running the demo
-In **Terminal 3**, in order to produce the erroneous data, execute [test_producer](./test_producer):
+In **Terminal 3**, in order to produce the erroneous data, execute [test_producer](./test_producers):
 ```
-$ ./test_producer
+$ ./test_producers
 ```
 
 Finally, press **enter** on each terminal in the following order to start the simulation: **Terminal 4** (SpeedCheck), **Terminal 5** (AoaCheck), and **Terminal 1** (AoaSpeedCheck2).

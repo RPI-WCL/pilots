@@ -1,4 +1,4 @@
-program  ensemble;
+program ensemble_methods;
   constants
     w1 = 0.2;
     w2 = 0.5;
