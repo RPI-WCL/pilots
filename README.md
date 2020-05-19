@@ -10,6 +10,7 @@ PILOTS has been successfully applied to avionics applications. Most notably, we 
 ## 0. Prerequisite Knowledge
 
 Basics of using a terminal
+Installing programs for use on the terminal
 
 ## 1. Software Requirements
 
@@ -59,14 +60,20 @@ pip3 install numpy scipy scikit-learn pickle flask
   ~~~
   pilots.jar will be created under the `$PILOTS_HOME/lib` directory.
 
+## 4. Running a PILOTS program
 
-* **(Optional) Model setup**
+* First read about PILOTS in the [wiki](https://github.com/RPI-WCL/pilots/wiki)
+* Follow along the README in a simple program: [Twice](https://github.com/RPI-WCL/pilots/tree/master/examples/twice), [Twice Sim](https://github.com/RPI-WCL/pilots/tree/master/examples/twicesim)
+* Try some other programs [Aoacheck](https://github.com/RPI-WCL/pilots/tree/master/examples/aoacheck)
 
-	In PILOTS, the model function is a function which uses a machine learning model to generate an output based on a given input. If you decide to use the models in PILOTS, please see [pilots/util/model/](https://github.com/RPI-WCL/pilots/tree/master/pilots/util/model) for instruction.
+## 5. Running a PILOTS program with machine learning
 
-* **Running example PILOTS programs**: See [PILOTS tutorial](https://wcl.cs.rpi.edu/pilots/tutorial/index.html).
+In PILOTS, the __model__ function is a function which uses a machine learning model to generate an output based on a given input. 
 
-* **Running examples with learning model**: See the READMEs in examples such as [Prediction Twice](https://github.com/RPI-WCL/pilots/tree/master/examples/prediction_twice) or [N4207P Sim](https://github.com/RPI-WCL/pilots/tree/master/examples/N4207P_sim).
+* First try the [Prediction Twice](https://github.com/RPI-WCL/pilots/tree/master/examples/prediction_twice) program
+* Try the [N4207P Sim](https://github.com/RPI-WCL/pilots/tree/master/examples/N4207P_sim) program
+* Experiment with the [Takeoff Weight Estimation](https://github.com/RPI-WCL/pilots/tree/master/examples/takeoff_weight_est) program
+* Try making your own machine learning algorithm, please see [pilots/util/model/](https://github.com/RPI-WCL/pilots/tree/master/models) for instruction
 
-## 4. Twice Example
+
 
